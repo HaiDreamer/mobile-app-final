@@ -1,0 +1,15 @@
+<resources>
+    <color name="bgPrimary">#2C2F33</color>
+    <color name="bgSecondary">#23272A</color>
+    <color name="accent">#7289DA</color>
+    <color name="gray">#99AAB5</color>
+    <color name="white">#FFFFFF</color><color name="userColor1">#F47067</color> <!-- coral/red -->
+    <color name="userColor2">#FFB454</color> <!-- orange -->
+    <color name="userColor3">#FFD166</color> <!-- warm yellow -->
+    <color name="userColor4">#7FDBCA</color> <!-- teal -->
+    <color name="userColor5">#6EC1FF</color> <!-- sky -->
+    <color name="userColor6">#A78BFA</color> <!-- violet -->
+    <color name="userColor7">#F472B6</color> <!-- pink -->
+    <color name="userColor8">#9CCC65</color> <!-- green -->
+
+</resources>
