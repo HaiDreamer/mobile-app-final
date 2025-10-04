@@ -55,7 +55,7 @@ public class ChatFragment extends Fragment {
         messages.add(new Message("ike",
                 "Anyone have any lunch recommendations in Norwich?", false));
         messages.add(new Message("aimee",
-                "Try the octopus lounge on Frith street.", false));
+                "Try the octopus lounge on Fifth street.", false));
         messages.add(new Message("toby",
                 "```java\nfor(int i=0;i<3;i++){\n  System.out.println(\"Hello IRC\");\n}\n```", false));
         messages.add(new Message(username,
