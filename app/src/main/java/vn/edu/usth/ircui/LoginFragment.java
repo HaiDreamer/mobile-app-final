@@ -25,7 +25,7 @@ public class LoginFragment extends Fragment {
     private Spinner  spServer;
     private EditText etNick, etChannel, etSaslUser, etSaslPass;
     private CheckBox cbSaslPlain, cbSaslExternal;
-    private Button   btnStart, btnChatOnly;
+    private Button btnStart, btnChatOnly;
 
     // Android 13+ runtime notification permission (required so FGS notif is visible) :contentReference[oaicite:0]{index=0}
     private final ActivityResultLauncher<String> notifPerm =
@@ -69,8 +69,9 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        // Default channel
+        // Default
         if (TextUtils.isEmpty(etChannel.getText())) etChannel.setText("#usth-ircui");
+        cbSaslExternal.setChecked(true);
 
         // Start ForegroundService (recommended for stable background connection) :contentReference[oaicite:2]{index=2}
         btnStart.setOnClickListener(vw -> {
@@ -113,13 +114,37 @@ public class LoginFragment extends Fragment {
         btnChatOnly.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
             String nick = NickUtils.sanitize(rawNick, 32);
-            ChatFragment chat = ChatFragment.newInstance(nick);
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, chat)
-                    .addToBackStack(null)
-                    .commit();
+
+            // Read server choice to probe the right network
+            ServerChoice sc = readServerChoice();
+
+            // Disable button during probe
+            btnChatOnly.setEnabled(false);
+            Toast.makeText(requireContext(), "Checking nickname on server…", Toast.LENGTH_SHORT).show();
+
+            new vn.edu.usth.ircui.function.NickAvailabilityChecker(sc.host, sc.port, sc.tls)
+                    .check(nick, (inUse, message) -> {
+                        btnChatOnly.setEnabled(true);
+
+                        if (inUse) {
+                            // Block joining and explain why
+                            etNick.setError("Nickname in use on " + sc.host);
+                            Toast.makeText(requireContext(),
+                                    "Nickname already in use: " + nick + "\n" + message,
+                                    Toast.LENGTH_LONG).show();
+                            return; // do not navigate
+                        }
+
+                        // Free → proceed to chat
+                        ChatFragment chat = ChatFragment.newInstance(nick);
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.container, chat)
+                                .addToBackStack(null)
+                                .commit();
+                    });
         });
+
 
         return v;
     }
