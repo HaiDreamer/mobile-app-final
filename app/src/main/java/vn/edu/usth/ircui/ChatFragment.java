@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.usth.ircui.model.Message;
+import vn.edu.usth.ircui.network.IrcClientManager;
 
 public class ChatFragment extends Fragment {
     private static final String ARG_USERNAME = "username";
@@ -50,29 +51,38 @@ public class ChatFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
-        // Demo lines to show styles
-        messages.add(new Message("system", "Welcome, " + username + "!", false));
-        messages.add(new Message("ike",
-                "Anyone have any lunch recommendations in Norwich?", false));
-        messages.add(new Message("aimee",
-                "Try the octopus lounge on Fifth street.", false));
-        messages.add(new Message("toby",
-                "```java\nfor(int i=0;i<3;i++){\n  System.out.println(\"Hello IRC\");\n}\n```", false));
-        messages.add(new Message(username,
-                "Looks great! I’ll push UI first, backend later.", true));
-        adapter.notifyDataSetChanged();
+        IrcClientManager irc = getIrcClientManager(rv);
 
         btn.setOnClickListener(view -> {
             String text = et.getText() != null ? et.getText().toString().trim() : "";
             if (!TextUtils.isEmpty(text)) {
-                messages.add(new Message(username, text, true));
-                adapter.notifyItemInserted(messages.size()-1);
-                rv.scrollToPosition(messages.size()-1);
+                irc.sendMessage(text);
                 et.getText().clear();
             }
         });
 
         return v;
+    }
+
+    @NonNull
+    private IrcClientManager getIrcClientManager(RecyclerView rv) {
+        IrcClientManager irc = new IrcClientManager();
+        irc.setCallback(new IrcClientManager.MessageCallback() {
+            @Override public void onMessage(String u, String t, long ts, boolean mine) {
+                messages.add(new Message(u, t, mine));
+                adapter.notifyItemInserted(messages.size()-1);
+                rv.scrollToPosition(messages.size()-1);
+            }
+            @Override public void onSystem(String t) {
+                messages.add(new Message("system", t, false));
+                adapter.notifyItemInserted(messages.size()-1);
+                rv.scrollToPosition(messages.size()-1);
+            }
+        });
+
+        // Connect (Libera by default; you can expose a server picker later)
+        irc.connect(username, "#usth-ircui");
+        return irc;
     }
 
 }

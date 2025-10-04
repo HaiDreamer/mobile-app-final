@@ -43,7 +43,7 @@ public class IrcForegroundService extends Service {
         boolean useExternal = intent.getBooleanExtra(EXTRA_SASL_EXTERNAL, false);
 
         Notification n = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_stat_irc)
+                .setSmallIcon(R.drawable.sunny_nobg)
                 .setContentTitle("IRC connected")
                 .setContentText("Nick " + nick + " · " + channel)
                 .setOngoing(true)

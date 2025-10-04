@@ -1,38 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/bgPrimary"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bgPrimary">
 
-    <TextView
-        android:text="IRC Client"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/accent"
-        android:layout_marginBottom="40dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <EditText
-        android:id="@+id/etUsername"
-        android:hint="Enter username"
-        android:textColor="@android:color/white"
-        android:textColorHint="@color/gray"
-        android:background="@drawable/edittext_bg"
-        android:padding="12dp"
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:text="Join Chat"
-        android:textAllCaps="false"
-        android:backgroundTint="@color/accent"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        <!-- Title -->
+        <TextView
+            android:text="IRC Client"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- Server picker -->
+        <TextView
+            android:text="Server"
+            android:textColor="@color/gray"
+            android:layout_marginBottom="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <Spinner
+            android:id="@+id/spServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_bg"
+            android:padding="8dp"
+            android:spinnerMode="dropdown" />
+
+        <!-- Nick / Username (kept your styling & id) -->
+        <TextView
+            android:text="Nickname"
+            android:textColor="@color/gray"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/etUsername"
+            android:hint="Enter username"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/gray"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="textPersonName"
+            android:maxLength="32"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- Channel -->
+        <TextView
+            android:text="Channel"
+            android:textColor="@color/gray"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/etChannel"
+            android:hint="#usth-ircui"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/gray"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:inputType="text"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- SASL options -->
+        <CheckBox
+            android:id="@+id/cbSaslPlain"
+            android:text="Use SASL PLAIN (recommended)"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etSaslUser"
+            android:hint="SASL username"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/gray"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:enabled="false"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etSaslPass"
+            android:hint="SASL password"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/gray"
+            android:background="@drawable/edittext_bg"
+            android:padding="12dp"
+            android:enabled="false"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <CheckBox
+            android:id="@+id/cbSaslExternal"
+            android:text="Use SASL EXTERNAL (client certificate)"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:text="Join Chat"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/accent"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnStartService"
+            android:text="Start Background Service"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/accent"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
