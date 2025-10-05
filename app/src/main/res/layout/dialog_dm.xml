@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/bgPrimary">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Direct message"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/accent"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDmUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập username (ví dụ: bob)"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/gray"
+        android:background="@drawable/edittext_bg"
+        android:padding="12dp"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:inputType="textPersonName" />
+
+    <!-- hàng nút -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hủy"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/gray" />
+
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="0dp" />
+
+        <Button
+            android:id="@+id/btnOpen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mở"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/accent" />
+    </LinearLayout>
+</LinearLayout>

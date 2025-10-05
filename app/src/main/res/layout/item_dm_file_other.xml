@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:padding="6dp" android:gravity="start" android:orientation="vertical">
+    <TextView android:id="@+id/dmUser" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textStyle="bold" android:textColor="@color/dm_accent_other" android:textSize="12sp" />
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:background="@drawable/dm_bubble_other" android:padding="10dp" android:orientation="horizontal">
+        <ImageView android:id="@+id/dmFileIcon" android:layout_width="24dp" android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_save"/>
+        <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp">
+            <TextView android:id="@+id/dmFileName" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/dm_text_normal" android:textStyle="bold"/>
+            <TextView android:id="@+id/dmFileSize" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/dm_text_muted" android:textSize="12sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

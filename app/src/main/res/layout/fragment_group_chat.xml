@@ -1,6 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dm_bg_primary">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- RecyclerView hiển thị tin nhắn nhóm -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/groupRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="76dp"
+        android:paddingHorizontal="8dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- Thanh nhập tin -->
+    <LinearLayout
+        android:id="@+id/inputBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="@color/dm_bg_elev">
+
+        <!-- Nút chọn ảnh -->
+        <ImageButton
+            android:id="@+id/btnPickImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/pick_image"
+            android:src="@android:drawable/ic_menu_camera"
+            android:tint="@color/dm_text_muted"/>
+
+        <!-- Nút chọn file -->
+        <ImageButton
+            android:id="@+id/btnPickFile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/pick_file"
+            android:src="@android:drawable/ic_menu_upload"
+            android:tint="@color/dm_text_muted"/>
+
+        <!-- Ô nhập -->
+        <EditText
+            android:id="@+id/etGroupInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:hint="Message #group"
+            android:textColor="@color/dm_text_normal"
+            android:textColorHint="@color/dm_text_muted"
+            android:background="@drawable/edittext_bg"
+            android:paddingHorizontal="12dp"
+            android:singleLine="false"
+            android:maxLines="4"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine"
+            android:cursorVisible="true"
+            android:textCursorDrawable="@drawable/cursor_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <!-- Nút gửi -->
+        <ImageButton
+            android:id="@+id/btnGroupSend"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/dm_send_bg"
+            android:contentDescription="@string/send_desc"
+            android:src="@android:drawable/ic_menu_send"
+            android:tint="@android:color/white"/>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
