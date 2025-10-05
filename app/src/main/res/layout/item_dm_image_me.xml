@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:padding="6dp" android:gravity="end" android:orientation="vertical">
+    <TextView android:id="@+id/dmUser" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textStyle="bold" android:textColor="@color/dm_accent_me" android:textSize="12sp" />
+    <ImageView android:id="@+id/dmImage" android:layout_width="220dp" android:layout_height="wrap_content"
+        android:adjustViewBounds="true" android:src="@android:drawable/ic_menu_gallery"
+        android:background="@drawable/dm_bubble_me" android:padding="6dp"/>
+</LinearLayout>

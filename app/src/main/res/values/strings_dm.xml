@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dm_pick_image">Pick image</string>
+    <string name="dm_pick_file">Pick file</string>
+    <string name="dm_send">Send</string>
+    <string name="dm_hint">Message @user</string>
+</resources>

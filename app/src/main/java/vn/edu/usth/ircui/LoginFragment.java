@@ -8,7 +8,14 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -16,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import vn.edu.usth.ircui.network.IrcClientManager;
 import vn.edu.usth.ircui.service.IrcForegroundService;
 import vn.edu.usth.ircui.utils.NickUtils;
 
@@ -27,35 +33,63 @@ public class LoginFragment extends Fragment {
     private CheckBox cbSaslPlain, cbSaslExternal;
     private Button btnStart, btnChatOnly;
 
-    // Android 13+ runtime notification permission (required so FGS notif is visible) :contentReference[oaicite:0]{index=0}
+    // Android 13+ runtime notification permission (để FGS hiện notif)
     private final ActivityResultLauncher<String> notifPerm =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> { /* no-op */ });
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View v = inflater.inflate(R.layout.fragment_login, container, false);
 
-        spServer      = v.findViewById(R.id.spServer);
-        etNick        = v.findViewById(R.id.etUsername);
-        etChannel     = v.findViewById(R.id.etChannel);
-        etSaslUser    = v.findViewById(R.id.etSaslUser);
-        etSaslPass    = v.findViewById(R.id.etSaslPass);
-        cbSaslPlain   = v.findViewById(R.id.cbSaslPlain);
-        cbSaslExternal= v.findViewById(R.id.cbSaslExternal);
-        btnStart      = v.findViewById(R.id.btnStartService);
-        btnChatOnly   = v.findViewById(R.id.btnLogin);
+        spServer       = v.findViewById(R.id.spServer);
+        etNick         = v.findViewById(R.id.etUsername);
+        etChannel      = v.findViewById(R.id.etChannel);
+        etSaslUser     = v.findViewById(R.id.etSaslUser);
+        etSaslPass     = v.findViewById(R.id.etSaslPass);
+        cbSaslPlain    = v.findViewById(R.id.cbSaslPlain);
+        cbSaslExternal = v.findViewById(R.id.cbSaslExternal);
+        btnStart       = v.findViewById(R.id.btnStartService);
+        btnChatOnly    = v.findViewById(R.id.btnLogin);
 
-        // Simple server list (all TLS 6697). Libera explicitly documents 6697 for TLS. :contentReference[oaicite:1]{index=1}
-        ArrayAdapter<String> aa = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"Libera.Chat (irc.libera.chat:6697)",
-                        "OFTC (irc.oftc.net:6697)",
-                        "Rizon (irc.rizon.net:6697)"});
-        spServer.setAdapter(aa);
+        // ===== Spinner server với layout tùy biến (selected trắng, dropdown đen)
+        final String[] servers = new String[]{
+                "Libera.Chat (irc.libera.chat:6697)",
+                "OFTC (irc.oftc.net:6697)",
+                "Rizon (irc.rizon.net:6697)"
+        };
 
-        // Toggle SASL fields
+        ArrayAdapter<String> serverAdapter = new ArrayAdapter<String>(requireContext(), 0, servers) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View row = convertView;
+                if (row == null) {
+                    row = getLayoutInflater().inflate(R.layout.item_spinner_selected, parent, false);
+                }
+                TextView tv = row.findViewById(R.id.tv);
+                tv.setText(getItem(position));
+                return row;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View row = convertView;
+                if (row == null) {
+                    row = getLayoutInflater().inflate(R.layout.item_spinner_dropdown, parent, false);
+                }
+                TextView tv = row.findViewById(R.id.tv);
+                tv.setText(getItem(position));
+                return row;
+            }
+        };
+        spServer.setAdapter(serverAdapter);
+        // ===== end spinner
+
+        // Bật/tắt ô SASL theo checkbox
         cbSaslPlain.setOnCheckedChangeListener((btn, checked) -> {
             etSaslUser.setEnabled(checked);
             etSaslPass.setEnabled(checked);
@@ -69,18 +103,17 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        // Default
+        // Mặc định
         if (TextUtils.isEmpty(etChannel.getText())) etChannel.setText("#usth-ircui");
         cbSaslExternal.setChecked(true);
 
-        // Start ForegroundService (recommended for stable background connection) :contentReference[oaicite:2]{index=2}
+        // Start ForegroundService (kết nối chạy nền)
         btnStart.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
-            String nick = vn.edu.usth.ircui.utils.NickUtils.sanitize(rawNick, 32); // RFC-style; no spaces
+            String nick    = NickUtils.sanitize(rawNick, 32);
             String channel = normalizeChannel(getTextSafe(etChannel));
             ServerChoice sc = readServerChoice();
 
-            // Ask for POST_NOTIFICATIONS on API 33+ so FGS notif shows. :contentReference[oaicite:3]{index=3}
             if (Build.VERSION.SDK_INT >= 33) {
                 notifPerm.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
@@ -98,27 +131,28 @@ public class LoginFragment extends Fragment {
             svc.putExtra(IrcForegroundService.EXTRA_SASL_USER, saslUser);
             svc.putExtra(IrcForegroundService.EXTRA_SASL_PASS, saslPass);
 
-            // Also tell IrcClientManager which server to try first (optional: you can add setServers later)
-            // For now, the manager has sensible defaults; you could extend it to accept host/port extras.
+            // Bạn có thể mở rộng service nhận host/port nếu muốn:
+            // svc.putExtra("EXTRA_HOST", sc.host);
+            // svc.putExtra("EXTRA_PORT", sc.port);
+            // svc.putExtra("EXTRA_TLS", sc.tls);
 
-            if (android.os.Build.VERSION.SDK_INT >= 26) {
-                requireContext().startForegroundService(svc);  // O+ path
+            if (Build.VERSION.SDK_INT >= 26) {
+                requireContext().startForegroundService(svc);
             } else {
-                requireContext().startService(svc);            // pre-O path
+                requireContext().startService(svc);
             }
 
-            Toast.makeText(requireContext(), "Starting background IRC as " + nick + " → " + channel, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(),
+                    "Starting background IRC as " + nick + " → " + channel,
+                    Toast.LENGTH_SHORT).show();
         });
 
-        // “Chat only” button: go straight to ChatFragment without service (lifecycle-tied connection)
+        // Chat only (không chạy service) + check nickname availability
         btnChatOnly.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
-            String nick = NickUtils.sanitize(rawNick, 32);
-
-            // Read server choice to probe the right network
+            String nick    = NickUtils.sanitize(rawNick, 32);
             ServerChoice sc = readServerChoice();
 
-            // Disable button during probe
             btnChatOnly.setEnabled(false);
             Toast.makeText(requireContext(), "Checking nickname on server…", Toast.LENGTH_SHORT).show();
 
@@ -127,15 +161,13 @@ public class LoginFragment extends Fragment {
                         btnChatOnly.setEnabled(true);
 
                         if (inUse) {
-                            // Block joining and explain why
                             etNick.setError("Nickname in use on " + sc.host);
                             Toast.makeText(requireContext(),
                                     "Nickname already in use: " + nick + "\n" + message,
                                     Toast.LENGTH_LONG).show();
-                            return; // do not navigate
+                            return;
                         }
 
-                        // Free → proceed to chat
                         ChatFragment chat = ChatFragment.newInstance(nick);
                         requireActivity().getSupportFragmentManager()
                                 .beginTransaction()
@@ -144,7 +176,6 @@ public class LoginFragment extends Fragment {
                                 .commit();
                     });
         });
-
 
         return v;
     }
@@ -157,8 +188,8 @@ public class LoginFragment extends Fragment {
     private ServerChoice readServerChoice() {
         int pos = spServer.getSelectedItemPosition();
         switch (pos) {
-            case 1: return new ServerChoice("irc.oftc.net", 6697, true);
-            case 2: return new ServerChoice("irc.rizon.net", 6697, true);
+            case 1:  return new ServerChoice("irc.oftc.net", 6697, true);
+            case 2:  return new ServerChoice("irc.rizon.net", 6697, true);
             case 0:
             default: return new ServerChoice("irc.libera.chat", 6697, true);
         }

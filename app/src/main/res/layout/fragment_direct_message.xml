@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dmRoot"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dm_bg_primary">
+
+    <TextView
+        android:id="@+id/dmHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Direct Messages"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:textColor="@color/dm_text_strong"
+        android:background="@color/dm_bg_elev" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dmRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/dm_bg_elev"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/dmBtnImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/dm_pick_image"
+            android:src="@android:drawable/ic_menu_camera" />
+
+        <ImageButton
+            android:id="@+id/dmBtnAttach"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/dm_pick_file"
+            android:src="@android:drawable/ic_menu_upload" />
+
+        <EditText
+            android:id="@+id/dmInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/dm_hint"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine"
+            android:maxLines="4"
+            android:textColor="@color/dm_text_normal"
+            android:textColorHint="@color/dm_text_muted"
+            android:background="@drawable/dm_input_bg"
+            android:padding="10dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <ImageButton
+            android:id="@+id/dmBtnSend"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/dm_send_bg"
+            android:contentDescription="@string/dm_send"
+            android:src="@android:drawable/ic_menu_send" />
+    </LinearLayout>
+</LinearLayout>
