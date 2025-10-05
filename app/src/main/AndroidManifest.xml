@@ -28,7 +28,7 @@
         <!--Open app when tap on the notification -->
         <activity
             android:name=".ChatActivity"
-            android:export="true"
+            android:exported="true"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

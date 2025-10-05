@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                         "System",
                         "Notification permission granted!"
                 );
-            }else {
+            } else {
                 Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
             }
         }
