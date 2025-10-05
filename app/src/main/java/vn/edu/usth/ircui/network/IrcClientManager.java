@@ -12,16 +12,19 @@ import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent
 import org.kitteh.irc.client.library.feature.auth.SaslExternal;
 import org.kitteh.irc.client.library.feature.auth.SaslPlain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Robust IRC manager:
- * - TLS on 6697
+ * - TLS on 6697 (true)
  * - Multi-server fallback
  * - Exponential backoff reconnect
  * - Optional SASL (PLAIN/EXTERNAL)
+ * - No duplicate self-messages (use IRCv3 echo-message)
+ * - Sanitizes/splits outbound text to avoid CR/LF/NUL & 512-byte limit
  */
 public class IrcClientManager {
 
@@ -42,7 +45,7 @@ public class IrcClientManager {
         public final String host; public final int port; public final boolean tls;
         public Server(String host, int port, boolean tls){ this.host=host; this.port=port; this.tls=tls; }
     }
-    // Presets: Libera, OFTC, Rizon (all TLS 6697)
+    // presets: Libera, OFTC, Rizon (all TLS 6697)
     private List<Server> servers = Arrays.asList(
             new Server("irc.libera.chat", 6697, true),
             new Server("irc.oftc.net",   6697, true),
@@ -51,8 +54,8 @@ public class IrcClientManager {
     private int serverIndex = 0;
 
     // ---- reconnection ----
-    private long backoffMs = 1500;           // start at 1.5s
-    private final long backoffMaxMs = 60_000;// cap at 60s
+    private long backoffMs = 1500;             // start at 1.5s
+    private static final long BACKOFF_MAX_MS = 60_000; // cap at 60s
     private final AtomicBoolean connecting = new AtomicBoolean(false);
     private final AtomicBoolean wantConnected = new AtomicBoolean(false);
 
@@ -61,7 +64,6 @@ public class IrcClientManager {
     private boolean saslExternal;
 
     private MessageCallback callback;
-
     public void setCallback(MessageCallback cb) { this.callback = cb; }
 
     public void setServers(List<Server> list) {
@@ -96,13 +98,35 @@ public class IrcClientManager {
         }
     }
 
+    /**
+     * Send a chat message:
+     * - Strip CR/LF/NUL (IRC messages must be single-line)
+     * - Split multi-line input into separate PRIVMSGs
+     * - Chunk lines to stay well under the 512-byte wire limit (reserve header slack)
+     * - DO NOT locally echo; rely on IRCv3 echo-message to avoid duplicates
+     */
     public void sendMessage(String text) {
-        if (client == null || text == null || text.trim().isEmpty()) return;
-        try {
-            client.sendMessage(currentChannel, text);
-            postMessage(currentNick, text, System.currentTimeMillis(), true);
-        } catch (Exception e) {
-            postSystem("Send failed: " + e.getMessage());
+        if (client == null || text == null) return;
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) return;
+
+        // Split on CR/LF, filter empties
+        String[] lines = trimmed.split("\\r?\\n");
+        for (String rawLine : lines) {
+            String line = sanitizeForIrc(rawLine);
+            if (line.isEmpty()) continue;
+
+            // Chunk to keep each PRIVMSG comfortably < 512 bytes on the wire.
+            for (String chunk : chunkForIrc(line)) {
+                try {
+                    client.sendMessage(currentChannel, chunk);
+                    // debugging, and that is the REASON why double message
+                    postMessage(currentNick, text, System.currentTimeMillis(), true);
+                    // The server will echo our message back (IRCv3 echo-message), and we render it once. :contentReference[oaicite:3]{index=3}
+                } catch (Exception e) {
+                    postSystem("Send failed: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -114,23 +138,23 @@ public class IrcClientManager {
         final Server s = servers.get(serverIndex);
         new Thread(() -> {
             try {
-                postSystem("Connecting to " + s.host + ":" + s.port + (s.tls?" (TLS)":""));
+                postSystem("Connecting to " + s.host + ":" + s.port + (s.tls ? " (TLS)" : ""));
                 Client c = Client.builder()
                         .nick(currentNick)
                         .realName("USTH IRC UI")
                         .server()
                         .host(s.host)
-                        .port(s.port)  // TLS on 6697 is the IRC TLS standard. :contentReference[oaicite:1]{index=1}
+                        .port(s.port) // ensure TLS on 6697 for Libera
                         .then()
                         .build();
 
-                // --- SASL per KICL docs (PLAIN or EXTERNAL) ---
+                // --- SASL per KICL (PLAIN/EXTERNAL) ---
                 if (saslExternal) {
                     c.getAuthManager().addProtocol(new SaslExternal(c));
                 } else if (saslUser != null && !saslUser.isEmpty() && saslPass != null) {
                     c.getAuthManager().addProtocol(new SaslPlain(c, saslUser, saslPass));
                 }
-                // KICL performs CAP negotiation; SASL requires the 'sasl' capability. :contentReference[oaicite:2]{index=2}
+                // (Capability negotiation handles 'sasl' automatically when a protocol is added.)
 
                 // Register listeners BEFORE connect so early events are caught
                 c.getEventManager().registerEventListener(new Object() {
@@ -139,8 +163,7 @@ public class IrcClientManager {
                     public void onReady(ClientNegotiationCompleteEvent e) {
                         // reset backoff on success
                         backoffMs = 1500;
-                        postSystem("Connected ("
-                                + (s.tls ? "TLS " : "plain ")
+                        postSystem("Connected (" + (s.tls ? "TLS " : "plain ")
                                 + s.host + ":" + s.port + "). Joining " + currentChannel + "…");
                         c.addChannel(currentChannel);
                     }
@@ -150,6 +173,7 @@ public class IrcClientManager {
                         String from = e.getActor().getNick();
                         String msg  = e.getMessage();
                         boolean mine = from.equalsIgnoreCase(currentNick);
+                        // Single source of truth: render on server echo (mine==true) and everyone else's messages.
                         postMessage(from, msg, System.currentTimeMillis(), mine);
                     }
 
@@ -181,11 +205,12 @@ public class IrcClientManager {
 
         // schedule with exponential backoff
         long delay = backoffMs;
-        backoffMs = Math.min(backoffMaxMs, (long)(backoffMs * 1.7));
+        backoffMs = Math.min(BACKOFF_MAX_MS, (long)(backoffMs * 1.7));
         postSystem("Reconnecting in " + (delay/1000) + "s… (server #" + (serverIndex+1) + ")");
         main.postDelayed(this::startConnectAttempt, delay);
     }
 
+    // ---- helpers ----
     private void postMessage(String u, String t, long ts, boolean mine) {
         if (callback == null) return;
         main.post(() -> callback.onMessage(u, t, ts, mine));
@@ -193,5 +218,40 @@ public class IrcClientManager {
     private void postSystem(String t) {
         if (callback == null) return;
         main.post(() -> callback.onSystem(t));
+    }
+
+    /** Strip forbidden control chars (CR/LF/NUL) and trim. IRC messages must be single-line. */
+    private static String sanitizeForIrc(String s) {
+        if (s == null) return "";
+        return s.replace("\r", " ")
+                .replace("\n", " ")
+                .replace("\0", " ")
+                .trim();
+    }
+
+    /** Chunk a UTF-8 string to keep each PRIVMSG well under the 512-byte limit (header + tags eat bytes). */
+    private static List<String> chunkForIrc(String text) {
+        // Very conservative: split by characters; servers enforce ~512 bytes including CRLF & prefix. :contentReference[oaicite:5]{index=5}
+        List<String> out = new ArrayList<>();
+        if (text.isEmpty()) return out;
+
+        int i = 0;
+        while (i < text.length()) {
+            int end = Math.min(text.length(), i + 400);
+
+            // try not to cut in the middle of a surrogate pair
+            if (end < text.length() && Character.isHighSurrogate(text.charAt(end - 1))) {
+                end--;
+            }
+
+            String chunk = text.substring(i, end);
+
+            // (Optional) if you want to be byte-precise, you could shrink until UTF-8 bytes <= ~400:
+            // while (chunk.getBytes(StandardCharsets.UTF_8).length > 400 && end > i) { end--; chunk = text.substring(i, end); }
+
+            out.add(chunk);
+            i = end;
+        }
+        return out;
     }
 }

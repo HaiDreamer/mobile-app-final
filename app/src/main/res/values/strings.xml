@@ -3,4 +3,6 @@
     <string name="send_desc">Send message</string>
     <string name="pick_image">Pick image</string>
     <string name="pick_file">Pick file</string>
+    <string name="message_chat">Message #chat</string>
+    <string name="direct_message">Direct message</string>
 </resources>

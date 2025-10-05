@@ -31,15 +31,14 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:hint="Message #chat"
+            android:autofillHints=""
+            android:hint="@string/message_chat"
             android:imeOptions="actionSend"
             android:inputType="textCapSentences|textMultiLine"
             android:textColor="@color/dm_text_normal"
             android:textColorHint="@color/dm_text_hint"
             android:textCursorDrawable="@null"
             android:backgroundTint="#33FFFFFF"/>
-
-
 
         <ImageButton
             android:id="@+id/btnSend"
@@ -51,8 +50,6 @@
             app:tint="@android:color/white" />
     </LinearLayout>
 
-    <!-- ✅ FAB Direct Message: to, rõ, dễ bấm -->
-    <!-- ✅ FAB Direct Message -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_dm"
         android:layout_width="wrap_content"
@@ -60,7 +57,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="84dp"
-        android:contentDescription="Direct message"
+        android:contentDescription="@string/direct_message"
         android:src="@android:drawable/ic_menu_send"
         app:backgroundTint="#7C4DFF"
         app:tint="@android:color/white"
