@@ -4,22 +4,25 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
-import com.google.android.material.appbar.AppBarLayout;
-
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.appbar.AppBarLayout;
+
 import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
+import vn.edu.usth.ircui.feature_user.LocaleHelper;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
+    private String currentLang = "en";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +88,33 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
         }
+
+        // Change Language Button
+        Button btnLanguage = findViewById(R.id.btnLanguage);
+        if (btnLanguage != null) {
+            // Set button text based on current language
+            String current = getResources().getConfiguration().getLocales().get(0).getLanguage();
+            btnLanguage.setText(current.equals("en") ? "EN" : "VI");
+
+            btnLanguage.setOnClickListener(v -> {
+                // Get current language
+                String lang = getResources().getConfiguration().getLocales().get(0).getLanguage();
+                String newLang = lang.equals("en") ? "vi" : "en";
+
+                // Change language
+                LocaleHelper.setLocale(MainActivity.this, newLang);
+
+                // Update button text
+                btnLanguage.setText(newLang.equals("en") ? "EN" : "VI");
+
+                recreate();
+            });
+        }
+
     }
-    public void onRequestPermissionResult(int requestCode, String[] permission, int[] grantResult){
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permission, int[] grantResult){
         super.onRequestPermissionsResult(requestCode, permission, grantResult);
 
         if (requestCode == REQUEST_NOTIFICATION_PERMISSION){

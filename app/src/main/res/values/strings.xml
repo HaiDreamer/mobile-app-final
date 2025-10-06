@@ -23,4 +23,5 @@
     <string name="join_chat">Join Chat</string>
     <string name="start_background_service">Start Background Service</string>
 
+    <string name="change_language">EN</string>
 </resources>

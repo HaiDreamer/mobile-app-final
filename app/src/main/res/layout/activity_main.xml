@@ -30,4 +30,15 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <!-- Change Language -->
+    <Button
+        android:id="@+id/btnLanguage"
+        android:text="@string/change_language"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:textColor="@android:color/white"
+        android:elevation="6dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
