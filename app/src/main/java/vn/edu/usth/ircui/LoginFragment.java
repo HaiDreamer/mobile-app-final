@@ -55,7 +55,7 @@ public class LoginFragment extends Fragment {
         btnStart       = v.findViewById(R.id.btnStartService);
         btnChatOnly    = v.findViewById(R.id.btnLogin);
 
-        // ===== Spinner server với layout tùy biến (selected trắng, dropdown đen)
+        // Spinner server với layout tùy biến (selected trắng, dropdown đen)
         final String[] servers = new String[]{
                 "Libera.Chat (irc.libera.chat:6697)",
                 "OFTC (irc.oftc.net:6697)",
@@ -87,9 +87,9 @@ public class LoginFragment extends Fragment {
             }
         };
         spServer.setAdapter(serverAdapter);
-        // ===== end spinner
+        // end spinner
 
-        // Bật/tắt ô SASL theo checkbox
+        // Open/close SASL input fields when enabling/disabling checkbox
         cbSaslPlain.setOnCheckedChangeListener((btn, checked) -> {
             etSaslUser.setEnabled(checked);
             etSaslPass.setEnabled(checked);
@@ -107,7 +107,7 @@ public class LoginFragment extends Fragment {
         if (TextUtils.isEmpty(etChannel.getText())) etChannel.setText("#usth-ircui");
         cbSaslExternal.setChecked(true);
 
-        // Start ForegroundService (kết nối chạy nền)
+        // Start ForegroundService
         btnStart.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
             String nick    = NickUtils.sanitize(rawNick, 32);
@@ -131,7 +131,7 @@ public class LoginFragment extends Fragment {
             svc.putExtra(IrcForegroundService.EXTRA_SASL_USER, saslUser);
             svc.putExtra(IrcForegroundService.EXTRA_SASL_PASS, saslPass);
 
-            // Bạn có thể mở rộng service nhận host/port nếu muốn:
+            // U can expand service receive host/port:
             // svc.putExtra("EXTRA_HOST", sc.host);
             // svc.putExtra("EXTRA_PORT", sc.port);
             // svc.putExtra("EXTRA_TLS", sc.tls);
@@ -147,7 +147,7 @@ public class LoginFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
         });
 
-        // Chat only (không chạy service) + check nickname availability
+        // Chat only (not run service) + check nickname availability
         btnChatOnly.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
             String nick    = NickUtils.sanitize(rawNick, 32);

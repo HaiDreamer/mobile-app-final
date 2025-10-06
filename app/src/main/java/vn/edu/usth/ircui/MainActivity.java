@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -18,11 +20,12 @@ import com.google.android.material.appbar.AppBarLayout;
 import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
-    private String currentLang = "en";
+    public String currentLang = "en";
+
+    private Button btnLanguage; // keep a reference so we can show/hide it
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,24 +36,22 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Độn đỉnh AppBar bằng chiều cao status bar / camera cutout
         AppBarLayout appBar = findViewById(R.id.appbar);
         ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
             Insets sb = insets.getInsets(WindowInsetsCompat.Type.statusBars());
             v.setPadding(
                     v.getPaddingLeft(),
-                    sb.top,                 // quan trọng: tránh title chui vào camera
+                    sb.top,
                     v.getPaddingRight(),
                     v.getPaddingBottom()
             );
-            return insets; // không consume để phần dưới vẫn tự xử lý insets
+            return insets;
         });
 
-        // Hiện/ẩn nút Back khi có/không có back stack
+        // Back button icon only when there’s something in back stack
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
             if (canBack) {
-                // Dùng icon back của bạn (ic_arrow_back_24). Nếu chưa có, thay bằng icon khác tùy ý.
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
                 toolbar.setNavigationOnClickListener(v ->
                         getOnBackPressedDispatcher().onBackPressed()
@@ -58,83 +59,88 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 toolbar.setNavigationIcon(null);
                 toolbar.setNavigationOnClickListener(null);
-                toolbar.setTitle("IRC UI"); // tiêu đề mặc định
+                toolbar.setTitle("IRC UI");
             }
+            // also refresh button visibility when stack changes
+            updateUiForTopFragment();
         });
 
-        // ===== Màn hình đầu tiên: Login =====
+        // ===== First screen: Login =====
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, new LoginFragment())
+                    .runOnCommit(this::updateUiForTopFragment)
                     .commit();
         }
 
-        /*App notification permission
-        * When app started -> ask for notification permission
-        * Agree -> a welcome notification appear
-        * Tap the notification -> open the app */
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+        // ===== Notification permission (Android 13+) =====
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(
                         new String[]{Manifest.permission.POST_NOTIFICATIONS},
                         REQUEST_NOTIFICATION_PERMISSION
                 );
             } else {
                 MessageNotification.showMsgNotification(
-                        this,
-                        "System",
-                        "Welcome to IRC"
+                        this, "System", "Welcome to IRC"
                 );
             }
         }
 
-        // Change Language Button
-        Button btnLanguage = findViewById(R.id.btnLanguage);
+        // Language toggle button (only visible on LoginFragment)
+        btnLanguage = findViewById(R.id.btnLanguage);
         if (btnLanguage != null) {
-            // Set button text based on current language
             String current = getResources().getConfiguration().getLocales().get(0).getLanguage();
             btnLanguage.setText(current.equals("en") ? "EN" : "VI");
 
             btnLanguage.setOnClickListener(v -> {
-                // Get current language
                 String lang = getResources().getConfiguration().getLocales().get(0).getLanguage();
                 String newLang = lang.equals("en") ? "vi" : "en";
-
-                // Change language
                 LocaleHelper.setLocale(MainActivity.this, newLang);
-
-                // Update button text
                 btnLanguage.setText(newLang.equals("en") ? "EN" : "VI");
-
                 recreate();
             });
         }
 
+        // ensure correct visibility at startup
+        updateUiForTopFragment();
+    }
+
+    // Show language button only on LoginFragment.
+    private void updateUiForTopFragment() {
+        if (btnLanguage == null) return;
+        androidx.fragment.app.Fragment f =
+                getSupportFragmentManager().findFragmentById(R.id.container);
+        boolean onLogin = f instanceof LoginFragment;
+        btnLanguage.setVisibility(onLogin ? View.VISIBLE : View.GONE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permission, int[] grantResult){
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permission,
+                                           @NonNull int[] grantResult) {
         super.onRequestPermissionsResult(requestCode, permission, grantResult);
 
-        if (requestCode == REQUEST_NOTIFICATION_PERMISSION){
-            if (grantResult.length > 0 && grantResult[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResult.length > 0
+                    && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
                 MessageNotification.showMsgNotification(
-                        this,
-                        "System",
-                        "Notification permission granted!"
+                        this, "System", "Notification permission granted!"
                 );
             } else {
-                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Notification permission denied",
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    // Helper: điều hướng sang màn chat
+    // Navigate to chat and refresh UI right after commit
     public void navigateToChat() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, new ChatFragment())
                 .addToBackStack(null)
+                .runOnCommit(this::updateUiForTopFragment)
                 .commit();
     }
 }

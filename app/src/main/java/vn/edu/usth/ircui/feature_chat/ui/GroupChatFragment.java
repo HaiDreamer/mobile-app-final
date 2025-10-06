@@ -1,3 +1,41 @@
+/**
+ * A UI fragment that hosts a simple IRC-like group chat.
+ *
+ * <p>Shows a scrolling message list, a text input, and buttons to send text or
+ * pick an image/file. It connects via {@link IrcClientManager} and appends
+ * inbound/outbound messages to a {@link RecyclerView} using
+ *
+ * <h2>Features</h2>
+ * <ul>
+ *   <li>Lifecycle-aware activity result APIs for picking images/files.</li>
+ *   <li>Runtime permission request for reading images on Android 13+.</li>
+ *   <li>Auto-scroll to the latest message on receive/send.</li>
+ * </ul>
+ *
+ * <h2>Usage</h2>
+ * <pre>{@code
+ * // In your Activity/host, add the fragment:
+ * getSupportFragmentManager()
+ *     .beginTransaction()
+ *     .replace(R.id.container, new GroupChatFragment())
+ *     .commit();
+ * }</pre>
+ *
+ * <h2>Permissions</h2>
+ * <ul>
+ *   <li>Android 13+ (API 33+): {@code android.permission.READ_MEDIA_IMAGES} for image picking.</li>
+ * </ul>
+ *
+ * <h2>Notes</h2>
+ * <ul>
+ *   <li>Replace the temporary URI-send in {@code handlePickedUri(...)} with your upload flow.</li>
+ *   <li>{@link IrcClientManager} is created here for demo purposes; inject it if you use DI.</li>
+ * </ul>
+ *
+ * @author aaa
+ * @since 1.0
+ */
+
 package vn.edu.usth.ircui.feature_chat.ui;
 
 import android.Manifest;
@@ -128,7 +166,7 @@ public class GroupChatFragment extends Fragment {
     }
 
     private void handlePickedUri(@NonNull Uri uri, boolean image) {
-        // Gửi giống Direct: tạm thời gửi đường dẫn (nếu bạn đã có upload thực, thay thế chỗ này)
+        // Like direct send: tạm thời gửi đường dẫn (nếu bạn đã có upload thực, thay thế chỗ này)
         String tag = image ? "[image]" : "[file]";
         irc.sendMessage(tag + " " + uri.toString());
         toast(image ? "Picked image" : "Picked file");

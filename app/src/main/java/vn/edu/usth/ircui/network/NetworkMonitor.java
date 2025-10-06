@@ -20,6 +20,6 @@ public class NetworkMonitor {
             @Override public void onLost(@NonNull Network network) { callback.onDown(); }
         };
     }
-    public void start() { cm.registerDefaultNetworkCallback(cb); } // API 24+ :contentReference[oaicite:8]{index=8}
+    public void start() { cm.registerDefaultNetworkCallback(cb); } // API 24+ :contentReference
     public void stop()  { cm.unregisterNetworkCallback(cb); }
 }

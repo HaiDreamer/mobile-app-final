@@ -28,6 +28,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import vn.edu.usth.ircui.R;
 import vn.edu.usth.ircui.feature_chat.data.Attachment;
 
+/**
+ * render simple "direct message" chat UI
+ *
+ * **/
+
 public class DirectMessageFragment extends Fragment {
 
     private static final String ARG_PEER = "arg_peer";
@@ -103,7 +108,7 @@ public class DirectMessageFragment extends Fragment {
         });
 
         // Seed message
-        adapter.addText(false, peer, "🔒 Direct messages with " + peer + " — images & files supported (UI demo).");
+        adapter.addText(false, peer, "Direct messages with " + peer + " — images & files supported (UI demo).");
 
         // --- Keyboard / Insets handling (no extra IDs required) ---
         final View footer = (View) input.getParent(); // the bottom bar container

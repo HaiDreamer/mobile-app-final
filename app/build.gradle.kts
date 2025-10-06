@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.firestore)
 
-    // 🟢 Add these new dependencies for the DM UI
+    // Add these new dependencies for UI
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.fragment:fragment:1.8.2")
     implementation("androidx.activity:activity:1.9.2")

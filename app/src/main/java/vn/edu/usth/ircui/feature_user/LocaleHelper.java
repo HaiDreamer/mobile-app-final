@@ -1,3 +1,10 @@
+/**
+ * Utility for switching this app's displayed language at runtime.
+ *
+ * <p>Call this before inflating views on any screen that should reflect
+ * the new locale.</p>
+ */
+
 package vn.edu.usth.ircui.feature_user;
 
 import android.content.Context;
