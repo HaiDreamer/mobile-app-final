@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import vn.edu.usth.ircui.model.Message;
+import vn.edu.usth.ircui.feature_chat.data.Message;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

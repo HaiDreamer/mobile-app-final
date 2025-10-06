@@ -1,6 +1,5 @@
-package vn.edu.usth.ircui.utils;
+package vn.edu.usth.ircui.feature_user;
 
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**

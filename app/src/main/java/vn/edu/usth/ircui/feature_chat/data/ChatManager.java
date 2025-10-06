@@ -1,10 +1,11 @@
-package vn.edu.usth.ircui.function;
+package vn.edu.usth.ircui.feature_chat.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import vn.edu.usth.ircui.model.Message;
+
+import vn.edu.usth.ircui.feature_chat.model.Channel;
 
 public class ChatManager {
     private final Map<String, Channel> channels;

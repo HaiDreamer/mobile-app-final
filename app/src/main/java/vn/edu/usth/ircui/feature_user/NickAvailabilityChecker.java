@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.function;
+package vn.edu.usth.ircui.feature_user;
 
 import net.engio.mbassy.listener.Handler;
 import org.kitteh.irc.client.library.Client;

@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".service.IrcForegroundService"
+            android:name=".network.IrcForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

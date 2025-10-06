@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.dm;
+package vn.edu.usth.ircui.feature_chat.ui;
 
 import android.content.Context;
 import android.net.Uri;
@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import vn.edu.usth.ircui.R;
-import vn.edu.usth.ircui.model.Attachment;
+import vn.edu.usth.ircui.feature_chat.data.Attachment;
 
 public class DirectMessageFragment extends Fragment {
 

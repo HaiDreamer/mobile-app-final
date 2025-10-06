@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.dm;
+package vn.edu.usth.ircui.feature_chat.ui;
 
 import android.content.Intent;
 import android.text.format.Formatter;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.usth.ircui.R;
-import vn.edu.usth.ircui.model.Attachment;
+import vn.edu.usth.ircui.feature_chat.data.Attachment;
 
 public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

@@ -15,7 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import vn.edu.usth.ircui.function.MessageNotification;
+import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 
 public class MainActivity extends AppCompatActivity {
 

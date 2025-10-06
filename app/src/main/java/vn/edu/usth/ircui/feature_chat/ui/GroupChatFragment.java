@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.group;
+package vn.edu.usth.ircui.feature_chat.ui;
 
 import android.Manifest;
 import android.content.Context;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.usth.ircui.R;
-import vn.edu.usth.ircui.model.Message;
+import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
 
 public class GroupChatFragment extends Fragment {

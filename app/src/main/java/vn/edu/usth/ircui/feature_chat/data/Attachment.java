@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.model;
+package vn.edu.usth.ircui.feature_chat.data;
 
 import android.net.Uri;
 

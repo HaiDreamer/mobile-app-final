@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,8 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import vn.edu.usth.ircui.service.IrcForegroundService;
-import vn.edu.usth.ircui.utils.NickUtils;
+import vn.edu.usth.ircui.feature_user.NickAvailabilityChecker;
+import vn.edu.usth.ircui.network.IrcForegroundService;
+import vn.edu.usth.ircui.feature_user.NickUtils;
 
 public class LoginFragment extends Fragment {
 
@@ -156,7 +156,7 @@ public class LoginFragment extends Fragment {
             btnChatOnly.setEnabled(false);
             Toast.makeText(requireContext(), "Checking nickname on server…", Toast.LENGTH_SHORT).show();
 
-            new vn.edu.usth.ircui.function.NickAvailabilityChecker(sc.host, sc.port, sc.tls)
+            new NickAvailabilityChecker(sc.host, sc.port, sc.tls)
                     .check(nick, (inUse, message) -> {
                         btnChatOnly.setEnabled(true);
 

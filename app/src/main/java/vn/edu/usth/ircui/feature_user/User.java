@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.function;
+package vn.edu.usth.ircui.feature_user;
 
 public class User {
     private final String username;

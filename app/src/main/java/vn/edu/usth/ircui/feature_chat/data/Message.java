@@ -1,4 +1,4 @@
-package vn.edu.usth.ircui.model;
+package vn.edu.usth.ircui.feature_chat.data;
 
 public class Message {
     private final String username;

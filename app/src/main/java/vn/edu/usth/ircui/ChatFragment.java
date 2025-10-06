@@ -20,9 +20,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.edu.usth.ircui.model.Message;
+import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
-import vn.edu.usth.ircui.dm.DirectMessageFragment;
+import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 
 public class ChatFragment extends Fragment {
 
