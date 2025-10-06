@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dm_bg_primary">
+    android:background="@color/bg_primary">
 
-    <!-- RecyclerView hiển thị tin nhắn nhóm -->
+    <!-- RecyclerView show group message -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groupRecycler"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:paddingHorizontal="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- Thanh nhập tin -->
+    <!-- Message bar -->
     <LinearLayout
         android:id="@+id/inputBar"
         android:layout_width="match_parent"
@@ -25,9 +25,9 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="8dp"
-        android:background="@color/dm_bg_elev">
+        android:background="@color/bg_elev">
 
-        <!-- Nút chọn ảnh -->
+        <!-- Button choose image -->
         <ImageButton
             android:id="@+id/btnPickImage"
             android:layout_width="40dp"
@@ -35,9 +35,9 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/pick_image"
             android:src="@android:drawable/ic_menu_camera"
-            android:tint="@color/dm_text_muted"/>
+            app:tint="@color/text_muted" />
 
-        <!-- Nút chọn file -->
+        <!-- Button choose file -->
         <ImageButton
             android:id="@+id/btnPickFile"
             android:layout_width="40dp"
@@ -46,9 +46,9 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/pick_file"
             android:src="@android:drawable/ic_menu_upload"
-            android:tint="@color/dm_text_muted"/>
+            app:tint="@color/text_muted" />
 
-        <!-- Ô nhập -->
+        <!-- Enter message -->
         <EditText
             android:id="@+id/etGroupInput"
             android:layout_width="0dp"
@@ -56,9 +56,10 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:hint="Message #group"
-            android:textColor="@color/dm_text_normal"
-            android:textColorHint="@color/dm_text_muted"
+            android:autofillHints=""
+            android:hint="@string/hint_group"
+            android:textColor="@color/text_normal"
+            android:textColorHint="@color/text_muted"
             android:background="@drawable/edittext_bg"
             android:paddingHorizontal="12dp"
             android:singleLine="false"
@@ -70,15 +71,15 @@
             android:focusable="true"
             android:focusableInTouchMode="true" />
 
-        <!-- Nút gửi -->
+        <!-- Send button -->
         <ImageButton
             android:id="@+id/btnGroupSend"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="@drawable/dm_send_bg"
+            android:background="@drawable/send_bg"
             android:contentDescription="@string/send_desc"
             android:src="@android:drawable/ic_menu_send"
-            android:tint="@android:color/white"/>
+            app:tint="@android:color/white" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

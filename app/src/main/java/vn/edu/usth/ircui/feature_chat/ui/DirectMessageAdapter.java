@@ -64,12 +64,12 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         switch (viewType) {
-            case T_ME_TEXT:    return new TextHolder(inf.inflate(R.layout.item_dm_text_me, parent, false));
-            case T_OTHER_TEXT: return new TextHolder(inf.inflate(R.layout.item_dm_text_other, parent, false));
-            case T_ME_IMG:     return new ImageHolder(inf.inflate(R.layout.item_dm_image_me, parent, false));
-            case T_OTHER_IMG:  return new ImageHolder(inf.inflate(R.layout.item_dm_image_other, parent, false));
-            case T_ME_FILE:    return new FileHolder(inf.inflate(R.layout.item_dm_file_me, parent, false));
-            default:           return new FileHolder(inf.inflate(R.layout.item_dm_file_other, parent, false));
+            case T_ME_TEXT:    return new TextHolder(inf.inflate(R.layout.item_text_me, parent, false));
+            case T_OTHER_TEXT: return new TextHolder(inf.inflate(R.layout.item_text_other, parent, false));
+            case T_ME_IMG:     return new ImageHolder(inf.inflate(R.layout.item_image_me, parent, false));
+            case T_OTHER_IMG:  return new ImageHolder(inf.inflate(R.layout.item_image_other, parent, false));
+            case T_ME_FILE:    return new FileHolder(inf.inflate(R.layout.item_file_me, parent, false));
+            default:           return new FileHolder(inf.inflate(R.layout.item_file_other, parent, false));
         }
     }
 
@@ -112,8 +112,8 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView username, content;
         TextHolder(@NonNull View v) {
             super(v);
-            username = v.findViewById(R.id.dmUser);
-            content  = v.findViewById(R.id.dmText);
+            username = v.findViewById(R.id.User);
+            content  = v.findViewById(R.id.Text);
         }
     }
 
@@ -122,8 +122,8 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         ImageView image;
         ImageHolder(@NonNull View v) {
             super(v);
-            username = v.findViewById(R.id.dmUser);
-            image    = v.findViewById(R.id.dmImage);
+            username = v.findViewById(R.id.User);
+            image    = v.findViewById(R.id.Image);
         }
     }
 
@@ -132,10 +132,10 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         ImageView icon;
         FileHolder(@NonNull View v) {
             super(v);
-            username = v.findViewById(R.id.dmUser);
-            name     = v.findViewById(R.id.dmFileName);
-            size     = v.findViewById(R.id.dmFileSize);
-            icon     = v.findViewById(R.id.dmFileIcon);
+            username = v.findViewById(R.id.User);
+            name     = v.findViewById(R.id.FileName);
+            size     = v.findViewById(R.id.FileSize);
+            icon     = v.findViewById(R.id.FileIcon);
         }
     }
 }

@@ -80,11 +80,11 @@ public class DirectMessageFragment extends Fragment {
         me   = getArguments() != null ? getArguments().getString(ARG_ME, "me") : "me";
         peer = getArguments() != null ? getArguments().getString(ARG_PEER, "peer") : "peer";
 
-        recycler   = v.findViewById(R.id.dmRecycler);
-        input      = v.findViewById(R.id.dmInput);
-        btnSend    = v.findViewById(R.id.dmBtnSend);
-        btnAttach  = v.findViewById(R.id.dmBtnAttach);
-        btnImage   = v.findViewById(R.id.dmBtnImage);
+        recycler   = v.findViewById(R.id.Recycler);
+        input      = v.findViewById(R.id.Input);
+        btnSend    = v.findViewById(R.id.BtnSend);
+        btnAttach  = v.findViewById(R.id.BtnAttach);
+        btnImage   = v.findViewById(R.id.BtnImage);
 
         adapter = new DirectMessageAdapter(me);
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));

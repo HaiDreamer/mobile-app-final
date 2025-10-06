@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Danh sách tin nhắn -->
+    <!-- Message list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
         android:layout_width="match_parent"
@@ -13,14 +13,14 @@
         android:overScrollMode="ifContentScrolls"
         android:padding="12dp" />
 
-    <!-- Thanh nhập tin nhắn (dính đáy) -->
+    <!-- Message input bar (sticky bottom) -->
     <LinearLayout
         android:id="@+id/messageBar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="bottom"
         android:layout_margin="12dp"
-        android:background="@drawable/dm_input_bg"
+        android:background="@drawable/input_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="12dp"
@@ -35,15 +35,15 @@
             android:hint="@string/message_chat"
             android:imeOptions="actionSend"
             android:inputType="textCapSentences|textMultiLine"
-            android:textColor="@color/dm_text_normal"
-            android:textColorHint="@color/dm_text_hint"
+            android:textColor="@color/text_normal"
+            android:textColorHint="@color/text_hint"
             android:textCursorDrawable="@null"
             android:backgroundTint="#33FFFFFF"/>
 
         <ImageButton
             android:id="@+id/btnSend"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/app_name"
             android:src="@android:drawable/ic_menu_send"
@@ -51,7 +51,7 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_dm"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

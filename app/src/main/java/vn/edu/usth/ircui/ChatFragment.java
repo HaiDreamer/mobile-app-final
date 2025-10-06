@@ -58,7 +58,7 @@ public class ChatFragment extends Fragment {
         RecyclerView rv = v.findViewById(R.id.rvMessages);
         EditText et = v.findViewById(R.id.etMessage);
         ImageButton btn = v.findViewById(R.id.btnSend);
-        FloatingActionButton fabDm = v.findViewById(R.id.fab_dm);
+        FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
         adapter = new MessageAdapter(messages, username);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));

@@ -10,17 +10,18 @@
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Direct message"
+        android:text="@string/direct_message"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="@color/accent"
         android:layout_marginBottom="12dp"/>
 
     <EditText
-        android:id="@+id/etDmUser"
+        android:id="@+id/enterUser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nhập username (ví dụ: bob)"
+        android:autofillHints=""
+        android:hint="@string/enter_username_example"
         android:textColor="@android:color/white"
         android:textColorHint="@color/gray"
         android:background="@drawable/edittext_bg"
@@ -41,7 +42,7 @@
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hủy"
+            android:text="@string/cancel"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:backgroundTint="@color/gray" />
@@ -54,7 +55,7 @@
             android:id="@+id/btnOpen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mở"
+            android:text="@string/open"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:backgroundTint="@color/accent" />
