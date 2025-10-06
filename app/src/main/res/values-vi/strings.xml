@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">USTH chat</string>
+    <string name="send_desc">Gửi tin nhắn</string>
+    <string name="pick_image">Chọn ảnh</string>
+    <string name="pick_file">Chọn tệp</string>
+    <string name="message_chat">Tin nhắn #chat</string>
+    <string name="direct_message">Tin nhắn riêng</string>
+    <string name="enter_username_example">Nhập tên người dùng (e.g: Bob)</string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="open">Mở</string>
+    <string name="send">Gửi</string>
+    <string name="hint_user">Nhắn @user</string>
+    <string name="hint_group">Nhắn #group</string>
+    <string name="login">ĐĂNG NHẬP</string>
+    <string name="server">Máy chủ</string>
+    <string name="nickname">Biệt danh</string>
+    <string name="channel">Kênh</string>
+    <string name="usth_ircui">#usth-ircui</string>
+    <string name="use_sasl_plain_recommended">Sử dụng SASL PLAIN (Khuyên dùng)</string>
+    <string name="sasl_username">Tên người dùng SASL</string>
+    <string name="sasl_password">Mật khẩu SASL</string>
+    <string name="use_sasl_external_client_certificate">Sử dụng SASL EXTERNAL (Chứng chỉ máy khách)</string>
+    <string name="join_chat">Tham gia trò chuyện</string>
+    <string name="start_background_service">Bắt đầu dịch vụ nền</string>
+
+    <string name="change_language">VI</string>
+</resources>
