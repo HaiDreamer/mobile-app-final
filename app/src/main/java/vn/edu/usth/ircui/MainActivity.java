@@ -2,6 +2,7 @@ package vn.edu.usth.ircui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -20,6 +21,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+                //======Play startup sound======
+        startupSFX = MediaPlayer.create(this, R.raw.startup_sfx);
+        //start playing the sound
+        startupSFX.start();
+
+        // set a listener to release the MediaPlayer once playback is complete
+        startupSFX.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.release();
+                // Setting the member variable to null to avoid leaks
+                startupSFX = null;
+            }
+        });
+        
         ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, insets) -> {
             Insets bars = insets.getInsets(
                     WindowInsetsCompat.Type.systemBars()
