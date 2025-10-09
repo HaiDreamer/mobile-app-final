@@ -25,6 +25,9 @@ import vn.edu.usth.ircui.feature_chat.MessageCooldownManager;
 import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
 import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 public class ChatFragment extends Fragment {
 
@@ -181,5 +184,30 @@ public class ChatFragment extends Fragment {
         messages.add(new Message("System", text, false));
         adapter.notifyItemInserted(messages.size() - 1);
         rvMessages.scrollToPosition(messages.size() - 1);
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            // Navigate to Settings
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, SettingsFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
+        // Handle other menu items similarly...
+
+        return super.onOptionsItemSelected(item);
     }
 }
