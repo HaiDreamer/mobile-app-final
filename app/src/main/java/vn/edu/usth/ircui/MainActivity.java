@@ -24,7 +24,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.appbar.AppBarLayout;
 
-import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.POST_NOTIFICATIONS},
                         REQUEST_NOTIFICATION_PERMISSION
                 );
-            } else {
-                MessageNotification.showMsgNotification(
-                        this, "System", "Welcome to IRC"
-                );
             }
         }
 
@@ -102,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 updateLanguageButtonText();
 
                 Toast.makeText(MainActivity.this,
-                        getString(R.string.language_changed_message),
+                        "Ngôn ngữ đã được thay đổi",
                         Toast.LENGTH_SHORT).show();
 
                 recreate();
@@ -151,22 +146,12 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
             if (grantResult.length > 0
                     && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
-                MessageNotification.showMsgNotification(
-                        this, "System", "Notification permission granted!"
-                );
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Notification permission denied",
                         Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public void navigateToChat() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, new ChatFragment())
-                .addToBackStack(null)
-                .runOnCommit(this::updateUiForTopFragment)
-                .commit();
     }
 
     @Override
@@ -180,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            // Navigate to Settings
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, SettingsFragment.newInstance())
@@ -189,27 +173,22 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if (id == R.id.action_refresh) {
-            // Handle refresh/reconnect
-            Toast.makeText(this, getString(R.string.refreshing), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
             return true;
         }
         else if (id == R.id.action_user_info) {
-            // Handle user info
             showUserInfo();
             return true;
         }
         else if (id == R.id.action_about) {
-            // Handle about
             showAboutDialog();
             return true;
         }
         else if (id == R.id.action_clear_history) {
-            // Handle clear history
             clearChatHistory();
             return true;
         }
         else if (id == R.id.action_logout) {
-            // Handle logout
             handleLogout();
             return true;
         }
@@ -219,51 +198,43 @@ public class MainActivity extends AppCompatActivity {
 
     private void showUserInfo() {
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.user_info))
-                .setMessage(getString(R.string.username) + ": " + getCurrentUsername() + "\n" +
-                        getString(R.string.server) + ": " + getString(R.string.connected))
+                .setTitle("User Info")
+                .setMessage("Username: Guest\nServer: Connected")
                 .setPositiveButton("OK", null)
                 .show();
     }
 
     private void showAboutDialog() {
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.about))
-                .setMessage("USTH IRC Client v1.0\n" + getString(R.string.developed_for_usth))
+                .setTitle("About")
+                .setMessage("USTH IRC Client v1.0\nDeveloped for USTH")
                 .setPositiveButton("OK", null)
                 .show();
     }
 
     private void clearChatHistory() {
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.clear_chat_history))
-                .setMessage(getString(R.string.confirm_clear_history))
-                .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
-                    Toast.makeText(this, getString(R.string.chat_history_cleared), Toast.LENGTH_SHORT).show();
+                .setTitle("Clear Chat History")
+                .setMessage("Are you sure you want to clear chat history?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    Toast.makeText(this, "Chat history cleared", Toast.LENGTH_SHORT).show();
                 })
-                .setNegativeButton(getString(R.string.no), null)
+                .setNegativeButton("No", null)
                 .show();
     }
 
     private void handleLogout() {
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.logout))
-                .setMessage(getString(R.string.confirm_logout))
-                .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
-                    // Navigate back to login
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes", (dialog, which) -> {
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.container, new LoginFragment())
                             .commit();
                 })
-                .setNegativeButton(getString(R.string.no), null)
+                .setNegativeButton("No", null)
                 .show();
-    }
-
-    private String getCurrentUsername() {
-        // This should return the actual current username
-        // For now, return a placeholder
-        return "Guest";
     }
 }
