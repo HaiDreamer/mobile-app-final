@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
@@ -32,7 +33,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public MessageAdapter(List<Message> data, String currentUsername) {
         this.data = data;
         this.me   = currentUsername;
-        namePalette = new int[]{
+        namePalette = new int[] {
                 R.color.userColor1, R.color.userColor2, R.color.userColor3, R.color.userColor4,
                 R.color.userColor5, R.color.userColor6, R.color.userColor7, R.color.userColor8
         };
@@ -76,8 +77,14 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     // -------- helpers --------
     private void tintUsername(TextView tv, String username) {
-        int idx = Math.abs(username.hashCode()) % namePalette.length;
-        @ColorInt int color = tv.getResources().getColor(namePalette[idx], null);
+        @ColorInt int color;
+        if (username != null && username.equalsIgnoreCase(me)) {
+            // Dedicated color for "me" from colors.xml
+            color = ContextCompat.getColor(tv.getContext(), R.color.meNameColor);
+        } else {
+            int idx = Math.abs((username == null ? 0 : username.hashCode())) % namePalette.length;
+            color = ContextCompat.getColor(tv.getContext(), namePalette[idx]);
+        }
         tv.setTextColor(color);
     }
 
@@ -102,14 +109,17 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     // -------- holders --------
     static class OtherHolder extends RecyclerView.ViewHolder {
         TextView username, content;
-        OtherHolder(@NonNull View v) { super(v);
+        OtherHolder(@NonNull View v) {
+            super(v);
             username = v.findViewById(R.id.tvUsername);
             content  = v.findViewById(R.id.tvContent);
         }
     }
+
     static class MeHolder extends RecyclerView.ViewHolder {
         TextView username, content;
-        MeHolder(@NonNull View v) { super(v);
+        MeHolder(@NonNull View v) {
+            super(v);
             username = v.findViewById(R.id.tvUsername);
             content  = v.findViewById(R.id.tvContent);
         }

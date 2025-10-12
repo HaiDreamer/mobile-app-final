@@ -1,17 +1,20 @@
 package vn.edu.usth.ircui;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class ChatActivity extends AppCompatActivity {
-    protected void conCreate(Bundle saveInstanceState){
-        super.onCreate(saveInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        // Your updated layout file name stayed "activity_main", and it contains a view @id/fragmentContainer
         setContentView(R.layout.activity_main);
 
-        if (saveInstanceState == null){
+        if (savedInstanceState == null){
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container, new ChatFragment())
+                    // Use the new container id from the updated activity_main.xml
+                    .replace(R.id.fragmentContainer, new ChatFragment())
                     .commit();
         }
     }

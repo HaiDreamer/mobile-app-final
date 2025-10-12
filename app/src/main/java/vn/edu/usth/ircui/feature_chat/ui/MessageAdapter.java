@@ -1,4 +1,4 @@
-package vn.edu.usth.irc.Adapter;
+package vn.edu.usth.ircui.feature_chat.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.edu.usth.irc.R;
-import vn.edu.usth.irc.model.Message;
+import vn.edu.usth.ircui.R;
+import vn.edu.usth.ircui.feature_chat.data.Message;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

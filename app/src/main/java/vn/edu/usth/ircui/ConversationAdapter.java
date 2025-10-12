@@ -1,4 +1,4 @@
-package vn.edu.usth.irc;
+package vn.edu.usth.ircui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
+// RecyclerView.Adapter that renders a scrolling list of Conversation items
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.VH> {
-    public interface OnClick { void open(Conversation c); }
+        public interface OnClick { void open(Conversation c); }
     private final List<Conversation> data;
     private final OnClick onClick;
 
@@ -17,13 +18,16 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         this.data = data; this.onClick = onClick;
     }
 
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int v){
-        View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_conversation, p, false);
+    @NonNull @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_conversation, parent, false);
         return new VH(view);
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h, int i){
-        Conversation c = data.get(i);
+    @Override
+    public void onBindViewHolder(@NonNull VH h, int position){
+        Conversation c = data.get(position);
         h.title.setText(c.title);
         h.subtitle.setText(c.last);
         h.time.setText(c.time);
