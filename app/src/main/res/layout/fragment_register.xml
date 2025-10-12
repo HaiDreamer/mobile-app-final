@@ -4,7 +4,7 @@
     android:gravity="center" android:layout_width="match_parent"
     android:layout_height="match_parent" android:background="@color/dm_bg_primary">
 
-    <TextView android:text="Sign in" android:textSize="22sp"
+    <TextView android:text="Create account" android:textSize="22sp"
         android:textStyle="bold" android:textColor="@color/dm_text_primary"
         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
@@ -14,19 +14,18 @@
         android:paddingHorizontal="12dp" android:textColor="@color/dm_text_primary"
         android:textColorHint="@color/dm_text_secondary"/>
 
-    <EditText android:id="@+id/etPass" android:hint="Password"
-        android:inputType="textPassword"
+    <EditText android:id="@+id/etPass" android:hint="Password" android:inputType="textPassword"
         android:layout_width="match_parent" android:layout_height="48dp"
         android:layout_marginTop="10dp" android:background="@drawable/bg_input"
         android:paddingHorizontal="12dp" android:textColor="@color/dm_text_primary"
         android:textColorHint="@color/dm_text_secondary"/>
 
-    <Button android:id="@+id/btnLogin" android:text="Login"
+    <Button android:id="@+id/btnRegister" android:text="Register"
         android:layout_width="match_parent" android:layout_height="48dp"
         android:layout_marginTop="16dp"/>
 
-    <TextView android:id="@+id/tvToRegister"
-        android:text="No account? Create one"
+    <TextView android:id="@+id/tvToLogin"
+        android:text="Already have an account? Sign in"
         android:textColor="@color/dm_accent"
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content" android:layout_height="wrap_content"/>

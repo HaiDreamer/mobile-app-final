@@ -1,67 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/dm_bg_primary">
 
-    <!-- Message list -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/dm_bg_primary"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="#Chat"
+        app:titleTextColor="@color/dm_text_primary"
+        app:menu="@menu/menu_chat_top" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:overScrollMode="ifContentScrolls"
-        android:padding="12dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp"
+        android:paddingBottom="72dp"
+        android:clipToPadding="false" />
 
-    <!-- Message input bar (sticky bottom) -->
+    <!-- INPUT BAR (cao 64dp) - đặt cao hơn bottom bar bằng marginBottom -->
     <LinearLayout
-        android:id="@+id/messageBar"
+        android:id="@+id/inputBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom"
-        android:layout_margin="12dp"
-        android:background="@drawable/input_bg"
+        android:layout_height="64dp"
+        android:layout_marginBottom="64dp"
+        android:padding="8dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="8dp">
+        android:background="@color/dm_bg_card">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@mipmap/ic_launcher_round" />
 
         <EditText
             android:id="@+id/etMessage"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:autofillHints=""
-            android:hint="@string/message_chat"
+            android:layout_marginStart="8dp"
+            android:hint="@string/message"
             android:imeOptions="actionSend"
-            android:inputType="textCapSentences|textMultiLine"
-            android:textColor="@color/text_normal"
-            android:textColorHint="@color/text_hint"
-            android:textCursorDrawable="@null"
-            android:backgroundTint="#33FFFFFF"/>
+            android:inputType="text"
+            android:textColor="@color/dm_text_primary"
+            android:textColorHint="@color/dm_text_secondary"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/bg_input" />
 
         <ImageButton
             android:id="@+id/btnSend"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/app_name"
-            android:src="@android:drawable/ic_menu_send"
-            app:tint="@android:color/white" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/send"
+            android:src="@drawable/ic_send" />
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="84dp"
-        android:contentDescription="@string/direct_message"
-        android:src="@android:drawable/ic_menu_send"
-        app:backgroundTint="#7C4DFF"
-        app:tint="@android:color/white"
-        app:useCompatPadding="true" />
-
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

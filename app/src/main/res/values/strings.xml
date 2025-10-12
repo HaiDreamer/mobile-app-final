@@ -1,27 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">USTH chat</string>
-    <string name="send_desc">Send message</string>
-    <string name="pick_image">Pick image</string>
-    <string name="pick_file">Pick file</string>
-    <string name="message_chat">Message #chat</string>
-    <string name="direct_message">Direct message</string>
-    <string name="enter_username_example">Enter username (e.g: Bob)</string>
-    <string name="cancel">Cancel</string>
-    <string name="open">Open</string>
-    <string name="send">Send</string>
-    <string name="hint_user">Message @user</string>
-    <string name="hint_group">Message #group</string>
-    <string name="login">LOGIN</string>
-    <string name="server">Server</string>
-    <string name="nickname">Nickname</string>
-    <string name="channel">Channel</string>
-    <string name="usth_ircui">#usth-ircui</string>
-    <string name="use_sasl_plain_recommended">Use SASL PLAIN (recommended)</string>
-    <string name="sasl_username">SASL username</string>
-    <string name="sasl_password">SASL password</string>
-    <string name="use_sasl_external_client_certificate">Use SASL EXTERNAL (client certificate)</string>
-    <string name="join_chat">Join Chat</string>
-    <string name="start_background_service">Start Background Service</string>
+    <!-- Tên app -->
+    <string name="app_name">IRC</string>
 
-    <string name="change_language">EN</string>
+    <!-- Fragment Chat -->
+    <string name="message">Message</string>
+    <string name="send">Send</string>
+
+    <!-- (tuỳ chọn) nhãn cho bottom bar / menu -->
+    <string name="home">Home</string>
+    <string name="messages">Message</string>
+    <string name="settings">Settings</string>
 </resources>

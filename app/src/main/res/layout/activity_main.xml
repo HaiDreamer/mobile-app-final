@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
+    android:background="@color/dm_bg_primary">
 
-    <!-- App bar có id để thêm padding status bar bằng code -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+    <!-- NỘI DUNG CHÍNH -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary">
+        android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <!-- Vùng chứa fragment: CHÚ Ý paddingBottom = chiều cao bottom bar -->
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="USTH chat"
-            app:titleCentered="true"
-            app:titleTextColor="@android:color/white"
-            app:backgroundTint="?attr/colorPrimary" />
-    </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="match_parent"
+            android:paddingBottom="64dp" />
 
-    <!-- Nơi chứa fragment -->
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
+        <!-- Bottom bar -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_gravity="bottom"
+            android:background="@color/dm_bg_card"
+            app:itemIconTint="@color/white"
+            app:itemTextColor="@color/white"
+            app:menu="@menu/menu_bottom" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- NAV trái: danh sách channel (nếu cần) -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navChannels"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_gravity="start"
+        android:background="@color/dm_bg_card"
+        app:headerLayout="@layout/view_channel_header"
+        app:menu="@menu/menu_channels" />
 
-    <!-- Change Language -->
-    <Button
-        android:id="@+id/btnLanguage"
-        android:text="@string/change_language"
-        android:layout_width="70dp"
-        android:layout_height="40dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:textColor="@android:color/white"
-        android:elevation="6dp" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
