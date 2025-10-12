@@ -1,57 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Base App Colors -->
-    <color name="colorPrimary">#2196F3</color> <!-- Bright blue -->
-    <color name="colorPrimaryDark">#1976D2</color>
-    <color name="colorAccent">#03DAC5</color>
-
-    <!-- Main Chat / App Background -->
-    <color name="bgPrimary">#0E1116</color>
-    <color name="bgSecondary">#151A23</color>
-    <color name="accent">#03DAC5</color>
-
-    <!-- Text Colors -->
-    <color name="white">#FFFFFFFF</color>
-    <color name="gray">#808080</color>
+    <color name="dm_bg_primary">#0F1013</color>
+    <color name="dm_bg_card">#1A1C20</color>
+    <color name="dm_bg_input">#2B2E34</color>
+    <color name="dm_text_primary">#EDEEF0</color>
+    <color name="dm_text_secondary">#B8BCC6</color>
+    <color name="dm_accent">#8AB4F8</color>
+    <color name="dm_online">#2ECC71</color>
+    <color name="dm_warning">#FF4D4F</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-
-    <!-- User name colors for chat -->
-    <color name="userColor1">#FF6B6B</color>   <!-- red -->
-    <color name="userColor2">#FFD93D</color>   <!-- yellow -->
-    <color name="userColor3">#6BCB77</color>   <!-- green -->
-    <color name="userColor4">#4D96FF</color>   <!-- blue -->
-    <color name="userColor5">#A66DD4</color>   <!-- purple -->
-    <color name="userColor6">#FF8E72</color>   <!-- orange -->
-    <color name="userColor7">#FF66C4</color>   <!-- pink -->
-    <color name="userColor8">#29C7AC</color>   <!-- teal -->
-
-    <!-- Discord / Coding Theme (DM colors) -->
-    <color name="bg_primary">#0E1116</color>
-    <color name="bg_elev">#151A23</color>
-    <color name="text_strong">#C9D1D9</color>
-    <color name="text_normal">#E6EDF3</color>
-    <color name="text_muted">#88949E</color>
-
-    <color name="bubble_me_bg">#1F6FEB</color>
-    <color name="bubble_other_bg">#30363D</color>
-
-    <!-- Accent Colors -->
-    <color name="accent_me">#A5D6FF</color>
-    <color name="accent_other">#7E87E7</color>
-    <color name="accent_blue">#58A6FF</color>
-    <color name="accent_purple">#B66CFF</color>
-    <color name="accent_green">#3FB950</color>
-    <color name="text_hint">#80FFFFFF</color>
-
-    <!-- Material-style Purple for FAB / Send Icons -->
-    <color name="purple_200">#BB86FC</color>
-    <color name="purple_500">#7C4DFF</color>
-    <color name="purple_700">#6200EA</color>
-
-    <!-- Button/Selection States -->
-    <color name="button_bg">#23272F</color>
-    <color name="button_pressed">#3A3F4B</color>
-    <color name="divider">#262B33</color>
-
 </resources>

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/ch_chat" android:title="#Chat"/>
+        <item android:id="@+id/ch_java" android:title="#Java"/>
+        <item android:id="@+id/ch_ubuntu" android:title="#Ubuntu"/>
+        <item android:id="@+id/ch_cpp" android:title="#C/C++"/>
+        <item android:id="@+id/ch_anime" android:title="#Anime"/>
+    </group>
+    <item android:id="@+id/ch_add" android:title="  New Channel" android:icon="@drawable/ic_channel_add"/>
+</menu>

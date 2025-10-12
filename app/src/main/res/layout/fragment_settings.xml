@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="24dp"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/dm_bg_primary">
+    <TextView android:id="@+id/tvUser" android:text="Signed in as User"
+        android:textColor="@color/dm_text_primary" android:textSize="18sp"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    <Button android:id="@+id/btnLogout" android:text="Log out"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
