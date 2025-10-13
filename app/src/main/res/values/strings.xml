@@ -1,47 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">IRC</string>
-    <string name="message">Message</string>
-    <string name="send">Send</string>
-    <string name="home">Home</string>
-    <string name="settings">Settings</string>
-    <string name="cancel">Cancel</string>
-    <string name="change_language">Change</string>
-    <string name="channel">Channel</string>
-    <string name="direct_message">Direct message</string>
-    <string name="enter_username_example">Enter username (e.g. bob)</string>
-    <string name="hint_group">Message #group…</string>
-    <string name="hint_user">Message user…</string>
-    <string name="join_chat">Join chat</string>
-    <string name="login">Login</string>
-    <string name="message_chat">Type a message…</string>
-    <string name="nickname">Nickname</string>
-    <string name="open">Open</string>
-    <string name="pick_file">Pick file</string>
+    <string name="app_name">USTH chat</string>
+    <string name="send_desc">Send message</string>
     <string name="pick_image">Pick image</string>
-    <string name="send_desc">Send</string>
+    <string name="pick_file">Pick file</string>
+    <string name="message_chat">Message #chat</string>
+    <string name="direct_message">Direct message</string>
+    <string name="enter_username_example">Enter username (e.g: Bob)</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="send">Send</string>
+    <string name="hint_user">Message @user</string>
+    <string name="hint_group">Message #group</string>
+    <string name="login">LOGIN</string>
     <string name="server">Server</string>
-    <string name="start_background_service">Start background service</string>
+    <string name="nickname">Nickname</string>
+    <string name="channel">Channel</string>
     <string name="usth_ircui">#usth-ircui</string>
-    <string name="info_of_thanh">Info of Thanh</string>
-    <string name="new_channel">New Channel</string>
-    <string name="create_new_channel_with_thanh">Create new channel with Thanh</string>
-    <string name="members_2">Members 2</string>
-    <string name="username">Username</string>
-    <string name="sign_in">Sign in</string>
-    <string name="password">Password</string>
-    <string name="no_account_create_one">No account? Create one</string>
-    <string name="create_account">Create account</string>
-    <string name="register">Register\n</string>
-    <string name="already_have_an_account_sign_in">Already have an account? Sign in</string>
-    <string name="signed_in_as_user">Signed in as User</string>
-    <string name="log_out">Log out</string>
-    <string name="thanh">Thanh</string>
-    <string name="i_hate_irc_client">I hate IRC client</string>
-    <string name="message_from_others">Message from others</string>
-    <string name="my_message">My message</string>
-    <string name="channels">Channels</string>
-    <string name="_2m" translatable="false">2m</string>
+    <string name="use_sasl_plain_recommended">Use SASL PLAIN (recommended)</string>
+    <string name="sasl_username">SASL username</string>
+    <string name="sasl_password">SASL password</string>
+    <string name="use_sasl_external_client_certificate">Use SASL EXTERNAL (client certificate)</string>
+    <string name="join_chat">Join Chat</string>
+    <string name="start_background_service">Start Background Service</string>
 
+    <string name="change_language">EN</string>
 </resources>

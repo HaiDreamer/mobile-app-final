@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
-import vn.edu.usth.ircui.MainActivity;
+import vn.edu.usth.ircui.ChatActivity;
 import vn.edu.usth.ircui.R;
 
 public class MessageNotification {
@@ -47,13 +47,13 @@ public class MessageNotification {
             channelCreated = true;
         }
 
-        // Tap opens MainActivity (safer single entry), not ChatActivity.
-        Intent intent = new Intent(context, MainActivity.class)
+        // Tap opens ChatActivity
+        Intent intent = new Intent(context, ChatActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         PendingIntent pi = PendingIntent.getActivity(
                 context, 0, intent,
-                // Required for targetSdk 31+ unless you mutate extras; prefer IMMUTABLE.
+                // FLAG_IMMUTABLE is required for targetSdk 31+ if you don't mutate extras.
                 PendingIntent.FLAG_IMMUTABLE
         );
 

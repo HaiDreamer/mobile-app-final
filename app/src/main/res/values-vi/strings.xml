@@ -1,26 +1,4 @@
 <resources>
-    <string name="message">Tin nhắn</string>
-    <string name="home">Cửa sổ chính</string>
-    <string name="settings">Cài đặt</string>
-
-    <string name="new_channel">Kênh mới</string>
-    <string name="create_new_channel_with_thanh">Tạo kênh mới với Thanh</string>
-    <string name="members_2">Thành viên 2</string>
-    <string name="username">Tên người dùng</string>
-    <string name="sign_in">Đăng nhập</string>
-    <string name="password">Mật khẩu</string>
-    <string name="no_account_create_one">Chưa có tài khoản? Tạo mới</string>
-    <string name="create_account">Tạo tài khoản mới</string>
-    <string name="register">Đăng kí\n</string>
-    <string name="already_have_an_account_sign_in">Đã có tài khoản? Đăng nhập</string>
-    <string name="signed_in_as_user">Đăng nhập tư cách người dùng</string>
-    <string name="log_out">Đăng xuất</string>
-    <string name="thanh">Thanh</string>
-    <string name="i_hate_irc_client">Tôi ghét IRC client</string>
-    <string name="message_from_others">Tin nhắn từ những người khác</string>
-    <string name="my_message">Tin nhắn của tôi</string>
-    <string name="channels">Kênh</string>
-
     <string name="app_name">USTH chat</string>
     <string name="send_desc">Gửi tin nhắn</string>
     <string name="pick_image">Chọn ảnh</string>
@@ -38,9 +16,12 @@
     <string name="nickname">Biệt danh</string>
     <string name="channel">Kênh</string>
     <string name="usth_ircui">#usth-ircui</string>
+    <string name="use_sasl_plain_recommended">Sử dụng SASL PLAIN (Khuyên dùng)</string>
+    <string name="sasl_username">Tên người dùng SASL</string>
+    <string name="sasl_password">Mật khẩu SASL</string>
+    <string name="use_sasl_external_client_certificate">Sử dụng SASL EXTERNAL (Chứng chỉ máy khách)</string>
     <string name="join_chat">Tham gia trò chuyện</string>
     <string name="start_background_service">Bắt đầu dịch vụ nền</string>
-    <string name="info_of_thanh">Thông tin về Thanh</string>
 
     <string name="change_language">VI</string>
 </resources>

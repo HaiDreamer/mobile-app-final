@@ -16,13 +16,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import vn.edu.usth.ircui.feature_chat.MessageCooldownManager;
 import vn.edu.usth.ircui.feature_chat.data.Message;
-import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 
 public class ChatFragment extends Fragment {
 
@@ -63,6 +65,7 @@ public class ChatFragment extends Fragment {
         rvMessages = v.findViewById(R.id.rvMessages);
         etMessage  = v.findViewById(R.id.etMessage);
         ImageButton btnSend = v.findViewById(R.id.btnSend);
+        FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
         adapter = new MessageAdapter(messages, username);
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -71,6 +74,9 @@ public class ChatFragment extends Fragment {
         ircClient = getIrcClientManager();
 
         btnSend.setOnClickListener(view -> handleSendMessageClick());
+
+        // Open Direct Message via FAB
+        fabDm.setOnClickListener(view -> openDirectMessageDialog());
 
         return v;
     }
@@ -91,8 +97,7 @@ public class ChatFragment extends Fragment {
                         String me = username;
                         getParentFragmentManager()
                                 .beginTransaction()
-                                // Updated to the correct container id in the new activity_main.xml
-                                .replace(R.id.fragmentContainer,
+                                .replace(R.id.container,
                                         DirectMessageFragment.newInstance(me, peer))
                                 .addToBackStack(null)
                                 .commit();

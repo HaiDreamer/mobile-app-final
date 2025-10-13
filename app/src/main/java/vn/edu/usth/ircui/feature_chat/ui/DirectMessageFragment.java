@@ -30,6 +30,7 @@ import vn.edu.usth.ircui.feature_chat.data.Attachment;
 
 /**
  * render simple "direct message" chat UI
+ *
  * **/
 
 public class DirectMessageFragment extends Fragment {

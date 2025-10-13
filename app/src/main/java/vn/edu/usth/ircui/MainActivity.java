@@ -1,93 +1,146 @@
 package vn.edu.usth.ircui;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.appbar.AppBarLayout;
 
-import vn.edu.usth.ircui.feature_chat.ui.GroupChatFragment;
+import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
+import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
-/**
- * Uses the UPDATED activity_main.xml with DrawerLayout + BottomNavigation.
- * Default screen is the NEW LoginFragment (auth UI).
- */
 public class MainActivity extends AppCompatActivity {
 
-    private DrawerLayout drawer;
-    private BottomNavigationView bottom;
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
+    public String currentLang = "en";
+
+    private Button btnLanguage; // keep a reference so we can show/hide it
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.Theme_IRC);
         setContentView(R.layout.activity_main);
 
-        // === Layout views ===
-        drawer = findViewById(R.id.drawer);
-        bottom = findViewById(R.id.bottomBar);
-        NavigationView nav = findViewById(R.id.navChannels);
+        // ===== Toolbar & AppBar edge-to-edge fix =====
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        // === Default fragment: show Login (new UI) ===
+        AppBarLayout appBar = findViewById(R.id.appbar);
+        ViewCompat.setOnApplyWindowInsetsListener(appBar, (v, insets) -> {
+            Insets sb = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    sb.top,
+                    v.getPaddingRight(),
+                    v.getPaddingBottom()
+            );
+            return insets;
+        });
+
+        // Back button icon only when there’s something in back stack
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+            if (canBack) {
+                toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
+                toolbar.setNavigationOnClickListener(v ->
+                        getOnBackPressedDispatcher().onBackPressed()
+                );
+            } else {
+                toolbar.setNavigationIcon(null);
+                toolbar.setNavigationOnClickListener(null);
+                toolbar.setTitle("IRC UI");
+            }
+            // also refresh button visibility when stack changes
+            updateUiForTopFragment();
+        });
+
+        // ===== First screen: Login =====
         if (savedInstanceState == null) {
-            replace(new LoginFragment());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new LoginFragment())
+                    .runOnCommit(this::updateUiForTopFragment)
+                    .commit();
         }
 
-        // === Bottom Navigation actions ===
-        bottom.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_home) {
-                // placeholder home could be shown here if needed
-                return true;
-            } else if (id == R.id.nav_message) {
-                // A messages hub could be placed here
-                return true;
-            } else if (id == R.id.nav_settings) {
-                replace(new SettingsFragment());
-                return true;
+        // ===== Notification permission (Android 13+) =====
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        REQUEST_NOTIFICATION_PERMISSION
+                );
+            } else {
+                MessageNotification.showMsgNotification(
+                        this, "System", "Welcome to IRC"
+                );
             }
-            return false;
-        });
+        }
 
-        // === Channel Drawer menu actions (#topic) ===
-        nav.setNavigationItemSelectedListener(menuItem -> {
-            int id = menuItem.getItemId();
-            drawer.closeDrawer(GravityCompat.START);
+        // Language toggle button (only visible on LoginFragment)
+        btnLanguage = findViewById(R.id.btnLanguage);
+        if (btnLanguage != null) {
+            String current = getResources().getConfiguration().getLocales().get(0).getLanguage();
+            btnLanguage.setText(current.equals("en") ? "EN" : "VI");
 
-            String chId = "chat";
-            String chName = "#Chat";
+            btnLanguage.setOnClickListener(v -> {
+                String lang = getResources().getConfiguration().getLocales().get(0).getLanguage();
+                String newLang = lang.equals("en") ? "vi" : "en";
+                LocaleHelper.setLocale(MainActivity.this, newLang);
+                btnLanguage.setText(newLang.equals("en") ? "EN" : "VI");
+                recreate();
+            });
+        }
 
-            if (id == R.id.ch_chat) {
-                chId = "chat";  chName = "#Chat";
-            } else if (id == R.id.ch_java) {
-                chId = "java";  chName = "#Java";
-            } else if (id == R.id.ch_ubuntu) {
-                chId = "ubuntu"; chName = "#Ubuntu";
-            } else if (id == R.id.ch_cpp) {
-                chId = "cpp";    chName = "#C/C++";
-            } else if (id == R.id.ch_anime) {
-                chId = "anime";  chName = "#Anime";
-            } else if (id == R.id.ch_add) {
-                // TODO: Dialog tạo kênh mới (future)
-                return true;
-            }
-
-            replace(GroupChatFragment.newInstance(chId, chName));
-            return true;
-        });
+        // ensure correct visibility at startup
+        updateUiForTopFragment();
     }
 
-    public void openDrawer() {
-        drawer.openDrawer(GravityCompat.START);
+    // Show language button only on LoginFragment.
+    private void updateUiForTopFragment() {
+        if (btnLanguage == null) return;
+        androidx.fragment.app.Fragment f =
+                getSupportFragmentManager().findFragmentById(R.id.container);
+        boolean onLogin = f instanceof LoginFragment;
+        btnLanguage.setVisibility(onLogin ? View.VISIBLE : View.GONE);
     }
 
-    private void replace(Fragment f) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragmentContainer, f);
-        ft.commit();
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permission,
+                                           @NonNull int[] grantResult) {
+        super.onRequestPermissionsResult(requestCode, permission, grantResult);
+
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResult.length > 0
+                    && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
+                MessageNotification.showMsgNotification(
+                        this, "System", "Notification permission granted!"
+                );
+            } else {
+                Toast.makeText(this, "Notification permission denied",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Navigate to chat and refresh UI right after commit
+    public void navigateToChat() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new ChatFragment())
+                .addToBackStack(null)
+                .runOnCommit(this::updateUiForTopFragment)
+                .commit();
     }
 }
