@@ -4,13 +4,11 @@ import java.util.regex.Pattern;
 
 /**
  * IRC nickname sanitizer / validator.
- *
  * Rules (classic RFC 2812 / 1459 style):
  *  - No spaces.
  *  - First char: A–Z a–z or one of []\`_^{}|
  *  - Rest: A–Z a–z 0–9 - and []\`_^{}|
  *  - Length: configurable (RFC said 9, many networks use 30–32).
- *
  * Usage:
  *   String raw = "John Doe";
  *   String nick = NickUtils.sanitize(raw, 32); // => "John_Doe"
@@ -27,12 +25,6 @@ public final class NickUtils {
     private static final Pattern VALID_FIRST = Pattern.compile("^[" + FIRST_CLASS + "]");
     private static final Pattern VALID_FULL  = Pattern.compile("^[" + FIRST_CLASS + "][" + REST_CLASS + "]*$");
 
-    /**
-     * Sanitize an arbitrary string into a likely-acceptable IRC nick.
-     * @param raw    user input (can be anything)
-     * @param maxLen maximum length to enforce (e.g., 9 for strict RFC, 32 for many networks)
-     * @return sanitized nickname; guaranteed non-empty
-     */
     public static String sanitize(String raw, int maxLen) {
         if (maxLen <= 0) maxLen = 32;
         String s = (raw == null ? "" : raw).trim();
@@ -53,10 +45,10 @@ public final class NickUtils {
             }
         }
 
-        // 4) Enforce length (many networks allow >9; 30–32 is common).
+        // Enforce length (many networks allow >9; 30–32 is common).
         if (s.length() > maxLen) s = s.substring(0, maxLen);
 
-        // 5) Empty safety (shouldn’t happen after step 3, but just in case)
+        // Empty safety (shouldn’t happen after step 3, but just in case)
         if (s.isEmpty()) s = "Guest" + (int)(Math.random() * 9000 + 1000);
 
         return s;

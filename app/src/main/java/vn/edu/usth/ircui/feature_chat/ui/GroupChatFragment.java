@@ -26,7 +26,6 @@ import vn.edu.usth.ircui.feature_chat.data.Message;
  * Simple group chat screen backed by fragment_group_chat.xml.
  * Factory: newInstance(String channelId, String channelName)
  *
- * This fragment does not connect to IRC here; it only demonstrates
  * sending/adding messages locally so the UI works without crashes.
  * Hook your IrcClientManager in later if needed.
  */

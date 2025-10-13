@@ -14,5 +14,5 @@
         android:background="@drawable/bg_card"
         android:padding="10dp"
         android:textColor="@color/dm_text_primary"
-        android:text="Message from others"/>
+        android:text="@string/message_from_others"/>
 </LinearLayout>

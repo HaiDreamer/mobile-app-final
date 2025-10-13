@@ -1,7 +1,7 @@
 package vn.edu.usth.ircui.feature_chat.data;
 
 public class Message {
-    // ---- New constants for UI adapters that use left/right/system types ----
+    //New constants for UI adapters that use left/right/system types
     public static final int LEFT   = 0;
     public static final int RIGHT  = 1;
     public static final int SYSTEM = 2;
@@ -15,19 +15,19 @@ public class Message {
     // Maintain backward compatibility: derive "type" from "mine"
     private final int type;
 
-    // ---- Existing constructor used throughout the app ----
+    // Existing constructor used throughout the app
     public Message(String username, String content, boolean mine) {
         this.username  = username;
         this.content   = content;
         this.mine      = mine;
         this.timestamp = System.currentTimeMillis();
         this.codeBlock = looksLikeCode(content);
-        this.type      = mine ? RIGHT : LEFT; // map to new type for UI adapter
+        this.type      = mine ? RIGHT : LEFT;           // map to new type for UI adapter
     }
 
-    // ---- Private constructor used by static factories below ----
+    // Private constructor used by static factories below
     private Message(int type, String content) {
-        this.username  = "";                         // not needed by the left/right adapter
+        this.username  = "";
         this.content   = content;
         this.mine      = (type == RIGHT);
         this.timestamp = System.currentTimeMillis();

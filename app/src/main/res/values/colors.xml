@@ -19,7 +19,6 @@
     <color name="userColor6">#EC407A</color>
     <color name="userColor7">#FF7043</color>
     <color name="userColor8">#9CCC65</color>
-
     <color name="bgPrimary">#121212</color>
     <color name="bgSecondary">#1E1E1E</color>
     <color name="accent">#7C4DFF</color>
@@ -29,13 +28,9 @@
     <color name="text_strong">#FFFFFFFF</color>
     <color name="text_muted">#B0BEC5</color>
     <color name="bg_elev">#1F1F1F</color>
-
-    <!-- Old UI alt name used in some layouts (snake_case) -->
     <color name="bg_primary">#121212</color>
-
-    <!-- Username accent colors -->
-    <color name="accent_me">#64B5F6</color>     <!-- light blue -->
-    <color name="accent_other">#FF7043</color>  <!-- deep orange -->
+    <color name="accent_me">#64B5F6</color>
+    <color name="accent_other">#FF7043</color>
     <color name="accent_purple">#7C4DFF</color>
     <color name="bubble_me_bg">#2F80ED</color>
     <color name="bubble_other_bg">#3C3F43</color>

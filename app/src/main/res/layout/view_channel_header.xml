@@ -3,7 +3,7 @@
     android:orientation="vertical" android:padding="16dp"
     android:layout_width="match_parent" android:layout_height="wrap_content">
     <TextView
-        android:text="Channels"
+        android:text="@string/channels"
         android:textColor="@color/dm_text_primary"
         android:textStyle="bold"
         android:textSize="18sp"

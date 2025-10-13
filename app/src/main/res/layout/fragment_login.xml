@@ -1,33 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="24dp"
-    android:gravity="center" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:background="@color/dm_bg_primary">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dm_bg_primary">
 
-    <TextView android:text="Sign in" android:textSize="22sp"
-        android:textStyle="bold" android:textColor="@color/dm_text_primary"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    <TextView
+        android:text="@string/sign_in"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/dm_text_primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-    <EditText android:id="@+id/etUser" android:hint="Username"
-        android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginTop="16dp" android:background="@drawable/bg_input"
-        android:paddingHorizontal="12dp" android:textColor="@color/dm_text_primary"
+    <EditText
+        android:id="@+id/etUser"
+        android:hint="@string/username"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_input"
+        android:paddingHorizontal="12dp"
+        android:textColor="@color/dm_text_primary"
         android:textColorHint="@color/dm_text_secondary"/>
 
-    <EditText android:id="@+id/etPass" android:hint="Password"
+    <EditText
+        android:id="@+id/etPass"
+        android:hint="@string/password"
         android:inputType="textPassword"
-        android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginTop="10dp" android:background="@drawable/bg_input"
-        android:paddingHorizontal="12dp" android:textColor="@color/dm_text_primary"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_input"
+        android:paddingHorizontal="12dp"
+        android:textColor="@color/dm_text_primary"
         android:textColorHint="@color/dm_text_secondary"/>
 
-    <Button android:id="@+id/btnLogin" android:text="Login"
-        android:layout_width="match_parent" android:layout_height="48dp"
+    <Button android:id="@+id/btnLogin"
+        android:text="@string/login"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:layout_marginTop="16dp"/>
 
-    <TextView android:id="@+id/tvToRegister"
-        android:text="No account? Create one"
+    <TextView
+        android:id="@+id/tvToRegister"
+        android:text="@string/no_account_create_one"
         android:textColor="@color/dm_accent"
         android:layout_marginTop="12dp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </LinearLayout>
