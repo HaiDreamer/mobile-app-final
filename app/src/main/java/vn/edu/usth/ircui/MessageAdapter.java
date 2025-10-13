@@ -1,5 +1,6 @@
 package vn.edu.usth.ircui;
 
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private final String me;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-    // a small, tasteful palette (Discord-y).
     private final int[] namePalette;
+    private String currentFontSize = "medium";
 
     public MessageAdapter(List<Message> data, String currentUsername) {
         this.data = data;
@@ -38,12 +39,14 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         };
     }
 
-    @Override public int getItemViewType(int position) {
+    @Override
+    public int getItemViewType(int position) {
         return data.get(position).isMine() ? TYPE_ME : TYPE_OTHER;
     }
 
     @NonNull
-    @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_ME) {
             View v = inf.inflate(R.layout.item_message_me, parent, false);
@@ -59,6 +62,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Message m = data.get(pos);
         String time = sdf.format(new Date(m.getTimestamp()));
 
+        applyFontSize(h);
+
         if (h instanceof MeHolder) {
             MeHolder holder = (MeHolder) h;
             holder.username.setText(m.getUsername() + "  •  " + time);
@@ -72,9 +77,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    @Override public int getItemCount() { return data.size(); }
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
 
-    // -------- helpers --------
     private void tintUsername(TextView tv, String username) {
         int idx = Math.abs(username.hashCode()) % namePalette.length;
         @ColorInt int color = tv.getResources().getColor(namePalette[idx], null);
@@ -99,17 +106,49 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
-    // -------- holders --------
+    private void applyFontSize(RecyclerView.ViewHolder holder) {
+        SharedPreferences prefs = holder.itemView.getContext().getSharedPreferences("app_settings", 0);
+        String fontSize = prefs.getString("font_size", "medium");
+
+        float textSizeSP = 14f;
+
+        switch (fontSize) {
+            case "small":
+                textSizeSP = 12f;
+                break;
+            case "large":
+                textSizeSP = 16f;
+                break;
+            case "medium":
+            default:
+                textSizeSP = 14f;
+                break;
+        }
+
+        if (holder instanceof MeHolder) {
+            MeHolder meHolder = (MeHolder) holder;
+            meHolder.content.setTextSize(textSizeSP);
+            meHolder.username.setTextSize(textSizeSP - 2f);
+        } else if (holder instanceof OtherHolder) {
+            OtherHolder otherHolder = (OtherHolder) holder;
+            otherHolder.content.setTextSize(textSizeSP);
+            otherHolder.username.setTextSize(textSizeSP - 2f);
+        }
+    }
+
     static class OtherHolder extends RecyclerView.ViewHolder {
         TextView username, content;
-        OtherHolder(@NonNull View v) { super(v);
+        OtherHolder(@NonNull View v) {
+            super(v);
             username = v.findViewById(R.id.tvUsername);
             content  = v.findViewById(R.id.tvContent);
         }
     }
+
     static class MeHolder extends RecyclerView.ViewHolder {
         TextView username, content;
-        MeHolder(@NonNull View v) { super(v);
+        MeHolder(@NonNull View v) {
+            super(v);
             username = v.findViewById(R.id.tvUsername);
             content  = v.findViewById(R.id.tvContent);
         }

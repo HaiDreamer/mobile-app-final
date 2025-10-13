@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,10 +20,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.edu.usth.ircui.feature_chat.MessageCooldownManager;
+import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
 import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
-import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 public class ChatFragment extends Fragment {
 
@@ -50,9 +51,13 @@ public class ChatFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             username = getArguments().getString(ARG_USERNAME, "Guest");
         }
+
+        // Add welcome message
+        messages.add(new Message("System", "Welcome to IRC Chat, " + username + "!", false));
     }
 
     @Nullable
@@ -71,60 +76,37 @@ public class ChatFragment extends Fragment {
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
-        ircClient = getIrcClientManager();
-
-        btnSend.setOnClickListener(view -> handleSendMessageClick());
-
-        // Open Direct Message via FAB
-        fabDm.setOnClickListener(view -> openDirectMessageDialog());
-
-        return v;
-    }
-
-    private void openDirectMessageDialog() {
-        final EditText inputUser = new EditText(requireContext());
-        inputUser.setHint("Nhập username (ví dụ: bob)");
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Direct message")
-                .setView(inputUser)
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Mở", (d, w) -> {
-                    String peer = inputUser.getText() != null
-                            ? inputUser.getText().toString().trim()
-                            : "";
-                    if (!peer.isEmpty()) {
-                        String me = username;
-                        getParentFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.container,
-                                        DirectMessageFragment.newInstance(me, peer))
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                })
-                .show();
-    }
-
-    @NonNull
-    private IrcClientManager getIrcClientManager() {
-        IrcClientManager manager = new IrcClientManager();
-        manager.setCallback(new IrcClientManager.MessageCallback() {
+        // Initialize IRC client but don't connect immediately for testing
+        ircClient = new IrcClientManager();
+        ircClient.setCallback(new IrcClientManager.MessageCallback() {
             @Override
             public void onMessage(String u, String t, long ts, boolean mine) {
-                messages.add(new Message(u, t, mine));
-                adapter.notifyItemInserted(messages.size() - 1);
-                rvMessages.scrollToPosition(messages.size() - 1);
+                requireActivity().runOnUiThread(() -> {
+                    messages.add(new Message(u, t, mine));
+                    adapter.notifyItemInserted(messages.size() - 1);
+                    rvMessages.scrollToPosition(messages.size() - 1);
+                });
             }
 
             @Override
             public void onSystem(String t) {
-                displaySystemMessage(t);
+                requireActivity().runOnUiThread(() -> {
+                    displaySystemMessage(t);
+                });
             }
         });
 
-        manager.connect(username, "#usth-ircui");
-        return manager;
+        btnSend.setOnClickListener(view -> handleSendMessageClick());
+
+        // Simplified DM functionality
+        fabDm.setOnClickListener(view -> {
+            Toast.makeText(requireContext(), "Direct Message feature coming soon!", Toast.LENGTH_SHORT).show();
+        });
+
+        // Add test message to verify chat is working
+        displaySystemMessage("Chat loaded successfully. You can start messaging!");
+
+        return v;
     }
 
     private void handleSendMessageClick() {
@@ -145,7 +127,23 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        ircClient.sendMessage(text);
+        // For testing: just display the message locally without IRC
+        messages.add(new Message(username, text, true));
+        adapter.notifyItemInserted(messages.size() - 1);
+        rvMessages.scrollToPosition(messages.size() - 1);
+
+        // Simulate response
+        requireActivity().runOnUiThread(() -> {
+            try {
+                Thread.sleep(1000);
+                messages.add(new Message("Bot", "Echo: " + text, false));
+                adapter.notifyItemInserted(messages.size() - 1);
+                rvMessages.scrollToPosition(messages.size() - 1);
+            } catch (Exception e) {
+                // Ignore
+            }
+        });
+
         cooldownManager.recordMessageSent();
         etMessage.getText().clear();
     }
@@ -163,6 +161,26 @@ public class ChatFragment extends Fragment {
             case "/general":
                 showHelpInfo();
                 break;
+            case "/nick":
+                if (parts.length > 1) {
+                    String newNick = parts[1];
+                    displaySystemMessage("Nickname changed from " + username + " to " + newNick);
+                    username = newNick;
+                    adapter = new MessageAdapter(messages, username);
+                    rvMessages.setAdapter(adapter);
+                } else {
+                    displaySystemMessage("Usage: /nick <new_nickname>");
+                }
+                break;
+            case "/connect":
+                displaySystemMessage("Attempting to connect to IRC server...");
+                try {
+                    ircClient.connect(username, "#usth-ircui");
+                    displaySystemMessage("Connected to IRC server!");
+                } catch (Exception e) {
+                    displaySystemMessage("Connection failed: " + e.getMessage());
+                }
+                break;
             default:
                 displaySystemMessage("Unknown command: " + command);
                 break;
@@ -172,14 +190,39 @@ public class ChatFragment extends Fragment {
     private void showHelpInfo() {
         String helpMessage = "--- User Guide ---\n"
                 + "/help or /general - Shows this guide.\n"
-                + "/nick <new_name> - Changes your nickname (example functionality).\n"
+                + "/nick <new_name> - Changes your nickname.\n"
+                + "/connect - Connect to IRC server\n"
                 + "--------------------";
         displaySystemMessage(helpMessage);
     }
 
     private void displaySystemMessage(String text) {
-        messages.add(new Message("System", text, false));
-        adapter.notifyItemInserted(messages.size() - 1);
-        rvMessages.scrollToPosition(messages.size() - 1);
+        requireActivity().runOnUiThread(() -> {
+            messages.add(new Message("System", text, false));
+            adapter.notifyItemInserted(messages.size() - 1);
+            rvMessages.scrollToPosition(messages.size() - 1);
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, SettingsFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

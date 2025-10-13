@@ -53,5 +53,6 @@
     <color name="button_bg">#23272F</color>
     <color name="button_pressed">#3A3F4B</color>
     <color name="divider">#262B33</color>
+    <color name="red">#FF0000</color>
 
 </resources>

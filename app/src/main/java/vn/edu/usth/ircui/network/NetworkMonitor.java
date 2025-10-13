@@ -8,7 +8,9 @@ import android.net.NetworkCapabilities;
 import androidx.annotation.NonNull;
 
 public class NetworkMonitor {
-    public interface Callback { void onUp(); void onDown(); }
+    public interface Callback {
+        void onUp(); void onDown();
+    }
 
     private final ConnectivityManager cm;
     private final ConnectivityManager.NetworkCallback cb;
@@ -20,6 +22,10 @@ public class NetworkMonitor {
             @Override public void onLost(@NonNull Network network) { callback.onDown(); }
         };
     }
-    public void start() { cm.registerDefaultNetworkCallback(cb); } // API 24+ :contentReference
-    public void stop()  { cm.unregisterNetworkCallback(cb); }
+    public void start() {
+        cm.registerDefaultNetworkCallback(cb);
+    }
+    public void stop()  {
+        cm.unregisterNetworkCallback(cb);
+    }
 }

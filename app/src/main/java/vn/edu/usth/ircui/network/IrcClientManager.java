@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Robust IRC manager:
+ * IRC manager:
  * - TLS on 6697 (true)
  * - Multi-server fallback
  * - Exponential backoff reconnect
@@ -36,16 +36,16 @@ public class IrcClientManager {
     private final android.os.Handler main = new android.os.Handler(Looper.getMainLooper());
     private volatile Client client;
 
-    // ---- user/channel ----
+    // user/channel
     private String currentNick = "Guest";
     private String currentChannel = "#usth-ircui";
 
-    // ---- servers (host,port,tls) ----
+    // servers
     public static class Server {
         public final String host; public final int port; public final boolean tls;
         public Server(String host, int port, boolean tls){ this.host=host; this.port=port; this.tls=tls; }
     }
-    // presets: Libera, OFTC, Rizon (all TLS 6697)
+    // presets: Libera, OFTC, Rizon (TLS 6697)
     private List<Server> servers = Arrays.asList(
             new Server("irc.libera.chat", 6697, true),
             new Server("irc.oftc.net",   6697, true),
@@ -53,13 +53,13 @@ public class IrcClientManager {
     );
     private int serverIndex = 0;
 
-    // ---- reconnection ----
-    private long backoffMs = 1500;             // start at 1.5s
-    private static final long BACKOFF_MAX_MS = 60_000; // cap at 60s
+    // reconnection
+    private long backoffMs = 1500;
+    private static final long BACKOFF_MAX_MS = 60_000;
     private final AtomicBoolean connecting = new AtomicBoolean(false);
     private final AtomicBoolean wantConnected = new AtomicBoolean(false);
 
-    // ---- SASL ----
+    // SASL
     private @Nullable String saslUser, saslPass;
     private boolean saslExternal;
 
@@ -122,7 +122,6 @@ public class IrcClientManager {
                     client.sendMessage(currentChannel, chunk);
                     // debugging, and that is the REASON why double message
                     postMessage(currentNick, text, System.currentTimeMillis(), true);
-                    // The server will echo our message back (IRCv3 echo-message), and we render it once. :contentReference[oaicite:3]{index=3}
                 } catch (Exception e) {
                     postSystem("Send failed: " + e.getMessage());
                 }
@@ -130,7 +129,7 @@ public class IrcClientManager {
         }
     }
 
-    // ---------------- internal ----------------
+    // internal
     private void startConnectAttempt() {
         if (!wantConnected.get()) return;
         if (!connecting.compareAndSet(false, true)) return;
@@ -148,7 +147,7 @@ public class IrcClientManager {
                         .then()
                         .build();
 
-                // --- SASL per KICL (PLAIN/EXTERNAL) ---
+                // SASL per KICL (PLAIN/EXTERNAL)
                 if (saslExternal) {
                     c.getAuthManager().addProtocol(new SaslExternal(c));
                 } else if (saslUser != null && !saslUser.isEmpty() && saslPass != null) {

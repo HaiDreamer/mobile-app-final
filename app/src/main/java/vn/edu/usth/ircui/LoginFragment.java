@@ -33,9 +33,8 @@ public class LoginFragment extends Fragment {
     private CheckBox cbSaslPlain, cbSaslExternal;
     private Button btnStart, btnChatOnly;
 
-    // Android 13+ runtime notification permission (để FGS hiện notif)
     private final ActivityResultLauncher<String> notifPerm =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> { /* no-op */ });
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> { });
 
     @Nullable
     @Override
@@ -55,7 +54,6 @@ public class LoginFragment extends Fragment {
         btnStart       = v.findViewById(R.id.btnStartService);
         btnChatOnly    = v.findViewById(R.id.btnLogin);
 
-        // Spinner server với layout tùy biến (selected trắng, dropdown đen)
         final String[] servers = new String[]{
                 "Libera.Chat (irc.libera.chat:6697)",
                 "OFTC (irc.oftc.net:6697)",
@@ -87,14 +85,13 @@ public class LoginFragment extends Fragment {
             }
         };
         spServer.setAdapter(serverAdapter);
-        // end spinner
 
-        // Open/close SASL input fields when enabling/disabling checkbox
         cbSaslPlain.setOnCheckedChangeListener((btn, checked) -> {
             etSaslUser.setEnabled(checked);
             etSaslPass.setEnabled(checked);
             if (checked) cbSaslExternal.setChecked(false);
         });
+
         cbSaslExternal.setOnCheckedChangeListener((btn, checked) -> {
             if (checked) {
                 cbSaslPlain.setChecked(false);
@@ -103,11 +100,12 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        // Mặc định
         if (TextUtils.isEmpty(etChannel.getText())) etChannel.setText("#usth-ircui");
         cbSaslExternal.setChecked(true);
 
-        // Start ForegroundService
+        // Set default nickname
+        if (TextUtils.isEmpty(etNick.getText())) etNick.setText("TestUser" + (int)(Math.random() * 1000));
+
         btnStart.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
             String nick    = NickUtils.sanitize(rawNick, 32);
@@ -131,11 +129,6 @@ public class LoginFragment extends Fragment {
             svc.putExtra(IrcForegroundService.EXTRA_SASL_USER, saslUser);
             svc.putExtra(IrcForegroundService.EXTRA_SASL_PASS, saslPass);
 
-            // U can expand service receive host/port:
-            // svc.putExtra("EXTRA_HOST", sc.host);
-            // svc.putExtra("EXTRA_PORT", sc.port);
-            // svc.putExtra("EXTRA_TLS", sc.tls);
-
             if (Build.VERSION.SDK_INT >= 26) {
                 requireContext().startForegroundService(svc);
             } else {
@@ -147,34 +140,27 @@ public class LoginFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
         });
 
-        // Chat only (not run service) + check nickname availability
+        // Simplified chat only button to directly navigate to ChatFragment
         btnChatOnly.setOnClickListener(vw -> {
             String rawNick = getTextSafe(etNick);
             String nick    = NickUtils.sanitize(rawNick, 32);
-            ServerChoice sc = readServerChoice();
 
-            btnChatOnly.setEnabled(false);
-            Toast.makeText(requireContext(), "Checking nickname on server…", Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(nick)) {
+                etNick.setError("Please enter a nickname");
+                return;
+            }
 
-            new NickAvailabilityChecker(sc.host, sc.port, sc.tls)
-                    .check(nick, (inUse, message) -> {
-                        btnChatOnly.setEnabled(true);
-
-                        if (inUse) {
-                            etNick.setError("Nickname in use on " + sc.host);
-                            Toast.makeText(requireContext(),
-                                    "Nickname already in use: " + nick + "\n" + message,
-                                    Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        ChatFragment chat = ChatFragment.newInstance(nick);
-                        requireActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.container, chat)
-                                .addToBackStack(null)
-                                .commit();
-                    });
+            // Directly navigate to ChatFragment without nickname checking
+            try {
+                ChatFragment chat = ChatFragment.newInstance(nick);
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.container, chat)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
 
         return v;
