@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "70926200749",
+    "project_id": "usth-irc",
+    "storage_bucket": "usth-irc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70926200749:android:acf2acc8a6728241ff7b24",
+        "android_client_info": {
+          "package_name": "vn.edu.usth.ircui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaNn099Sq50ZwOBmEE6odlW6WRkfAx7xM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
