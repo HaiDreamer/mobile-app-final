@@ -7,7 +7,7 @@
     <color name="colorAccent">#03DAC5</color>
 
     <!-- Main Chat / App Background -->
-    <color name="bgPrimary">#0E1116</color>
+    <color name="bgPrimary">#12352F</color>
     <color name="bgSecondary">#151A23</color>
     <color name="accent">#03DAC5</color>
 
@@ -25,7 +25,7 @@
     <color name="userColor8">#29C7AC</color>   <!-- teal -->
 
     <!-- Discord / Coding Theme (DM colors) -->
-    <color name="bg_primary">#0E1116</color>
+    <color name="bg_primary">#12352F</color>
     <color name="bg_elev">#151A23</color>
     <color name="text_strong">#C9D1D9</color>
     <color name="text_normal">#E6EDF3</color>
