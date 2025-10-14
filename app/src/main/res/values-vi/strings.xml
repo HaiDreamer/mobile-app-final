@@ -16,13 +16,8 @@
     <string name="nickname">Biệt danh</string>
     <string name="channel">Kênh</string>
     <string name="usth_ircui">#usth-ircui</string>
-    <string name="use_sasl_plain_recommended">Sử dụng SASL PLAIN (Khuyên dùng)</string>
-    <string name="sasl_username">Tên người dùng SASL</string>
-    <string name="sasl_password">Mật khẩu SASL</string>
-    <string name="use_sasl_external_client_certificate">Sử dụng SASL EXTERNAL (Chứng chỉ máy khách)</string>
     <string name="join_chat">Tham gia trò chuyện</string>
     <string name="start_background_service">Bắt đầu dịch vụ nền</string>
-    <!-- Settings Strings -->
     <string name="settings">Cài đặt</string>
     <string name="theme_settings">Giao diện</string>
     <string name="theme_system">Mặc định hệ thống</string>
@@ -76,4 +71,5 @@
     <string name="yes">Có</string>
     <string name="no">Không</string>
     <string name="change_language">VI</string>
+    <string name="password">Mật khẩu</string>
 </resources>

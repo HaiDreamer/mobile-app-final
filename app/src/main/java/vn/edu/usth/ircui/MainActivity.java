@@ -90,20 +90,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // LOCALE: simple EN/VI toggle button (visible on LoginFragment only)
-        btnLanguage = findViewById(R.id.btnLanguage);
-        if (btnLanguage != null) {
-            updateLanguageButtonText();
-            btnLanguage.setOnClickListener(v -> {
-                String currentLang = LocaleHelper.getLanguage(MainActivity.this);
-                String newLang = currentLang.equals("en") ? "vi" : "en";
-                LocaleHelper.setLocale(MainActivity.this, newLang);
-                updateLanguageButtonText();
-                Toast.makeText(MainActivity.this, "Ngôn ngữ đã được thay đổi", Toast.LENGTH_SHORT).show();
-                recreate(); // re-inflate resources for new locale
-            });
-        }
-
         updateUiForTopFragment();
     }
 
@@ -170,8 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // --- helpers ---
-
+    // helpers
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
         int themeMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
