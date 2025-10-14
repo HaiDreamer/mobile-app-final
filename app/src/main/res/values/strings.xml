@@ -8,6 +8,7 @@
     <string name="enter_username_example">Enter username (e.g: Bob)</string>
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>
+    <string name="close">Close</string>
     <string name="send">Send</string>
     <string name="hint_user">Message @user</string>
     <string name="hint_group">Message #group</string>
@@ -75,4 +76,12 @@
     <string name="irc">IRC</string>
     <string name="register">Register\n</string>
     <string name="welcome">Welcome</string>
+    <string name="pick_avatar">Pick avatar</string>
+    <string name="profile_note">Profile note</string>
+    <string name="save">Save</string>
+    <string name="verify_password">Verify Password</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+
 </resources>
