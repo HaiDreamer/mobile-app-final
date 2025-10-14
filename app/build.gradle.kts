@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Add Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,6 +43,12 @@ android {
 }
 
 dependencies {
+    // import Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    // Firestore
+    implementation("com.google.firebase:firebase-firestore")
+
+
     implementation("org.kitteh.irc:client-lib:9.0.0")
     implementation(libs.appcompat)
     implementation(libs.material)
