@@ -39,7 +39,7 @@ public class RegisterFragment extends Fragment {
             // MODIFIED: Gọi phương thức trong MainActivity để chuyển màn hình
             // Lấy ra Activity đang chứa Fragment này và gọi phương thức của nó.
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToChatFragment(nickname);
+                ((MainActivity) getActivity()).navigateToChooseServer(nickname);
             }
         });
 
