@@ -39,7 +39,7 @@ public class ChatFragment extends Fragment {
         return f;
     }
 
-    private String username = "Guest";
+    private String username = "Guest";      //username should be username from login
     private final List<Message> messages = new ArrayList<>();
     private MessageAdapter adapter;
     private IrcClientManager ircClient;
