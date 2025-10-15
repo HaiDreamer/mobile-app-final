@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -17,25 +20,31 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
 import vn.edu.usth.ircui.feature_chat.data.Message;
-import vn.edu.usth.ircui.network.IrcClientManager;
 import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
+import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
+import vn.edu.usth.ircui.network.IrcClientManager;
 
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-
+/**
+ * ChatFragment
+ * ------------
+ * Handles main chat functionality:
+ *  - Display messages
+ *  - Send messages to server
+ *  - Handle guest/registered users
+ *  - Support /commands (help, nick, connect)
+ */
 public class ChatFragment extends Fragment {
 
     private static final String ARG_USERNAME = "username";
 
+    // Factory method to create a new instance with username
     public static ChatFragment newInstance(String username) {
         ChatFragment f = new ChatFragment();
         Bundle b = new Bundle();
@@ -61,14 +70,12 @@ public class ChatFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        // initial Firestore
         db = FirebaseFirestore.getInstance();
 
-        // get unique username
+        // Retrieve username passed from MainActivity
         if (getArguments() != null) {
             currentUsername = getArguments().getString(ARG_USERNAME, "Guest");
         }
-
     }
 
     @Nullable
@@ -79,11 +86,11 @@ public class ChatFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_chat, container, false);
 
         rvMessages = v.findViewById(R.id.rvMessages);
-        etMessage  = v.findViewById(R.id.etMessage);
+        etMessage = v.findViewById(R.id.etMessage);
         ImageButton btnSend = v.findViewById(R.id.btnSend);
         FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
-        // pass nickname to adapter
+        // Setup adapter with nickname
         adapter = new MessageAdapter(messages, currentNickname);
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
@@ -91,22 +98,26 @@ public class ChatFragment extends Fragment {
         ircClient = getIrcClientManager();
 
         btnSend.setOnClickListener(view -> handleSendMessageClick());
-
-        // Open Direct Message via FAB
         fabDm.setOnClickListener(view -> openDirectMessageDialog());
+
+        // Load nickname info from Firestore or Guest welcome
+        fetchUserData();
 
         return v;
     }
 
+    // =============================
+    // 🔹 Direct Message dialog
+    // =============================
     private void openDirectMessageDialog() {
         final EditText inputUser = new EditText(requireContext());
-        inputUser.setHint("Nhập username (ví dụ: bob)");
+        inputUser.setHint("Enter username (e.g., bob)");
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("Direct message")
+                .setTitle("Direct Message")
                 .setView(inputUser)
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Mở", (d, w) -> {
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Open", (d, w) -> {
                     String peer = inputUser.getText() != null
                             ? inputUser.getText().toString().trim()
                             : "";
@@ -114,8 +125,7 @@ public class ChatFragment extends Fragment {
                         String me = currentUsername;
                         getParentFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.container,
-                                        DirectMessageFragment.newInstance(me, peer))
+                                .replace(R.id.container, DirectMessageFragment.newInstance(me, peer))
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -123,6 +133,9 @@ public class ChatFragment extends Fragment {
                 .show();
     }
 
+    // =============================
+    // 🔹 Connect to IRC Manager
+    // =============================
     @NonNull
     private IrcClientManager getIrcClientManager() {
         IrcClientManager manager = new IrcClientManager();
@@ -140,55 +153,62 @@ public class ChatFragment extends Fragment {
             }
         });
 
+        // Connect user to default channel
         manager.connect(currentUsername, "#usth-ircui");
         return manager;
     }
 
-    private void fetchUserData(){
-        // guest user
-        if(currentUsername == null || currentUsername.equals("Guest")) {
+    // =============================
+    // 🔹 Load nickname info
+    // =============================
+    private void fetchUserData() {
+        // Guests are detected by "Guest" prefix
+        if (currentUsername == null
+                || currentUsername.equals("Guest")
+                || currentUsername.startsWith("Guest")) {
+
             currentNickname = "Guest";
             displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
             displaySystemMessage("Chat loaded successfully. You can start messaging!");
+            adapter.setCurrentUser(currentNickname);
             return;
         }
 
-        // registered user
+        // Registered users: fetch nickname from Firestore
         db.collection("Users").document(currentUsername).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if(documentSnapshot.exists()){
-                        // get nickname from db
+                    if (documentSnapshot.exists()) {
                         currentNickname = documentSnapshot.getString("nickname");
-                    }
-                    else{
-                        // account not exist
+                    } else {
                         Log.d("Firestore", "User not found: " + currentUsername);
-                        currentNickname = currentUsername; // use current username as nickname
+                        currentNickname = currentUsername;
                     }
 
                     displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
                     displaySystemMessage("Chat loaded successfully. You can start messaging!");
-
-                    // Update the adapter with the correct nickname for outgoing messages
                     adapter.setCurrentUser(currentNickname);
                 });
     }
 
+    // =============================
+    // 🔹 Handle Send button
+    // =============================
     private void handleSendMessageClick() {
         String text = etMessage.getText() != null
-                ? etMessage.getText().toString().trim() : "";
+                ? etMessage.getText().toString().trim()
+                : "";
         if (TextUtils.isEmpty(text)) return;
 
+        // Handle IRC commands
         if (isCommand(text)) {
             handleCommand(text);
             etMessage.getText().clear();
             return;
         }
 
+        // Prevent spamming
         if (cooldownManager.isCooldownActive()) {
-            Toast.makeText(getContext(),
-                    "You are sending messages too quickly!",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "You are sending messages too quickly!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -197,6 +217,9 @@ public class ChatFragment extends Fragment {
         etMessage.getText().clear();
     }
 
+    // =============================
+    // 🔹 Commands (/nick, /help, etc.)
+    // =============================
     private boolean isCommand(String text) {
         return text.startsWith("/");
     }
@@ -236,10 +259,13 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    // =============================
+    // 🔹 Helper methods
+    // =============================
     private void showHelpInfo() {
         String helpMessage = "--- User Guide ---\n"
                 + "/help or /general - Shows this guide.\n"
-                + "/nick <new_name> - Changes your nickname (example functionality).\n"
+                + "/nick <new_name> - Changes your nickname.\n"
                 + "--------------------";
         displaySystemMessage(helpMessage);
     }
@@ -250,6 +276,9 @@ public class ChatFragment extends Fragment {
         rvMessages.scrollToPosition(messages.size() - 1);
     }
 
+    // =============================
+    // 🔹 Options menu
+    // =============================
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
