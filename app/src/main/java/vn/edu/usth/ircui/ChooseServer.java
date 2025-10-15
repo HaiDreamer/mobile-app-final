@@ -39,6 +39,7 @@ public class ChooseServer extends Fragment {
         serverInput = view.findViewById(R.id.serverInput);
         enterServerButton = view.findViewById(R.id.enterServer);
 
+
         serverInput.setDropDownBackgroundResource(R.color.dropdown_bg);
         serverInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {

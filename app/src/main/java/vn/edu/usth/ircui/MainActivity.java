@@ -106,14 +106,14 @@ public class MainActivity extends AppCompatActivity {
         ChooseServer chooseServerFragment = ChooseServer.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chooseServerFragment);
-        ft.addToBackStack(null); // Cho phép quay lại nếu cần
+        ft.addToBackStack(null); // Allow comeback if needs
         ft.commit();
     }
 
     // MENUS: inflate app bar menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        //getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 

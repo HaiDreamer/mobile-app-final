@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
-        android:text="Choose Server"
+        android:text="@string/choose_server"
         android:textColor="#FFFFFF"
         android:textSize="35dp"
         android:textStyle="bold"
@@ -23,9 +23,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="120dp"
-        android:text="Choose the server which you want to enter for chatting"
+        android:text="@string/choose_the_server_which_you_want_to_enter_for_chatting"
         android:textColor="#FFFFFF"
-        android:textSize="15dp"
+        android:textSize="12dp"
         android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +64,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
-                android:hint="Search"
+                android:hint="@string/search"
                 android:textColorHint="#CDCDD1"
                 android:textColor="#FFFFFF"
                 android:background="@android:color/transparent"
@@ -74,15 +74,16 @@
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/enterServer"
-    android:text="Enter Server"
-    android:layout_width="340dp"
-    android:layout_height="45dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    android:layout_marginTop="600dp"
-    android:backgroundTint="#5729AE"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/enterServer"
+        android:layout_width="340dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="392dp"
+        android:backgroundTint="#5729AE"
+        android:text="@string/enter_server"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
