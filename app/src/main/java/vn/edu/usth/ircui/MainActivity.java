@@ -27,6 +27,14 @@ import com.google.android.material.appbar.AppBarLayout;
 import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
+/**
+ * MainActivity
+ * -------------
+ * Acts as the main container for all fragments:
+ *  - Shows Welcome screen first (Login / Register / Guest)
+ *  - Hosts ChatFragment after login or guest selection
+ *  - Manages toolbar, app theme, permissions, and fragment navigation
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
@@ -40,12 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // THEME: apply saved Day/Night mode before super.onCreate
+        // 1️⃣ Apply the saved Day/Night theme before super.onCreate
         initializeAppTheme();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TOOLBAR/BACK: set up app bar + back arrow on back stack changes
+        // 2️⃣ Setup toolbar and handle back navigation dynamically
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -58,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        // Update toolbar icon based on backstack
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
             if (canBack) {
@@ -71,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             updateUiForTopFragment();
         });
 
-        // START: WelcomeFragment on first launch (kept from your version)
+        // 3️⃣ Load WelcomeFragment when app starts
         if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new WelcomeFragment())
@@ -79,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        // NOTIFICATIONS: request runtime permission on Android 13+
+        // 4️⃣ Request notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -93,31 +103,45 @@ public class MainActivity extends AppCompatActivity {
         updateUiForTopFragment();
     }
 
-    // PUBLIC API: fragments call this to jump to Chat and clear history
+    // =============================
+    // 🔹 PUBLIC API FOR FRAGMENTS
+    // =============================
+
+    /**
+     * Called by Login, Register, or Welcome (Guest mode)
+     * Opens ChatFragment directly and clears backstack.
+     */
     public void navigateToChatFragment(String username) {
         ChatFragment chatFragment = ChatFragment.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
+        // Clear history (can't go back to login/welcome)
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         ft.commit();
     }
 
+    /**
+     * Called by LoginFragment → goes to server choosing screen (optional step)
+     */
     public void navigateToChooseServer(String username) {
         ChooseServer chooseServerFragment = ChooseServer.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chooseServerFragment);
-        ft.addToBackStack(null); // Allow comeback if needs
+        ft.addToBackStack(null);
         ft.commit();
     }
 
-    // MENUS: inflate app bar menu
+    // =============================
+    // 🔹 MENU & ACTIONS
+    // =============================
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.main_menu, menu);
+        // Inflate menu if needed
+        // getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
 
-    // MENUS: handle actions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -149,7 +173,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // NOTIFICATIONS: runtime permission result toast
+    // =============================
+    // 🔹 PERMISSION CALLBACK
+    // =============================
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -164,7 +190,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // helpers
+    // =============================
+    // 🔹 HELPER METHODS
+    // =============================
+
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
         int themeMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -226,12 +255,11 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    // Allows to go to Login screen
+    // Shortcut method: allows RegisterFragment to send user back to LoginFragment
     public void navigateToLoginFragment(){
         LoginFragment loginFragment = new LoginFragment();
-
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, loginFragment) // replace current fragment with login fragment
+                .replace(R.id.container, loginFragment)
                 .commit();
     }
 }

@@ -7,6 +7,7 @@
     android:padding="32dp"
     android:background="@drawable/background_welcome">
 
+    <!-- App title -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,6 +17,7 @@
         android:layout_marginBottom="16dp"
         android:textColor="#FFFFFF"/>
 
+    <!-- Subtitle -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,11 +26,15 @@
         android:layout_marginBottom="48dp"
         android:textColor="@color/white"/>
 
+    <!-- Login -->
     <Button
         android:id="@+id/btn_go_to_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#132871"
+        android:textColor="@android:color/white"
         android:gravity="center"
         android:textAlignment="center"
         android:paddingStart="0dp"
@@ -38,29 +44,23 @@
         android:insetTop="0dp"
         android:insetBottom="0dp" />
 
+    <!-- Register -->
     <Button
         android:id="@+id/btn_go_to_register"
-        android:layout_width="292dp"
-        android:layout_height="53.75dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="#F2F3F5"
         android:text="@string/register"
         android:textColor="@color/black"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_go_to_login"
-        android:layout_width="292dp"
-        android:layout_height="53.75dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/register"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        android:insetLeft="0dp"
-        android:insetRight="0dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp" />
-        android:backgroundTint="#132871"
-        android:text="@string/login" />
+    <!-- ✅ NEW: Use as Guest (no DB save) -->
+    <Button
+        android:id="@+id/btn_use_guest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Use as Guest"
+        android:backgroundTint="#2096F3"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>
