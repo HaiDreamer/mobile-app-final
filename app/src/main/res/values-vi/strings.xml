@@ -72,4 +72,9 @@
     <string name="no">Không</string>
     <string name="change_language">VI</string>
     <string name="password">Mật khẩu</string>
+    <string name="register">Đăng kí\n</string>
+    <string name="choose_the_server_which_you_want_to_enter_for_chatting">Chọn server để vào chat</string>
+    <string name="choose_server">Chọn Server</string>
+    <string name="enter_server">Vào Server</string>
+    <string name="search">Tìm kiếm</string>
 </resources>

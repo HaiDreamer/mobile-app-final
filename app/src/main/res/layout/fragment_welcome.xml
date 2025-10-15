@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp"
-    android:background="#333333">
+    android:background="@drawable/background_welcome">
 
     <TextView
         android:layout_width="wrap_content"
@@ -40,8 +40,16 @@
 
     <Button
         android:id="@+id/btn_go_to_register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="292dp"
+        android:layout_height="53.75dp"
+        android:backgroundTint="#F2F3F5"
+        android:text="@string/register"
+        android:textColor="@color/black"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_go_to_login"
+        android:layout_width="292dp"
+        android:layout_height="53.75dp"
         android:layout_marginTop="16dp"
         android:text="@string/register"
         android:gravity="center"
@@ -52,5 +60,7 @@
         android:insetRight="0dp"
         android:insetTop="0dp"
         android:insetBottom="0dp" />
+        android:backgroundTint="#132871"
+        android:text="@string/login" />
 
 </LinearLayout>

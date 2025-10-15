@@ -39,7 +39,7 @@ public class LoginFragment extends Fragment {
 
             // Call method in MainActivity to switch to Chat screen
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToChatFragment(username);
+                ((MainActivity) getActivity()).navigateToChooseServer(username);
             }
         });
 

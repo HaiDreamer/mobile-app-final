@@ -72,7 +72,11 @@
     <string name="no">No</string>
     <string name="change_language">EN</string>
     <string name="password">Password</string>
-    <string name="irc">IRC</string>
+    <string name="irc" translatable="false">IRC</string>
     <string name="register">Register\n</string>
-    <string name="welcome">Welcome</string>
+    <string name="welcome" translatable="false">Welcome</string>
+    <string name="choose_the_server_which_you_want_to_enter_for_chatting">Choose the server which you want to enter for chatting</string>
+    <string name="choose_server">Choose Server</string>
+    <string name="enter_server">Enter Server</string>
+    <string name="search">Search</string>
 </resources>

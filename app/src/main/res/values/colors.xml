@@ -52,5 +52,6 @@
     <color name="button_pressed">#3A3F4B</color>
     <color name="divider">#262B33</color>
     <color name="red">#FF0000</color>
+    <color name="dropdown_bg">#505059</color>
 
 </resources>
