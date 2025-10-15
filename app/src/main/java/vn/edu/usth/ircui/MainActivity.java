@@ -28,14 +28,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
-/**
- * MainActivity
- * -------------
- * Acts as the main container for all fragments:
- *  - Shows Welcome screen first (Login / Register / Guest)
- *  - Hosts ChatFragment after login or guest selection
- *  - Manages toolbar, app theme, permissions, and fragment navigation
- */
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
@@ -49,9 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 1️⃣ Apply the saved Day/Night theme before super.onCreate
+        // THEME: apply saved Day/Night mode before super.onCreate
         initializeAppTheme();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -71,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // Update toolbar icon based on backstack
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
             if (canBack) {
@@ -116,38 +106,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // PUBLIC API: fragments call this to jump to Chat and clear history
-    // =============================
-    // 🔹 PUBLIC API FOR FRAGMENTS
-    // =============================
-
-    /**
-     * Called by Login, Register, or Welcome (Guest mode)
-     * Opens ChatFragment directly and clears backstack.
-     */
     public void navigateToChatFragment(String username) {
         ChatFragment chatFragment = ChatFragment.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
-        // Clear history (can't go back to login/welcome)
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         ft.commit();
     }
 
-    /**
-     * Called by LoginFragment → goes to server choosing screen (optional step)
-     */
     public void navigateToChooseServer(String username) {
         ChooseServer chooseServerFragment = ChooseServer.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chooseServerFragment);
-        ft.addToBackStack(null);
+        ft.addToBackStack(null); // Allow comeback if needs
         ft.commit();
     }
 
-    // =============================
-    // 🔹 MENU & ACTIONS
-    // =============================
-
+    // MENUS: inflate app bar menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -186,9 +161,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // =============================
-    // 🔹 PERMISSION CALLBACK
-    // =============================
+    // NOTIFICATIONS: runtime permission result toast
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -203,10 +176,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // =============================
-    // 🔹 HELPER METHODS
-    // =============================
-
+    // helpers
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
         int themeMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -268,11 +238,12 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    // Shortcut method: allows RegisterFragment to send user back to LoginFragment
+    // Allows to go to Login screen
     public void navigateToLoginFragment(){
         LoginFragment loginFragment = new LoginFragment();
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, loginFragment)
+                .replace(R.id.container, loginFragment) // replace current fragment with login fragment
                 .commit();
     }
 }
