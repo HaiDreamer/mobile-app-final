@@ -39,7 +39,7 @@ public class LoginFragment extends Fragment {
 
             // Gọi phương thức trong MainActivity để chuyển sang màn hình Chat
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToChatFragment(username);
+                ((MainActivity) getActivity()).navigateToChooseServer(username);
             }
         });
 

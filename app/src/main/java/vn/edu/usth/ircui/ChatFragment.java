@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,8 @@ import java.util.List;
 import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
 import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,9 +58,6 @@ public class ChatFragment extends Fragment {
         if (getArguments() != null) {
             username = getArguments().getString(ARG_USERNAME, "Guest");
         }
-
-        // Add welcome message
-        messages.add(new Message("System", "Welcome to IRC Chat, " + username + "!", false));
     }
 
     @Nullable
@@ -76,37 +76,60 @@ public class ChatFragment extends Fragment {
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
-        // Initialize IRC client but don't connect immediately for testing
-        ircClient = new IrcClientManager();
-        ircClient.setCallback(new IrcClientManager.MessageCallback() {
+        ircClient = getIrcClientManager();
+
+        btnSend.setOnClickListener(view -> handleSendMessageClick());
+
+        // Open Direct Message via FAB
+        fabDm.setOnClickListener(view -> openDirectMessageDialog());
+
+        return v;
+    }
+
+    private void openDirectMessageDialog() {
+        final EditText inputUser = new EditText(requireContext());
+        inputUser.setHint("Nhập username (ví dụ: bob)");
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Direct message")
+                .setView(inputUser)
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Mở", (d, w) -> {
+                    String peer = inputUser.getText() != null
+                            ? inputUser.getText().toString().trim()
+                            : "";
+                    if (!peer.isEmpty()) {
+                        String me = username;
+                        getParentFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.container,
+                                        DirectMessageFragment.newInstance(me, peer))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                })
+                .show();
+    }
+
+    @NonNull
+    private IrcClientManager getIrcClientManager() {
+        IrcClientManager manager = new IrcClientManager();
+        manager.setCallback(new IrcClientManager.MessageCallback() {
             @Override
             public void onMessage(String u, String t, long ts, boolean mine) {
-                requireActivity().runOnUiThread(() -> {
-                    messages.add(new Message(u, t, mine));
-                    adapter.notifyItemInserted(messages.size() - 1);
-                    rvMessages.scrollToPosition(messages.size() - 1);
-                });
+                messages.add(new Message(u, t, mine));
+                adapter.notifyItemInserted(messages.size() - 1);
+                rvMessages.scrollToPosition(messages.size() - 1);
             }
 
             @Override
             public void onSystem(String t) {
-                requireActivity().runOnUiThread(() -> {
-                    displaySystemMessage(t);
-                });
+                displaySystemMessage(t);
             }
         });
 
-        btnSend.setOnClickListener(view -> handleSendMessageClick());
-
-        // Simplified DM functionality
-        fabDm.setOnClickListener(view -> {
-            Toast.makeText(requireContext(), "Direct Message feature coming soon!", Toast.LENGTH_SHORT).show();
-        });
-
-        // Add test message to verify chat is working
-        displaySystemMessage("Chat loaded successfully. You can start messaging!");
-
-        return v;
+        manager.connect(username, "#usth-ircui");
+        return manager;
     }
 
     private void handleSendMessageClick() {
@@ -127,23 +150,7 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        // For testing: just display the message locally without IRC
-        messages.add(new Message(username, text, true));
-        adapter.notifyItemInserted(messages.size() - 1);
-        rvMessages.scrollToPosition(messages.size() - 1);
-
-        // Simulate response
-        requireActivity().runOnUiThread(() -> {
-            try {
-                Thread.sleep(1000);
-                messages.add(new Message("Bot", "Echo: " + text, false));
-                adapter.notifyItemInserted(messages.size() - 1);
-                rvMessages.scrollToPosition(messages.size() - 1);
-            } catch (Exception e) {
-                // Ignore
-            }
-        });
-
+        ircClient.sendMessage(text);
         cooldownManager.recordMessageSent();
         etMessage.getText().clear();
     }
@@ -190,18 +197,15 @@ public class ChatFragment extends Fragment {
     private void showHelpInfo() {
         String helpMessage = "--- User Guide ---\n"
                 + "/help or /general - Shows this guide.\n"
-                + "/nick <new_name> - Changes your nickname.\n"
-                + "/connect - Connect to IRC server\n"
+                + "/nick <new_name> - Changes your nickname (example functionality).\n"
                 + "--------------------";
         displaySystemMessage(helpMessage);
     }
 
     private void displaySystemMessage(String text) {
-        requireActivity().runOnUiThread(() -> {
-            messages.add(new Message("System", text, false));
-            adapter.notifyItemInserted(messages.size() - 1);
-            rvMessages.scrollToPosition(messages.size() - 1);
-        });
+        messages.add(new Message("System", text, false));
+        adapter.notifyItemInserted(messages.size() - 1);
+        rvMessages.scrollToPosition(messages.size() - 1);
     }
 
     @Override
@@ -222,7 +226,6 @@ public class ChatFragment extends Fragment {
                     .commit();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

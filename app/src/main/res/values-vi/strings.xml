@@ -8,7 +8,6 @@
     <string name="enter_username_example">Nhập tên người dùng (e.g: Bob)</string>
     <string name="cancel">Hủy bỏ</string>
     <string name="open">Mở</string>
-    <string name="close">Đóng</string>
     <string name="send">Gửi</string>
     <string name="hint_user">Nhắn @user</string>
     <string name="hint_group">Nhắn #group</string>
@@ -73,14 +72,9 @@
     <string name="no">Không</string>
     <string name="change_language">VI</string>
     <string name="password">Mật khẩu</string>
-    <string name="irc">IRC</string>
-    <string name="register">Đăng ký\n</string>
-    <string name="welcome">Chào mừng</string>
-    <string name="pick_avatar">Chọn ảnh đại diện</string>
-    <string name="profile_note">Ghi chú hồ sơ</string>
-    <string name="save">Lưu</string>
-    <string name="verify_password">Xác nhận mật khẩu</string>
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
-
+    <string name="register">Đăng kí\n</string>
+    <string name="choose_the_server_which_you_want_to_enter_for_chatting">Chọn server để vào chat</string>
+    <string name="choose_server">Chọn Server</string>
+    <string name="enter_server">Vào Server</string>
+    <string name="search">Tìm kiếm</string>
 </resources>
