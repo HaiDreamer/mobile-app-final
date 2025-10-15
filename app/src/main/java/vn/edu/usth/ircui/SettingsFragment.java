@@ -57,7 +57,6 @@ public class SettingsFragment extends Fragment {
 
     private void initAppearanceSection(View view) {
         Switch switchDarkMode = view.findViewById(R.id.switchDarkMode);
-        TextView tvCurrentFontSize = view.findViewById(R.id.tvCurrentFontSize);
 
         // Dark mode
         boolean isDarkMode = sharedPreferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -71,13 +70,6 @@ public class SettingsFragment extends Fragment {
             requireActivity().recreate();
         });
 
-        // Text size
-        String currentFontSize = sharedPreferences.getString("font_size", "medium");
-        tvCurrentFontSize.setText(getFontSizeDisplayName(currentFontSize));
-
-        view.findViewById(R.id.fontSizeSection).setOnClickListener(v -> {
-            showFontSizeDialog(tvCurrentFontSize);
-        });
     }
 
     private void initLanguageSection(View view) {

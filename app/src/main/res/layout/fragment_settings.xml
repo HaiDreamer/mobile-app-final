@@ -145,41 +145,6 @@
                     android:layout_height="1dp"
                     android:background="?android:attr/colorBackground" />
 
-                <!-- Cỡ chữ -->
-                <LinearLayout
-                    android:id="@+id/fontSizeSection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/font_size"
-                        android:textSize="14sp"
-                        android:textColor="?android:attr/textColorPrimary" />
-
-                    <TextView
-                        android:id="@+id/tvCurrentFontSize"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/medium"
-                        android:textSize="14sp"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_marginEnd="8dp" />
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_right"
-                        android:tint="?android:attr/textColorSecondary" />
-
-                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
