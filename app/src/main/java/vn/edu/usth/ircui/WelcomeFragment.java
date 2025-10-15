@@ -22,18 +22,18 @@ public class WelcomeFragment extends Fragment {
         Button btnGoToRegister = view.findViewById(R.id.btn_go_to_register);
 
         btnGoToLogin.setOnClickListener(v -> {
-            // Chuyển sang LoginFragment
+            // Switch to LoginFragment
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
             ft.replace(R.id.container, new LoginFragment());
-            ft.addToBackStack(null); // Cho phép quay lại màn hình welcome
+            ft.addToBackStack(null); // allow come back to welcome screen
             ft.commit();
         });
 
         btnGoToRegister.setOnClickListener(v -> {
-            // Chuyển sang RegisterFragment
+            // Switch to RegisterFragment
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
             ft.replace(R.id.container, new RegisterFragment());
-            ft.addToBackStack(null); // Cho phép quay lại màn hình welcome
+            ft.addToBackStack(null); // allow come back to welcome screen
             ft.commit();
         });
 
