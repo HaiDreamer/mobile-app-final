@@ -86,9 +86,10 @@ public class RegisterFragment extends Fragment {
             }
 
             // check verify password
-            if(!password.equals(verifyPassword)){
+            if(!password.equals(verifyPassword)) {
                 Toast.makeText(getContext(), "Verify password is different to the password", Toast.LENGTH_SHORT).show();
                 return;
+            }
             // MODIFIED: Gọi phương thức trong MainActivity để chuyển màn hình
             // Lấy ra Activity đang chứa Fragment này và gọi phương thức của nó.
             if (getActivity() instanceof MainActivity) {

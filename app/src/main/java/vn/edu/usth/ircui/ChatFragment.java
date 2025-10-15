@@ -111,7 +111,7 @@ public class ChatFragment extends Fragment {
                             ? inputUser.getText().toString().trim()
                             : "";
                     if (!peer.isEmpty()) {
-                        String me = username;
+                        String me = currentUsername;
                         getParentFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.container,
@@ -140,7 +140,7 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        manager.connect(username, "#usth-ircui");
+        manager.connect(currentUsername, "#usth-ircui");
         return manager;
     }
 

@@ -99,11 +99,7 @@ public class IrcClientManager {
     }
 
     /**
-     * Send a chat message:
-     * - Strip CR/LF/NUL (IRC messages must be single-line)
-     * - Split multi-line input into separate PRIVMSGs
-     * - Chunk lines to stay well under the 512-byte wire limit (reserve header slack)
-     * - DO NOT locally echo; rely on IRCv3 echo-message to avoid duplicates
+     * Send a chat message
      */
     public void sendMessage(String text) {
         if (client == null || text == null) return;
@@ -209,7 +205,7 @@ public class IrcClientManager {
         main.postDelayed(this::startConnectAttempt, delay);
     }
 
-    // ---- helpers ----
+    // helpers
     private void postMessage(String u, String t, long ts, boolean mine) {
         if (callback == null) return;
         main.post(() -> callback.onMessage(u, t, ts, mine));
