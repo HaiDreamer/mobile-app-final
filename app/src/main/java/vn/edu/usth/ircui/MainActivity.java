@@ -17,8 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
     private Button btnLanguage;
+    private DrawerLayout drawerLayout;
+    private ChannelListFragment channelListFragment;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -44,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
         initializeAppTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize drawer layout
+        drawerLayout = findViewById(R.id.drawerLayout);
+        
+        // Initialize channel list fragment
+        channelListFragment = new ChannelListFragment();
+        FragmentTransaction drawerFt = getSupportFragmentManager().beginTransaction();
+        drawerFt.replace(R.id.drawer_container, channelListFragment);
+        drawerFt.commit();
 
         // TOOLBAR/BACK: set up app bar + back arrow on back stack changes
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -61,11 +74,12 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
             if (canBack) {
-                toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24);
+                toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
                 toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
             } else {
-                toolbar.setNavigationIcon(null);
-                toolbar.setNavigationOnClickListener(null);
+                // Show menu icon when on main fragments (Welcome, Login, Register, Chat)
+                toolbar.setNavigationIcon(R.drawable.menu);
+                toolbar.setNavigationOnClickListener(v -> toggleDrawer());
                 toolbar.setTitle("IRC UI");
             }
             updateUiForTopFragment();
@@ -94,8 +108,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // PUBLIC API: fragments call this to jump to Chat and clear history
-    public void navigateToChatFragment(String username) {
-        ChatFragment chatFragment = ChatFragment.newInstance(username);
+    public void navigateToChatFragment(String username, String serverHost, String channel) {
+        // Save username, server, and current channel to SharedPreferences for later use
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        prefs.edit()
+                .putString("current_username", username)
+                .putString("current_server", serverHost)
+                .putString("current_channel", channel)
+                .apply();
+        
+        // Update channel list to include current channel
+        updateCurrentChannel(channel);
+        
+        ChatFragment chatFragment = ChatFragment.newInstance(username, serverHost, channel);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -185,9 +210,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showUserInfo() {
+        // Get current username from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        String username = prefs.getString("current_username", "Guest");
+        String server = prefs.getString("current_server", "Not connected");
+        String channel = prefs.getString("current_channel", "None");
+        
+        String message = "Username: " + username + "\n" +
+                        "Server: " + server + "\n" +
+                        "Channel: " + channel;
+        
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
-                .setMessage("Username: Guest\nServer: Connected")
+                .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
     }
@@ -224,5 +259,52 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+    
+    // Drawer methods
+    public void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+    
+    public void closeDrawer() {
+        drawerLayout.closeDrawer(GravityCompat.START);
+    }
+    
+    public void openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+    
+    public ChannelListFragment getChannelListFragment() {
+        return channelListFragment;
+    }
+    
+    public void updateCurrentChannel(String channelName) {
+        if (channelListFragment != null) {
+            channelListFragment.setCurrentChannel(channelName);
+        }
+    }
+    
+    // PUBLIC API: navigate to ChannelMessageFragment
+    public void navigateToChannelMessageFragment(String username, String serverHost, String channel) {
+        // Save username, server, and current channel to SharedPreferences for later use
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        prefs.edit()
+                .putString("current_username", username)
+                .putString("current_server", serverHost)
+                .putString("current_channel", channel)
+                .apply();
+        
+        // Update channel list to include current channel
+        updateCurrentChannel(channel);
+        
+        ChannelMessageFragment channelMessageFragment = ChannelMessageFragment.newInstance(username, serverHost, channel);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.container, channelMessageFragment);
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ft.commit();
     }
 }

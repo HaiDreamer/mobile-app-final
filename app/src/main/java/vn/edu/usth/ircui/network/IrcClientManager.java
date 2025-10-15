@@ -1,5 +1,8 @@
 package vn.edu.usth.ircui.network;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 
@@ -7,8 +10,11 @@ import net.engio.mbassy.listener.Handler;
 
 import org.kitteh.irc.client.library.Client;
 import org.kitteh.irc.client.library.event.channel.ChannelMessageEvent;
+import org.kitteh.irc.client.library.event.channel.ChannelJoinEvent;
+import org.kitteh.irc.client.library.event.channel.ChannelPartEvent;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
+import org.kitteh.irc.client.library.event.user.UserQuitEvent;
 import org.kitteh.irc.client.library.feature.auth.SaslExternal;
 import org.kitteh.irc.client.library.feature.auth.SaslPlain;
 
@@ -58,13 +64,18 @@ public class IrcClientManager {
     private static final long BACKOFF_MAX_MS = 60_000;
     private final AtomicBoolean connecting = new AtomicBoolean(false);
     private final AtomicBoolean wantConnected = new AtomicBoolean(false);
+    private int connectionAttempts = 0;
+    private static final int MAX_ATTEMPTS_PER_SERVER = 3;
 
     // SASL
     private @Nullable String saslUser, saslPass;
     private boolean saslExternal;
 
     private MessageCallback callback;
+    private Context context;
+    
     public void setCallback(MessageCallback cb) { this.callback = cb; }
+    public void setContext(Context ctx) { this.context = ctx; }
 
     public void setServers(List<Server> list) {
         if (list!=null && !list.isEmpty()) { servers = list; serverIndex = 0; }
@@ -72,6 +83,25 @@ public class IrcClientManager {
 
     public void connect(String nickname, String channel) {
         connectWithSasl(nickname, channel, null, null, false);
+    }
+
+    public void joinChannel(String channel) {
+        if (client != null) {
+            currentChannel = channel;
+            client.addChannel(channel);
+            postSystem("📺 Joined channel: " + channel);
+        } else {
+            postSystem("❌ Cannot join channel: Not connected to server");
+        }
+    }
+
+    public void partChannel(String channel) {
+        if (client != null) {
+            client.removeChannel(channel);
+            postSystem("👋 Left channel: " + channel);
+        } else {
+            postSystem("❌ Cannot leave channel: Not connected to server");
+        }
     }
 
     public void connectWithSasl(String nickname, String channel,
@@ -86,6 +116,7 @@ public class IrcClientManager {
         wantConnected.set(true);
         serverIndex = Math.min(serverIndex, servers.size()-1);
         backoffMs = 1500;
+        connectionAttempts = 0;
         startConnectAttempt(); // async
     }
 
@@ -97,6 +128,14 @@ public class IrcClientManager {
             try { c.shutdown("Bye"); } catch (Exception ignored) {}
         }
     }
+    
+    public void resetConnection() {
+        disconnect();
+        backoffMs = 1500;
+        serverIndex = 0;
+        connectionAttempts = 0;
+        connecting.set(false);
+    }
 
     /**
      * Send a chat message:
@@ -106,9 +145,21 @@ public class IrcClientManager {
      * - DO NOT locally echo; rely on IRCv3 echo-message to avoid duplicates
      */
     public void sendMessage(String text) {
-        if (client == null || text == null) return;
+        if (client == null) {
+            postSystem("❌ Cannot send message: Not connected to IRC server");
+            return;
+        }
+        
+        if (text == null) {
+            postSystem("❌ Cannot send message: Text is null");
+            return;
+        }
+        
         String trimmed = text.trim();
-        if (trimmed.isEmpty()) return;
+        if (trimmed.isEmpty()) {
+            postSystem("❌ Cannot send message: Text is empty");
+            return;
+        }
 
         // Split on CR/LF, filter empties
         String[] lines = trimmed.split("\\r?\\n");
@@ -120,30 +171,54 @@ public class IrcClientManager {
             for (String chunk : chunkForIrc(line)) {
                 try {
                     client.sendMessage(currentChannel, chunk);
-                    // debugging, and that is the REASON why double message
-                    postMessage(currentNick, text, System.currentTimeMillis(), true);
                 } catch (Exception e) {
-                    postSystem("Send failed: " + e.getMessage());
+                    postSystem("❌ Send failed: " + e.getMessage());
+                    // If send fails, we might be disconnected
+                    if (e.getMessage() != null && 
+                        (e.getMessage().contains("disconnected") || 
+                         e.getMessage().contains("connection"))) {
+                        postSystem("💡 Try reconnecting with /reconnect");
+                    }
                 }
             }
         }
     }
+    public boolean isActive() { return client != null; }
+    
+    public boolean isConnected() { 
+        return client != null; 
+    }
+
 
     // internal
     private void startConnectAttempt() {
         if (!wantConnected.get()) return;
         if (!connecting.compareAndSet(false, true)) return;
 
+        // Check internet connection first
+        if (!isInternetAvailable()) {
+            postSystem("❌ No internet connection available");
+            connecting.set(false);
+            handleReconnect();
+            return;
+        }
+
         final Server s = servers.get(serverIndex);
+        connectionAttempts++;
+        
         new Thread(() -> {
             try {
-                postSystem("Connecting to " + s.host + ":" + s.port + (s.tls ? " (TLS)" : ""));
+                postSystem("🔄 Connecting to " + s.host + " (port " + s.port + ")... (attempt " + connectionAttempts + "/" + MAX_ATTEMPTS_PER_SERVER + ")");
+                // Generate unique nickname to avoid conflicts
+                String uniqueNick = generateUniqueNick(currentNick);
+                
                 Client c = Client.builder()
-                        .nick(currentNick)
+                        .nick(uniqueNick)
                         .realName("USTH IRC UI")
                         .server()
                         .host(s.host)
                         .port(s.port) // ensure TLS on 6697 for Libera
+                        .secure(s.tls)
                         .then()
                         .build();
 
@@ -162,8 +237,8 @@ public class IrcClientManager {
                     public void onReady(ClientNegotiationCompleteEvent e) {
                         // reset backoff on success
                         backoffMs = 1500;
-                        postSystem("Connected (" + (s.tls ? "TLS " : "plain ")
-                                + s.host + ":" + s.port + "). Joining " + currentChannel + "…");
+                        postSystem("✅ Connected to " + s.host + " (port " + s.port + ")");
+                        postSystem("📺 Joined channel: " + currentChannel);
                         c.addChannel(currentChannel);
                     }
 
@@ -172,23 +247,82 @@ public class IrcClientManager {
                         String from = e.getActor().getNick();
                         String msg  = e.getMessage();
                         boolean mine = from.equalsIgnoreCase(currentNick);
-                        // Single source of truth: render on server echo (mine==true) and everyone else's messages.
-                        postMessage(from, msg, System.currentTimeMillis(), mine);
+                        // Only show messages from other users (not our own messages since we show them locally)
+                        if (!mine) {
+                            postMessage(from, msg, System.currentTimeMillis(), false);
+                        }
+                    }
+
+                    @Handler
+                    public void onJoin(ChannelJoinEvent e) {
+                        String user = e.getActor().getNick();
+                        String channel = e.getChannel().getName();
+                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        // Only show join notifications for other users, not ourselves
+                        if (!mine) {
+                            postSystem("👋 " + user + " joined " + channel);
+                        }
+                    }
+
+                    @Handler
+                    public void onPart(ChannelPartEvent e) {
+                        String user = e.getActor().getNick();
+                        String channel = e.getChannel().getName();
+                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        // Only show part notifications for other users, not ourselves
+                        if (!mine) {
+                            postSystem("👋 " + user + " left " + channel);
+                        }
+                    }
+
+                    @Handler
+                    public void onQuit(UserQuitEvent e) {
+                        String user = e.getActor().getNick();
+                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        // Only show quit notifications for other users, not ourselves
+                        if (!mine) {
+                            postSystem("👋 " + user + " quit");
+                        }
                     }
 
                     @Handler
                     public void onDisconnect(ClientConnectionEndedEvent e) {
                         String why = e.getCause().map(Throwable::getMessage).orElse("connection ended");
-                        postSystem("Disconnected: " + why);
-                        // Try to reconnect if user still wants to be online
-                        handleReconnect();
+                        postSystem("❌ Disconnected from " + s.host + " - " + why);
+                        
+                        // Only reconnect if it's not a user-initiated disconnect
+                        if (wantConnected.get()) {
+                            // Add delay before reconnecting to avoid rapid connect/disconnect loops
+                            main.postDelayed(() -> {
+                                if (wantConnected.get()) {
+                                    handleReconnect();
+                                }
+                            }, 3000); // 3 second delay
+                        }
                     }
                 });
 
                 client = c;
                 c.connect(); // non-blocking connect/handshake
             } catch (Exception ex) {
-                postSystem("Connect error: " + ex.getMessage());
+                String errorMsg = ex.getMessage();
+                if (errorMsg == null || errorMsg.isEmpty()) {
+                    errorMsg = ex.getClass().getSimpleName();
+                }
+                
+                // Provide more specific error messages
+                if (errorMsg.contains("timeout") || errorMsg.contains("timed out")) {
+                    postSystem("❌ Connection timeout to " + s.host + " - Server may be slow or unreachable");
+                } else if (errorMsg.contains("refused") || errorMsg.contains("connection refused")) {
+                    postSystem("❌ Connection refused by " + s.host + " - Server may be down or blocking connections");
+                } else if (errorMsg.contains("SSL") || errorMsg.contains("TLS")) {
+                    postSystem("❌ SSL/TLS error connecting to " + s.host + " - Certificate or encryption issue");
+                } else if (errorMsg.contains("nickname") || errorMsg.contains("nick")) {
+                    postSystem("❌ Nickname conflict on " + s.host + " - Trying with different nickname");
+                } else {
+                    postSystem("❌ Connection failed to " + s.host + " - " + errorMsg);
+                }
+                
                 handleReconnect();
             } finally {
                 connecting.set(false);
@@ -199,13 +333,27 @@ public class IrcClientManager {
     private void handleReconnect() {
         if (!wantConnected.get()) return;
 
-        // Try next server (round-robin) on each failure
-        serverIndex = (serverIndex + 1) % servers.size();
+        // If we've tried too many times on current server, try next server
+        if (connectionAttempts >= MAX_ATTEMPTS_PER_SERVER) {
+            serverIndex = (serverIndex + 1) % servers.size();
+            connectionAttempts = 0;
+            backoffMs = 1500; // Reset backoff for new server
+            postSystem("🔄 Switching to next server after " + MAX_ATTEMPTS_PER_SERVER + " failed attempts");
+        }
 
         // schedule with exponential backoff
         long delay = backoffMs;
-        backoffMs = Math.min(BACKOFF_MAX_MS, (long)(backoffMs * 1.7));
-        postSystem("Reconnecting in " + (delay/1000) + "s… (server #" + (serverIndex+1) + ")");
+        backoffMs = Math.min(BACKOFF_MAX_MS, (long)(backoffMs * 1.5)); // Slower backoff
+        
+        // Limit total reconnection attempts to avoid infinite loops
+        if (backoffMs >= BACKOFF_MAX_MS) {
+            postSystem("❌ Max reconnection attempts reached for all servers");
+            wantConnected.set(false);
+            return;
+        }
+        
+        final Server nextServer = servers.get(serverIndex);
+        postSystem("🔄 Reconnecting to " + nextServer.host + " in " + (delay/1000) + "s...");
         main.postDelayed(this::startConnectAttempt, delay);
     }
 
@@ -226,6 +374,44 @@ public class IrcClientManager {
                 .replace("\n", " ")
                 .replace("\0", " ")
                 .trim();
+    }
+
+    /** Generate unique nickname to avoid conflicts */
+    private String generateUniqueNick(String baseNick) {
+        if (baseNick == null || baseNick.isEmpty()) {
+            baseNick = "Guest";
+        }
+        
+        // Clean nickname (remove invalid characters)
+        String cleanNick = baseNick.replaceAll("[^a-zA-Z0-9\\-_\\[\\]{}|`^]", "");
+        if (cleanNick.isEmpty()) {
+            cleanNick = "Guest";
+        }
+        
+        // Limit length to leave room for suffix
+        if (cleanNick.length() > 10) {
+            cleanNick = cleanNick.substring(0, 10);
+        }
+        
+        // Add timestamp-based suffix to make it more unique
+        long timestamp = System.currentTimeMillis() % 10000; // Last 4 digits
+        int randomSuffix = (int) (Math.random() * 100); // 0-99
+        return cleanNick + timestamp + randomSuffix;
+    }
+    
+    /** Check if internet connection is available */
+    private boolean isInternetAvailable() {
+        if (context == null) return true; // Assume available if no context
+        
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return false;
+            
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        } catch (Exception e) {
+            return true; // Assume available if check fails
+        }
     }
 
     /** Chunk a UTF-8 string to keep each PRIVMSG well under the 512-byte limit (header + tags eat bytes). */

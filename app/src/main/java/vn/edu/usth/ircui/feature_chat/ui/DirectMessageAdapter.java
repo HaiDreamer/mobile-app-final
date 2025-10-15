@@ -57,6 +57,14 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         notifyItemInserted(rows.size() - 1);
     }
 
+    public void removeLastMessage() {
+        if (!rows.isEmpty()) {
+            int lastIndex = rows.size() - 1;
+            rows.remove(lastIndex);
+            notifyItemRemoved(lastIndex);
+        }
+    }
+
     @Override public int getItemCount() { return rows.size(); }
     @Override public int getItemViewType(int position) { return rows.get(position).type; }
 

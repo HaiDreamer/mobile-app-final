@@ -1,8 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.IRCUI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Tuỳ chọn màu sáng -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Light palette: cool blue accents with soft light surface -->
+        <item name="colorSurface">#FAFAFA</item>
+        <item name="colorOnSurface">#1A1A1A</item>
+        <item name="colorOnSurfaceVariant">#5F6B7A</item>
+        <item name="colorOutline">#C6CCD3</item>
+
+        <item name="colorPrimary">#2962FF</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#E3F2FD</item>
+        <item name="colorOnSecondaryContainer">#0D47A1</item>
     </style>
 
     <!-- App theme -->

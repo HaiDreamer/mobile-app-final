@@ -1,8 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.IRCUI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Tuỳ chọn màu tối -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Dark palette: near-black surface with teal accents for visibility -->
+        <item name="colorSurface">#0E1116</item>
+        <item name="colorOnSurface">#F2F5F9</item>
+        <item name="colorOnSurfaceVariant">#9AA4B2</item>
+        <item name="colorOutline">#2A3441</item>
+
+        <item name="colorPrimary">#00BFA5</item>
+        <item name="colorOnPrimary">#001A15</item>
+        <item name="colorSecondaryContainer">#003D37</item>
+        <item name="colorOnSecondaryContainer">#A7FFEB</item>
     </style>
 
     <!-- App theme (night) -->

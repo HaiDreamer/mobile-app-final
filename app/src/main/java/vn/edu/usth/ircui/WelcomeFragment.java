@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -20,6 +22,7 @@ public class WelcomeFragment extends Fragment {
 
         Button btnGoToLogin = view.findViewById(R.id.btn_go_to_login);
         Button btnGoToRegister = view.findViewById(R.id.btn_go_to_register);
+        ImageButton btnMenu = view.findViewById(R.id.btn_menu);
 
         btnGoToLogin.setOnClickListener(v -> {
             // Chuyển sang LoginFragment
@@ -37,6 +40,18 @@ public class WelcomeFragment extends Fragment {
             ft.commit();
         });
 
+        btnMenu.setOnClickListener(v -> {
+            showAboutDialog();
+        });
+
         return view;
+    }
+
+    private void showAboutDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("About")
+                .setMessage("USTH IRC Client v1.0\nDeveloped for USTH")
+                .setPositiveButton("OK", null)
+                .show();
     }
 }

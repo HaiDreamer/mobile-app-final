@@ -55,15 +55,15 @@ public class ChooseServer extends Fragment {
         serverInput.setThreshold(0); // Hiện đề xuất ngay khi ấn vào
 
         enterServerButton.setOnClickListener(v -> {
-            String selectedServer = serverInput.getText().toString().trim();
+            String selectedServer = serverInput.getText() != null ? serverInput.getText().toString().trim() : "";
             if (selectedServer.isEmpty()) {
                 Toast.makeText(requireContext(), "Please select or enter a server", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Gọi MainActivity để chuyển sang Fragment tiếp theo
+            // Navigate to Chat with username + server + default channel
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToChatFragment(selectedServer);
+                ((MainActivity) getActivity()).navigateToChatFragment(username, selectedServer, "#usth-ircui");
             }
         });
     }

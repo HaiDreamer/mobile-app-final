@@ -15,29 +15,47 @@ import androidx.fragment.app.Fragment;
 
 public class RegisterFragment extends Fragment {
 
+    private EditText etNickname;
+    private EditText etUsername;
+    private EditText etPassword;
+    private EditText etVerifyPassword;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        EditText etNickname = view.findViewById(R.id.et_register_nickname);
-        // ... (các EditText khác)
+        etNickname = view.findViewById(R.id.et_register_nickname);
+        etUsername = view.findViewById(R.id.et_register_username);
+        etPassword = view.findViewById(R.id.et_register_password);
+        etVerifyPassword = view.findViewById(R.id.et_register_verify_password);
 
         Button btnRegister = view.findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> {
-            String nickname = etNickname.getText().toString().trim();
+            String nickname = etNickname.getText() != null ? etNickname.getText().toString().trim() : "";
+            String username = etUsername.getText() != null ? etUsername.getText().toString().trim() : "";
+            String password = etPassword.getText() != null ? etPassword.getText().toString().trim() : "";
+            String verify = etVerifyPassword.getText() != null ? etVerifyPassword.getText().toString().trim() : "";
 
-            // Kiểm tra xem nickname có được nhập hay không
             if (TextUtils.isEmpty(nickname)) {
                 Toast.makeText(getContext(), "Please enter a nickname", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (TextUtils.isEmpty(username)) {
+                Toast.makeText(getContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getContext(), "Please enter a password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!password.equals(verify)) {
+                Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // Thêm logic kiểm tra các trường khác nếu cần...
-
-            // MODIFIED: Gọi phương thức trong MainActivity để chuyển màn hình
-            // Lấy ra Activity đang chứa Fragment này và gọi phương thức của nó.
+            // Navigate to choose server using nickname as IRC nick
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToChooseServer(nickname);
             }

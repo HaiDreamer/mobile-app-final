@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="32dp"
     android:background="@drawable/background_welcome">
+
+    <!-- Information icon aligned with title -->
+    <ImageButton
+        android:id="@+id/btn_menu"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_dialog_info"
+        android:contentDescription="About"
+        android:tint="#CCCCCC"/>
+
+    <!-- Main content centered -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
 
     <TextView
         android:layout_width="wrap_content"
@@ -14,7 +33,7 @@
         android:textSize="48sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"
-        android:textColor="#FFFFFF"/>
+        android:textColor="?attr/colorOnSurface"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,22 +41,24 @@
         android:text="@string/welcome"
         android:textSize="24sp"
         android:layout_marginBottom="48dp"
-        android:textColor="@color/white"/>
+        android:textColor="?attr/colorOnSurface"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_go_to_register"
         android:layout_width="292dp"
         android:layout_height="53.75dp"
-        android:backgroundTint="#F2F3F5"
+        android:backgroundTint="?attr/colorSecondaryContainer"
         android:text="@string/register"
-        android:textColor="@color/black"/>
+        android:textColor="?attr/colorOnSecondaryContainer"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_go_to_login"
         android:layout_width="292dp"
         android:layout_height="53.75dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#132871"
+        android:backgroundTint="?attr/colorPrimary"
         android:text="@string/login" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

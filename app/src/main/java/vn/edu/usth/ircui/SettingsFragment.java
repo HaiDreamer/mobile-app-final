@@ -171,34 +171,6 @@ public class SettingsFragment extends Fragment {
         Toast.makeText(requireContext(), "Mở cài đặt trang cá nhân", Toast.LENGTH_SHORT).show();
     }
 
-    private void showFontSizeDialog(TextView tvCurrentFontSize) {
-        String currentFontSize = sharedPreferences.getString("font_size", "medium");
-        int checkedItem;
-        switch (currentFontSize) {
-            case "small": checkedItem = 0; break;
-            case "large": checkedItem = 2; break;
-            default: checkedItem = 1;
-        }
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Chọn cỡ chữ")
-                .setSingleChoiceItems(new String[]{
-                        getString(R.string.small),
-                        getString(R.string.medium),
-                        getString(R.string.large)
-                }, checkedItem, (dialog, which) -> {
-                    String fontSize;
-                    switch (which) {
-                        case 0: fontSize = "small"; break;
-                        case 2: fontSize = "large"; break;
-                        default: fontSize = "medium";
-                    }
-                    sharedPreferences.edit().putString("font_size", fontSize).apply();
-                    tvCurrentFontSize.setText(getFontSizeDisplayName(fontSize));
-                    dialog.dismiss();
-                })
-                .show();
-    }
 
     private void showLanguageDialog(TextView tvCurrentLanguage) {
         String currentLang = sharedPreferences.getString("app_language", "en");
@@ -225,14 +197,6 @@ public class SettingsFragment extends Fragment {
                     dialog.dismiss();
                 })
                 .show();
-    }
-
-    private String getFontSizeDisplayName(String fontSize) {
-        switch (fontSize) {
-            case "small": return getString(R.string.small);
-            case "large": return getString(R.string.large);
-            default: return getString(R.string.medium);
-        }
     }
 
     private String getLanguageDisplayName(String lang) {
