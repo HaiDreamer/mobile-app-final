@@ -37,7 +37,7 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            // Gọi phương thức trong MainActivity để chuyển sang màn hình Chat
+            // Call method in MainActivity to switch to Chat screen
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToChatFragment(username);
             }

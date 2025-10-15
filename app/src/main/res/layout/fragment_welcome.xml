@@ -28,13 +28,29 @@
         android:id="@+id/btn_go_to_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login" />
+        android:text="@string/login"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 
     <Button
         android:id="@+id/btn_go_to_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/register" />
+        android:text="@string/register"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 
 </LinearLayout>

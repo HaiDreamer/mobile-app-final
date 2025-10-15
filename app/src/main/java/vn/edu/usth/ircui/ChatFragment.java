@@ -2,6 +2,7 @@ package vn.edu.usth.ircui;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -39,7 +41,10 @@ public class ChatFragment extends Fragment {
         return f;
     }
 
-    private String username = "Guest";
+    private String currentUsername;
+    private String currentNickname = "Guest";
+    private FirebaseFirestore db;
+
     private final List<Message> messages = new ArrayList<>();
     private MessageAdapter adapter;
     private IrcClientManager ircClient;
@@ -52,12 +57,15 @@ public class ChatFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        // initial Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // get unique username
         if (getArguments() != null) {
-            username = getArguments().getString(ARG_USERNAME, "Guest");
+            currentUsername = getArguments().getString(ARG_USERNAME, "Guest");
         }
 
-        // Add welcome message
-        messages.add(new Message("System", "Welcome to IRC Chat, " + username + "!", false));
     }
 
     @Nullable
@@ -72,7 +80,8 @@ public class ChatFragment extends Fragment {
         ImageButton btnSend = v.findViewById(R.id.btnSend);
         FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
-        adapter = new MessageAdapter(messages, username);
+        // pass nickname to adapter
+        adapter = new MessageAdapter(messages, currentNickname);
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
@@ -103,10 +112,43 @@ public class ChatFragment extends Fragment {
             Toast.makeText(requireContext(), "Direct Message feature coming soon!", Toast.LENGTH_SHORT).show();
         });
 
+        // get data from Firestore
+        fetchUserData();
+
         // Add test message to verify chat is working
         displaySystemMessage("Chat loaded successfully. You can start messaging!");
 
         return v;
+    }
+
+    private void fetchUserData(){
+        // guest user
+        if(currentUsername == null || currentUsername.equals("Guest")) {
+            currentNickname = "Guest";
+            displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
+            displaySystemMessage("Chat loaded successfully. You can start messaging!");
+            return;
+        }
+
+        // registered user
+        db.collection("Users").document(currentUsername).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(documentSnapshot.exists()){
+                        // get nickname from db
+                        currentNickname = documentSnapshot.getString("nickname");
+                    }
+                    else{
+                        // account not exist
+                        Log.d("Firestore", "User not found: " + currentUsername);
+                        currentNickname = currentUsername; // use current username as nickname
+                    }
+
+                    displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
+                    displaySystemMessage("Chat loaded successfully. You can start messaging!");
+
+                    // Update the adapter with the correct nickname for outgoing messages
+                    adapter.setCurrentUser(currentNickname);
+                });
     }
 
     private void handleSendMessageClick() {
@@ -128,7 +170,7 @@ public class ChatFragment extends Fragment {
         }
 
         // For testing: just display the message locally without IRC
-        messages.add(new Message(username, text, true));
+        messages.add(new Message(currentNickname, text, true));
         adapter.notifyItemInserted(messages.size() - 1);
         rvMessages.scrollToPosition(messages.size() - 1);
 
@@ -164,9 +206,9 @@ public class ChatFragment extends Fragment {
             case "/nick":
                 if (parts.length > 1) {
                     String newNick = parts[1];
-                    displaySystemMessage("Nickname changed from " + username + " to " + newNick);
-                    username = newNick;
-                    adapter = new MessageAdapter(messages, username);
+                    displaySystemMessage("Nickname changed from " + currentNickname + " to " + newNick);
+                    currentNickname = newNick;
+                    adapter = new MessageAdapter(messages, currentUsername);
                     rvMessages.setAdapter(adapter);
                 } else {
                     displaySystemMessage("Usage: /nick <new_nickname>");
@@ -175,7 +217,7 @@ public class ChatFragment extends Fragment {
             case "/connect":
                 displaySystemMessage("Attempting to connect to IRC server...");
                 try {
-                    ircClient.connect(username, "#usth-ircui");
+                    ircClient.connect(currentNickname, "#usth-ircui");
                     displaySystemMessage("Connected to IRC server!");
                 } catch (Exception e) {
                     displaySystemMessage("Connection failed: " + e.getMessage());

@@ -217,4 +217,13 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", null)
                 .show();
     }
+
+    // Allows to go to Login screen
+    public void navigateToLoginFragment(){
+        LoginFragment loginFragment = new LoginFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, loginFragment) // replace current fragment with login fragment
+                .commit();
+    }
 }
