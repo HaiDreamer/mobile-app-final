@@ -1,176 +1,72 @@
 package vn.edu.usth.ircui;
 
-import android.Manifest;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import vn.edu.usth.ircui.network.IrcClientManager;
-import vn.edu.usth.ircui.service.IrcForegroundService;
-import vn.edu.usth.ircui.utils.NickUtils;
-
 public class LoginFragment extends Fragment {
 
-    private Spinner  spServer;
-    private EditText etNick, etChannel, etSaslUser, etSaslPass;
-    private CheckBox cbSaslPlain, cbSaslExternal;
-    private Button btnStart, btnChatOnly;
+    private EditText etUsername;
+    private EditText etPassword;
+    private Button btnLogin;
+    private ImageButton btnTogglePassword;
+    private boolean isPasswordVisible = false;
 
-    // Android 13+ runtime notification permission (required so FGS notif is visible) :contentReference[oaicite:0]{index=0}
-    private final ActivityResultLauncher<String> notifPerm =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> { /* no-op */ });
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_login, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        spServer      = v.findViewById(R.id.spServer);
-        etNick        = v.findViewById(R.id.etUsername);
-        etChannel     = v.findViewById(R.id.etChannel);
-        etSaslUser    = v.findViewById(R.id.etSaslUser);
-        etSaslPass    = v.findViewById(R.id.etSaslPass);
-        cbSaslPlain   = v.findViewById(R.id.cbSaslPlain);
-        cbSaslExternal= v.findViewById(R.id.cbSaslExternal);
-        btnStart      = v.findViewById(R.id.btnStartService);
-        btnChatOnly   = v.findViewById(R.id.btnLogin);
+        etUsername = view.findViewById(R.id.et_login_username);
+        etPassword = view.findViewById(R.id.et_login_password);
+        btnLogin = view.findViewById(R.id.btn_login);
+        btnTogglePassword = view.findViewById(R.id.btn_toggle_password);
 
-        // Simple server list (all TLS 6697). Libera explicitly documents 6697 for TLS. :contentReference[oaicite:1]{index=1}
-        ArrayAdapter<String> aa = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                new String[]{"Libera.Chat (irc.libera.chat:6697)",
-                        "OFTC (irc.oftc.net:6697)",
-                        "Rizon (irc.rizon.net:6697)"});
-        spServer.setAdapter(aa);
+        btnTogglePassword.setOnClickListener(v ->  togglePasswordVisibility());
 
-        // Toggle SASL fields
-        cbSaslPlain.setOnCheckedChangeListener((btn, checked) -> {
-            etSaslUser.setEnabled(checked);
-            etSaslPass.setEnabled(checked);
-            if (checked) cbSaslExternal.setChecked(false);
-        });
-        cbSaslExternal.setOnCheckedChangeListener((btn, checked) -> {
-            if (checked) {
-                cbSaslPlain.setChecked(false);
-                etSaslUser.setEnabled(false);
-                etSaslPass.setEnabled(false);
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if (TextUtils.isEmpty(username)) {
+                Toast.makeText(getContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Call method in MainActivity to switch to Chat screen
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToChooseServer(username);
             }
         });
 
-        // Default
-        if (TextUtils.isEmpty(etChannel.getText())) etChannel.setText("#usth-ircui");
-        cbSaslExternal.setChecked(true);
-
-        // Start ForegroundService (recommended for stable background connection) :contentReference[oaicite:2]{index=2}
-        btnStart.setOnClickListener(vw -> {
-            String rawNick = getTextSafe(etNick);
-            String nick = vn.edu.usth.ircui.utils.NickUtils.sanitize(rawNick, 32); // RFC-style; no spaces
-            String channel = normalizeChannel(getTextSafe(etChannel));
-            ServerChoice sc = readServerChoice();
-
-            // Ask for POST_NOTIFICATIONS on API 33+ so FGS notif shows. :contentReference[oaicite:3]{index=3}
-            if (Build.VERSION.SDK_INT >= 33) {
-                notifPerm.launch(Manifest.permission.POST_NOTIFICATIONS);
-            }
-
-            Intent svc = new Intent(requireContext(), IrcForegroundService.class);
-            svc.putExtra(IrcForegroundService.EXTRA_NICK, nick);
-            svc.putExtra(IrcForegroundService.EXTRA_CHANNEL, channel);
-
-            boolean useExternal = cbSaslExternal.isChecked();
-            boolean usePlain    = cbSaslPlain.isChecked();
-            String saslUser = usePlain ? getTextSafe(etSaslUser) : null;
-            String saslPass = usePlain ? getTextSafe(etSaslPass) : null;
-
-            svc.putExtra(IrcForegroundService.EXTRA_SASL_EXTERNAL, useExternal);
-            svc.putExtra(IrcForegroundService.EXTRA_SASL_USER, saslUser);
-            svc.putExtra(IrcForegroundService.EXTRA_SASL_PASS, saslPass);
-
-            // Also tell IrcClientManager which server to try first (optional: you can add setServers later)
-            // For now, the manager has sensible defaults; you could extend it to accept host/port extras.
-
-            if (android.os.Build.VERSION.SDK_INT >= 26) {
-                requireContext().startForegroundService(svc);  // O+ path
-            } else {
-                requireContext().startService(svc);            // pre-O path
-            }
-
-            Toast.makeText(requireContext(), "Starting background IRC as " + nick + " → " + channel, Toast.LENGTH_SHORT).show();
-        });
-
-        // “Chat only” button: go straight to ChatFragment without service (lifecycle-tied connection)
-        btnChatOnly.setOnClickListener(vw -> {
-            String rawNick = getTextSafe(etNick);
-            String nick = NickUtils.sanitize(rawNick, 32);
-
-            // Read server choice to probe the right network
-            ServerChoice sc = readServerChoice();
-
-            // Disable button during probe
-            btnChatOnly.setEnabled(false);
-            Toast.makeText(requireContext(), "Checking nickname on server…", Toast.LENGTH_SHORT).show();
-
-            new vn.edu.usth.ircui.function.NickAvailabilityChecker(sc.host, sc.port, sc.tls)
-                    .check(nick, (inUse, message) -> {
-                        btnChatOnly.setEnabled(true);
-
-                        if (inUse) {
-                            // Block joining and explain why
-                            etNick.setError("Nickname in use on " + sc.host);
-                            Toast.makeText(requireContext(),
-                                    "Nickname already in use: " + nick + "\n" + message,
-                                    Toast.LENGTH_LONG).show();
-                            return; // do not navigate
-                        }
-
-                        // Free → proceed to chat
-                        ChatFragment chat = ChatFragment.newInstance(nick);
-                        requireActivity().getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.container, chat)
-                                .addToBackStack(null)
-                                .commit();
-                    });
-        });
-
-
-        return v;
+        return view;
     }
 
-    private static class ServerChoice {
-        final String host; final int port; final boolean tls;
-        ServerChoice(String h, int p, boolean t){ host=h; port=p; tls=t; }
-    }
-
-    private ServerChoice readServerChoice() {
-        int pos = spServer.getSelectedItemPosition();
-        switch (pos) {
-            case 1: return new ServerChoice("irc.oftc.net", 6697, true);
-            case 2: return new ServerChoice("irc.rizon.net", 6697, true);
-            case 0:
-            default: return new ServerChoice("irc.libera.chat", 6697, true);
+    // 👁 Toggle show/hide password
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            // Hide password
+            etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            btnTogglePassword.setImageResource(R.drawable.ic_eye_close);
+        } else {
+            // Show password
+            etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            btnTogglePassword.setImageResource(R.drawable.ic_eye_open);
         }
-    }
-
-    private static String getTextSafe(EditText et) {
-        return et.getText() == null ? "" : et.getText().toString().trim();
-    }
-
-    private static String normalizeChannel(String s) {
-        if (TextUtils.isEmpty(s)) return "#usth-ircui";
-        if (!s.startsWith("#")) return "#" + s;
-        return s;
+        // Move cursor to end
+        etPassword.setSelection(etPassword.length());
+        isPasswordVisible = !isPasswordVisible;
     }
 }
