@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
 public class SettingsFragment extends Fragment {
@@ -221,10 +222,15 @@ public class SettingsFragment extends Fragment {
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
                 .setPositiveButton("Có", (dialog, which) -> {
-                    requireActivity().getSupportFragmentManager().popBackStack();
+                    requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     requireActivity().getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.container, new LoginFragment())
+                            .replace(R.id.container, new WelcomeFragment())
+                            .runOnCommit(() -> {
+                                if (requireActivity() instanceof MainActivity) {
+                                    ((MainActivity) requireActivity()).updateUiForTopFragment();
+                                }
+                            })
                             .commit();
                 })
                 .setNegativeButton("Không", null)

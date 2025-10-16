@@ -406,9 +406,6 @@ public class ChatFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
             return true;
-        } else if (id == R.id.action_members) {
-            fetchOnlineUsers();
-            return true;
         } else if (id == R.id.action_refresh) {
             // Refresh connection
             if (sharedIrcClient != null) {
