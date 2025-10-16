@@ -5,6 +5,7 @@
     <string name="pick_file">Pick file</string>
     <string name="message_chat">Message #chat</string>
     <string name="direct_message">Direct message</string>
+    <string name="user_list">User List</string>
     <string name="enter_username_example">Enter username (e.g: Bob)</string>
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>

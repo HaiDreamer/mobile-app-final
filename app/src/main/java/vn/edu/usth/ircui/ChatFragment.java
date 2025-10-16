@@ -72,6 +72,7 @@ public class ChatFragment extends Fragment {
     private String channel = "#usth-ircui";
     private FirebaseFirestore db;
     private final List<Message> messages = new ArrayList<>();
+    private final List<String> currentUsers = new ArrayList<>();
     private MessageAdapter adapter;
     private SharedIrcClient sharedIrcClient;
     private SharedIrcClient.MessageCallback messageCallback;
@@ -394,6 +395,9 @@ public class ChatFragment extends Fragment {
         if (id == R.id.action_direct_message) {
             openDirectMessageDialog();
             return true;
+        } else if (id == R.id.action_user_list) {
+            loadOnlineUsers();
+            return true;
         } else if (id == R.id.action_settings) {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -446,5 +450,88 @@ public class ChatFragment extends Fragment {
                 .setMessage("IRC UI v1.0\nDeveloped for USTH\nA modern IRC client for Android")
                 .setPositiveButton("OK", null)
                 .show();
+    }
+
+    // =============================
+    // 🔹 User List functionality
+    // =============================
+    private void loadOnlineUsers() {
+        if (currentUsername == null || currentUsername.equals("Guest")) {
+            Toast.makeText(getContext(), "Guest users cannot view member list", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        displaySystemMessage("Loading online users...");
+        
+        db.collection("Users")
+                .whereEqualTo("status", "online")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    currentUsers.clear();
+                    querySnapshot.getDocuments().forEach(doc -> {
+                        String name = doc.getString("nickname");
+                        if (name != null && !name.equals(currentNickname)) {
+                            currentUsers.add(name);
+                        }
+                    });
+
+                    if (currentUsers.isEmpty()) {
+                        Toast.makeText(getContext(), "No members online", Toast.LENGTH_SHORT).show();
+                    } else {
+                        showUserListDialog();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to load members", Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Error loading users", e);
+                });
+    }
+
+    private void showUserListDialog() {
+        if (getContext() == null) return;
+
+        if (currentUsers.isEmpty()) {
+            Toast.makeText(getContext(), "No members online", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_user_list, null);
+
+        RecyclerView rvUsers = dialogView.findViewById(R.id.rvUserList);
+        rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Create the dialog first (so we can dismiss it later)
+        AlertDialog dialog = builder
+                .setTitle("Online Users (" + currentUsers.size() + ")")
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .create();
+
+        // Adapter setup
+        UserListAdapter userListAdapter = new UserListAdapter(currentUsers, selectedUser -> {
+            // Prevent sending DM to yourself
+            if (selectedUser.equals(currentUsername)) {
+                Toast.makeText(getContext(), "You can't send a DM to yourself!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Dismiss the dialog
+            dialog.dismiss();
+
+            // Navigate to DirectMessageFragment
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(
+                            R.id.container,
+                            DirectMessageFragment.newInstance(currentUsername, selectedUser, serverHost)
+                    )
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        rvUsers.setAdapter(userListAdapter);
+        dialog.show();
     }
 }
