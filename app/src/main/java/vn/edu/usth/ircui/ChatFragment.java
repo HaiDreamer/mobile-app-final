@@ -95,8 +95,6 @@ public class ChatFragment extends Fragment {
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
-        ircClient = getIrcClientManager();
-
         btnSend.setOnClickListener(view -> handleSendMessageClick());
         fabDm.setOnClickListener(view -> openDirectMessageDialog());
 
@@ -133,30 +131,34 @@ public class ChatFragment extends Fragment {
                 .show();
     }
 
-    // =============================
-    // 🔹 Connect to IRC Manager
-    // =============================
-    @NonNull
-    private IrcClientManager getIrcClientManager() {
-        IrcClientManager manager = new IrcClientManager();
-        manager.setCallback(new IrcClientManager.MessageCallback() {
+    // connect to IRC Manager
+    private void connectToIRC(){
+        ircClient = new IrcClientManager();
+        ircClient.setCallback(new IrcClientManager.MessageCallback(){
             @Override
-            public void onMessage(String u, String t, long ts, boolean mine) {
-                messages.add(new Message(u, t, mine));
-                adapter.notifyItemInserted(messages.size() - 1);
-                rvMessages.scrollToPosition(messages.size() - 1);
+            public void onMessage(String u, String t, long ts, boolean mine){
+                if(getActivity() == null){
+                    return;
+                }
+                getActivity().runOnUiThread(() -> {
+                    // display nickname when chat
+                    String sender = mine ? currentNickname : u;     // use existed nickname or nickname provided by server
+                    messages.add(new Message(sender, t, mine));
+                    adapter.notifyItemInserted(messages.size() - 1);
+                    rvMessages.scrollToPosition((messages.size() - 1));
+                });
             }
 
             @Override
-            public void onSystem(String t) {
+            public void onSystem(String t){
                 displaySystemMessage(t);
             }
         });
 
-        // Connect user to default channel
-        manager.connect(currentUsername, "#usth-ircui");
-        return manager;
+        // connect by nickname
+        ircClient.connect(currentNickname, "#usth-ircui");
     }
+
 
     // =============================
     // 🔹 Load nickname info
@@ -171,6 +173,7 @@ public class ChatFragment extends Fragment {
             displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
             displaySystemMessage("Chat loaded successfully. You can start messaging!");
             adapter.setCurrentUser(currentNickname);
+            connectToIRC();     // connect to IRC as Guest
             return;
         }
 
@@ -187,6 +190,7 @@ public class ChatFragment extends Fragment {
                     displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
                     displaySystemMessage("Chat loaded successfully. You can start messaging!");
                     adapter.setCurrentUser(currentNickname);
+                    connectToIRC();
                 });
     }
 
@@ -238,8 +242,7 @@ public class ChatFragment extends Fragment {
                     String newNick = parts[1];
                     displaySystemMessage("Nickname changed from " + currentNickname + " to " + newNick);
                     currentNickname = newNick;
-                    adapter = new MessageAdapter(messages, currentUsername);
-                    rvMessages.setAdapter(adapter);
+                    adapter.setCurrentUser(currentNickname);
                 } else {
                     displaySystemMessage("Usage: /nick <new_nickname>");
                 }

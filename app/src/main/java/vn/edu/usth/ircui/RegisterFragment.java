@@ -111,6 +111,7 @@ public class RegisterFragment extends Fragment {
                         if(document.exists()){      // username existed
                             Log.d("Firestore", "Username existed");
                             Toast.makeText(getContext(), "Username existed", Toast.LENGTH_SHORT).show();
+                            btnRegister.setEnabled(true);
                         } else {
                             // username gud to go
                             Log.d("Firestore", "Username ok");
@@ -121,6 +122,7 @@ public class RegisterFragment extends Fragment {
                         // Other errors (No internet, etc...)
                         Log.w("Firestore", "Error check username", task.getException());
                         Toast.makeText(getContext(), "Can't check username", Toast.LENGTH_SHORT).show();
+                        btnRegister.setEnabled(true);
                     }
                 });
     }
