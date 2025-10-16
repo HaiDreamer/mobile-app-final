@@ -52,11 +52,13 @@ public class IrcClientManager {
         public final String host; public final int port; public final boolean tls;
         public Server(String host, int port, boolean tls){ this.host=host; this.port=port; this.tls=tls; }
     }
-    // presets: Libera, OFTC, Rizon (TLS 6697)
+    // presets: Multiple Libera servers, OFTC, Rizon (TLS 6697)
     private List<Server> servers = Arrays.asList(
-            new Server("irc.libera.chat", 6697, true),
-            new Server("irc.oftc.net",   6697, true),
-            new Server("irc.rizon.net",  6697, true)
+            new Server("irc.libera.chat", 6697, true),      // Primary Libera
+            new Server("libera.chat", 6697, true),          // Alternative Libera hostname
+            new Server("irc.libera.chat", 6697, true),      // Backup Libera (same as primary for redundancy)
+            new Server("irc.oftc.net",   6697, true),       // OFTC fallback
+            new Server("irc.rizon.net",  6697, true)        // Rizon fallback
     );
     private int serverIndex = 0;
 
@@ -136,6 +138,16 @@ public class IrcClientManager {
         serverIndex = 0;
         connectionAttempts = 0;
         connecting.set(false);
+    }
+    
+    /**
+     * Manually trigger reconnection - useful for testing or manual retry
+     */
+    public void forceReconnect() {
+        postSystem("🔄 Manual reconnection triggered");
+        resetConnection();
+        wantConnected.set(true);
+        startConnectAttempt();
     }
 
     /**
@@ -407,19 +419,12 @@ public class IrcClientManager {
             postSystem("🔄 Switching to next server after " + MAX_ATTEMPTS_PER_SERVER + " failed attempts");
         }
 
-        // schedule with exponential backoff
-        long delay = backoffMs;
-        backoffMs = Math.min(BACKOFF_MAX_MS, (long)(backoffMs * 1.5)); // Slower backoff
-        
-        // Limit total reconnection attempts to avoid infinite loops
-        if (backoffMs >= BACKOFF_MAX_MS) {
-            postSystem("❌ Max reconnection attempts reached for all servers");
-            wantConnected.set(false);
-            return;
-        }
+        // Use shorter delay for continuous reconnection through all servers
+        long delay = Math.min(backoffMs, 5000); // Max 5 seconds between attempts
+        backoffMs = Math.min(10000, (long)(backoffMs * 1.2)); // Slower backoff, max 10s
         
         final Server nextServer = servers.get(serverIndex);
-        postSystem("🔄 Reconnecting to " + nextServer.host + " in " + (delay/1000) + "s...");
+        postSystem("🔄 Reconnecting to " + nextServer.host + " in " + (delay/1000) + "s... (server " + (serverIndex + 1) + "/" + servers.size() + ")");
         main.postDelayed(this::startConnectAttempt, delay);
     }
 

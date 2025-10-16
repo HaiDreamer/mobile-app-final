@@ -80,13 +80,14 @@ public class SharedIrcClient {
             }
         });
 
-        // Configure server list
+        // Configure server list with Libera priority
         List<IrcClientManager.Server> servers = new ArrayList<>();
         servers.add(new IrcClientManager.Server(serverHost, 6697, true));
-        servers.add(new IrcClientManager.Server("irc.libera.chat", 6697, true));
-        servers.add(new IrcClientManager.Server("irc.oftc.net", 6697, true));
-        servers.add(new IrcClientManager.Server("irc.rizon.net", 6697, true));
-        servers.add(new IrcClientManager.Server("irc.freenode.net", 6697, true));
+        servers.add(new IrcClientManager.Server("irc.libera.chat", 6697, true));      // Primary Libera
+        servers.add(new IrcClientManager.Server("libera.chat", 6697, true));          // Alternative Libera hostname
+        servers.add(new IrcClientManager.Server("irc.libera.chat", 6697, true));      // Backup Libera
+        servers.add(new IrcClientManager.Server("irc.oftc.net", 6697, true));         // OFTC fallback
+        servers.add(new IrcClientManager.Server("irc.rizon.net", 6697, true));        // Rizon fallback
         
         ircClient.setServers(servers);
         ircClient.connect(username, channel);
@@ -212,6 +213,15 @@ public class SharedIrcClient {
     public void resetConnection() {
         if (ircClient != null) {
             ircClient.resetConnection();
+        }
+    }
+    
+    /**
+     * Manually trigger reconnection - useful for testing or manual retry
+     */
+    public void forceReconnect() {
+        if (ircClient != null) {
+            ircClient.forceReconnect();
         }
     }
     
