@@ -291,22 +291,7 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    public void navigateToChoose_avt(String username) {
-        Choose_avt chooseAvtFragment = new Choose_avt();
-
-        Bundle bundle = new Bundle();
-        bundle.putString("username", username);
-        chooseAvtFragment.setArguments(bundle);
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.container, chooseAvtFragment);
-        ft.addToBackStack(null);
-        ft.commit();
-    }
-
-    // =============================
-    // 🔹 MENU & ACTIONS
-    // =============================
+    // MENU & ACTIONS
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

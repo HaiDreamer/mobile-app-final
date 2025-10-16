@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_secondary">
+
+    <!-- Discord-like header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/bg_tertiary"
+        android:gravity="center_vertical"
+        android:elevation="2dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/channels"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium" />
+
+        <ImageButton
+            android:id="@+id/btn_add_channel"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/discord_button_bg"
+            android:src="@android:drawable/ic_input_add"
+            android:contentDescription="@string/add_channel"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Discord-like channel list -->
+    <ListView
+        android:id="@+id/channel_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="1dp"
+        android:background="@color/bg_secondary"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="outsideOverlay" />
+
+</LinearLayout>

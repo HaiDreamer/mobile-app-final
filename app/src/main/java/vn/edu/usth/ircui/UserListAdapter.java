@@ -1,0 +1,57 @@
+package vn.edu.usth.ircui;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserViewHolder> {
+
+    public interface OnUserClickListener {
+        void onUserClick(String username);
+    }
+
+    private final List<String> users;
+    private final OnUserClickListener listener;
+
+    public UserListAdapter(List<String> users, OnUserClickListener listener) {
+        this.users = users;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_member, parent, false);
+        return new UserViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+        String username = users.get(position);
+        holder.usernameText.setText(username);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onUserClick(username);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return users.size();
+    }
+
+    public static class UserViewHolder extends RecyclerView.ViewHolder {
+        TextView usernameText;
+
+        public UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            usernameText = itemView.findViewById(R.id.tvUsername);
+        }
+    }
+}

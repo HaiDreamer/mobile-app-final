@@ -187,10 +187,10 @@ public class SettingsFragment extends Fragment {
                     sharedPreferences.edit().putString("app_language", lang).apply();
                     tvCurrentLanguage.setText(getLanguageDisplayName(lang));
 
-                    // Áp dụng ngôn ngữ mới
+                    // Apply knew language
                     LocaleHelper.setLocale(requireContext(), lang);
 
-                    // Hiển thị thông báo
+                    // Notification language change
                     Toast.makeText(requireContext(),
                             "Đã thay đổi ngôn ngữ. Ứng dụng cần khởi động lại để áp dụng.",
                             Toast.LENGTH_LONG).show();
