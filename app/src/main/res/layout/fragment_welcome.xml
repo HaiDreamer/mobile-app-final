@@ -3,41 +3,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:padding="32dp"
     android:background="@drawable/background_welcome">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/irc"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="#FFFFFF"/>
+    <!-- App title -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="144dp"
+        android:layout_height="126dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/logo" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:text="@string/welcome"
-        android:textSize="24sp"
-        android:layout_marginBottom="48dp"
-        android:textColor="@color/white"/>
+        android:gravity="center"
+        android:layout_marginTop="0dp"
+        android:scaleType="centerCrop"
+        android:text="Welcome to USTH IRC"
+        android:textColor="#FFFFFF"
+        android:textSize="45sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/btn_go_to_login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login" />
+        android:layout_height="52dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="5dp"
+        android:backgroundTint="#001459"
+        android:text="@string/login"
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btn_go_to_register"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="3dp"
+        android:paddingTop="7dp"
         android:backgroundTint="#F2F3F5"
         android:text="@string/register"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btn_use_guest"
@@ -46,5 +55,6 @@
         android:scaleType="centerCrop"
         android:text="Use as Guest"
         android:backgroundTint="#001459"
-        android:textColor="@android:color/white"/>
+        android:textColor="@android:color/white" />
+
 </LinearLayout>

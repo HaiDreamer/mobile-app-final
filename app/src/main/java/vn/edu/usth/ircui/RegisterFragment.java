@@ -139,7 +139,7 @@ public class RegisterFragment extends Fragment {
                     Toast.makeText(getContext(), "Register success", Toast.LENGTH_SHORT).show();
 
                     if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).navigateToLoginFragment();
+                        ((MainActivity) getActivity()).navigateToChoose_avt(username);
                     }
                 })
                 .addOnFailureListener(e -> {
