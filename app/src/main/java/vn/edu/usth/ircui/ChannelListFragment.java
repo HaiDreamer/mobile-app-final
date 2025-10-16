@@ -42,7 +42,8 @@ public class ChannelListFragment extends Fragment {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView textView = (TextView) view.findViewById(android.R.id.text1);
-                textView.setTextColor(getResources().getColor(android.R.color.white));
+                // Use theme-aware text color for better contrast
+                textView.setTextColor(getResources().getColor(R.color.text_primary, requireContext().getTheme()));
                 textView.setTextSize(16);
                 textView.setPadding(32, 24, 32, 24);
                 return view;
