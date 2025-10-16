@@ -20,11 +20,10 @@ public class WelcomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
 
-        // Existing buttons (keep same IDs)
         Button btnGoToLogin = view.findViewById(R.id.btn_go_to_login);
         Button btnGoToRegister = view.findViewById(R.id.btn_go_to_register);
 
-        // ✅ NEW: "Use as Guest" button
+        // "Use as Guest" button
         Button btnUseGuest = view.findViewById(R.id.btn_use_guest);
 
         // Navigate to LoginFragment (existing behavior)
@@ -43,9 +42,9 @@ public class WelcomeFragment extends Fragment {
             ft.commit();
         });
 
-        // ✅ Guest flow: generate a random username and jump straight to Chat
+        // Guest flow: generate a random username and jump straight to Chat
         btnUseGuest.setOnClickListener(v -> {
-            // Generate a readable random guest name (no DB save)
+            // Generate a random guest name (no DB save)
             String guestName = "Guest" + (new Random().nextInt(9000) + 1000); // e.g., Guest3478
 
             // Use the public API in MainActivity to open Chat

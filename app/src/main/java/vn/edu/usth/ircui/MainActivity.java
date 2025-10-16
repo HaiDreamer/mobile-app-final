@@ -48,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 1️⃣ Apply the saved Day/Night theme before super.onCreate
+        // Apply the saved Day/Night theme before super.onCreate
         initializeAppTheme();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 2️⃣ Setup toolbar and handle back navigation dynamically
+        // Setup toolbar and handle back navigation dynamically
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -76,12 +76,12 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 toolbar.setNavigationIcon(null);
                 toolbar.setNavigationOnClickListener(null);
-                toolbar.setTitle("IRC UI");
+                toolbar.setTitle("IRC chat");
             }
             updateUiForTopFragment();
         });
 
-        // 3️⃣ Load WelcomeFragment when app starts
+        // Load WelcomeFragment when app starts
         if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new WelcomeFragment())
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        // 4️⃣ Request notification permission (Android 13+)
+        // Request notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -103,9 +103,7 @@ public class MainActivity extends AppCompatActivity {
         updateUiForTopFragment();
     }
 
-    // =============================
-    // 🔹 PUBLIC API FOR FRAGMENTS
-    // =============================
+    // PUBLIC API FOR FRAGMENTS
 
     /**
      * Called by Login, Register, or Welcome (Guest mode)
@@ -144,9 +142,7 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    // =============================
-    // 🔹 MENU & ACTIONS
-    // =============================
+    // MENU & ACTIONS
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,9 +182,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // =============================
-    // 🔹 PERMISSION CALLBACK
-    // =============================
+
+    // PERMISSION CALLBACK
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -203,9 +199,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // =============================
-    // 🔹 HELPER METHODS
-    // =============================
+    // HELPER METHODS
 
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);

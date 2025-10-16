@@ -79,4 +79,6 @@
     <string name="choose_server">Choose Server</string>
     <string name="enter_server">Enter Server</string>
     <string name="search">Search</string>
+    <string name="welcome_to_usth_irc">Welcome to USTH IRC</string>
+    <string name="use_as_guest">Use as Guest</string>
 </resources>

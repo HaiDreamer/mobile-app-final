@@ -77,4 +77,7 @@
     <string name="choose_server">Chọn Server</string>
     <string name="enter_server">Vào Server</string>
     <string name="search">Tìm kiếm</string>
+
+    <string name="welcome_to_usth_irc">Chào mừng USTH IRC</string>
+    <string name="use_as_guest">Sử dụng khách</string>
 </resources>
