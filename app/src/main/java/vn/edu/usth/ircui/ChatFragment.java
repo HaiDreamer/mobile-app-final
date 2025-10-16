@@ -88,7 +88,7 @@ public class ChatFragment extends Fragment {
         setHasOptionsMenu(true);
 
         db = FirebaseFirestore.getInstance();
-        cooldownManager = new MessageCooldownManager();
+        cooldownManager = MessageCooldownManager.getInstance();
 
         // Retrieve username passed from MainActivity
         if (getArguments() != null) {

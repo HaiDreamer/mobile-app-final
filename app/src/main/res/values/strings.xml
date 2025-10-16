@@ -83,4 +83,6 @@
     <string name="switching_to_channel">Switching to %s</string>
     <string name="channel_message">Channel Message</string>
     <string name="back">Back</string>
+    <string name="font_size">Font Size</string>
+    <string name="medium">Medium</string>
 </resources>
