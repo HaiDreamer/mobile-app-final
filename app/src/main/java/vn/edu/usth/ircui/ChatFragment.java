@@ -171,7 +171,7 @@ public class ChatFragment extends Fragment {
 
             currentNickname = "Guest";
             displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
-            displaySystemMessage("Chat loaded successfully. You can start messaging!");
+            //displaySystemMessage("Chat loaded successfully. You can start messaging!");
             adapter.setCurrentUser(currentNickname);
             connectToIRC();     // connect to IRC as Guest
             return;
@@ -187,8 +187,8 @@ public class ChatFragment extends Fragment {
                         currentNickname = currentUsername;
                     }
 
-                    displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
-                    displaySystemMessage("Chat loaded successfully. You can start messaging!");
+                    //displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
+                    //displaySystemMessage("Chat loaded successfully. You can start messaging!");
                     adapter.setCurrentUser(currentNickname);
                     connectToIRC();
                 });

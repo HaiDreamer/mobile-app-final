@@ -78,12 +78,12 @@
         android:id="@+id/enterServer"
         android:layout_width="340dp"
         android:layout_height="45dp"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="456dp"
         android:backgroundTint="#5729AE"
         android:text="@string/enter_server"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
