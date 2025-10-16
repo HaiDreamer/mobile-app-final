@@ -39,13 +39,18 @@ public class IrcClientManager {
         void onMessage(String username, String text, long ts, boolean mine);
         void onSystem(String text);
     }
+    
+    // Static flag to prevent multiple instances
+    private static volatile boolean hasActiveInstance = false;
 
     private final android.os.Handler main = new android.os.Handler(Looper.getMainLooper());
     private volatile Client client;
+    private volatile Object currentEventListener;
 
     // user/channel
     private String currentNick = "Guest";
     private String currentChannel = "#usth-ircui";
+    private String actualNick = "Guest"; // Track the actual nickname being used
 
     // servers
     public static class Server {
@@ -69,6 +74,19 @@ public class IrcClientManager {
     private final AtomicBoolean wantConnected = new AtomicBoolean(false);
     private int connectionAttempts = 0;
     private static final int MAX_ATTEMPTS_PER_SERVER = 3;
+    private long lastConnectionTime = 0;
+    private static final long MIN_CONNECTION_INTERVAL = 2000; // 2 seconds minimum between connections
+    
+    // Track last messages to prevent duplicates
+    private String lastJoinMessage = "";
+    private String lastQuitMessage = "";
+    private long lastJoinTime = 0;
+    private long lastQuitTime = 0;
+    
+    // Track last user messages to prevent duplicates
+    private String lastUserMessage = "";
+    private String lastUserNick = "";
+    private long lastUserMessageTime = 0;
 
     // SASL
     private @Nullable String saslUser, saslPass;
@@ -110,6 +128,18 @@ public class IrcClientManager {
     public void connectWithSasl(String nickname, String channel,
                                 @Nullable String saslUser, @Nullable String saslPass,
                                 boolean useExternal) {
+        // Check if already connected to avoid duplicate connections
+        if (isConnected()) {
+            postSystem("ℹ️ Already connected to server");
+            return;
+        }
+        
+        // Check if there's already an active instance
+        if (hasActiveInstance && !isConnected()) {
+            postSystem("ℹ️ Another connection is being established, please wait...");
+            return;
+        }
+        
         if (nickname != null && !nickname.isEmpty()) currentNick = nickname;
         if (channel != null && !channel.isEmpty())   currentChannel = channel;
         this.saslUser = saslUser;
@@ -120,15 +150,34 @@ public class IrcClientManager {
         serverIndex = Math.min(serverIndex, servers.size()-1);
         backoffMs = 1500;
         connectionAttempts = 0;
+        hasActiveInstance = true; // Mark as active
         startConnectAttempt(); // async
     }
 
     public void disconnect() {
         wantConnected.set(false);
+        hasActiveInstance = false; // Clear active flag
+        
+        // Show quit message before disconnecting
+        if (actualNick != null && !actualNick.isEmpty()) {
+            postSystem("👋 " + actualNick + " quit");
+        }
+        
         Client c = client;
         client = null;
+        
+        // Clean up event listener to prevent duplicate messages
+        Object listener = currentEventListener;
+        currentEventListener = null;
+        
         if (c != null) {
-            try { c.shutdown("Bye"); } catch (Exception ignored) {}
+            try { 
+                // Unregister the event listener before shutdown
+                if (listener != null) {
+                    c.getEventManager().unregisterEventListener(listener);
+                }
+                c.shutdown("Bye"); 
+            } catch (Exception ignored) {}
         }
     }
     
@@ -138,6 +187,16 @@ public class IrcClientManager {
         serverIndex = 0;
         connectionAttempts = 0;
         connecting.set(false);
+        lastConnectionTime = 0; // Reset connection timing
+        
+        // Reset duplicate message tracking
+        lastJoinMessage = "";
+        lastQuitMessage = "";
+        lastJoinTime = 0;
+        lastQuitTime = 0;
+        lastUserMessage = "";
+        lastUserNick = "";
+        lastUserMessageTime = 0;
     }
     
     /**
@@ -199,7 +258,11 @@ public class IrcClientManager {
     public boolean isActive() { return client != null; }
     
     public boolean isConnected() { 
-        return client != null; 
+        return client != null && wantConnected.get() && !connecting.get(); 
+    }
+    
+    public boolean isConnecting() {
+        return connecting.get();
     }
 
     /**
@@ -257,7 +320,20 @@ public class IrcClientManager {
     // internal
     private void startConnectAttempt() {
         if (!wantConnected.get()) return;
-        if (!connecting.compareAndSet(false, true)) return;
+        if (!connecting.compareAndSet(false, true)) {
+            // Already connecting, skip this attempt
+            return;
+        }
+
+        // Check minimum interval between connections to avoid rapid reconnections
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastConnectionTime < MIN_CONNECTION_INTERVAL) {
+            connecting.set(false);
+            long delay = MIN_CONNECTION_INTERVAL - (currentTime - lastConnectionTime);
+            main.postDelayed(this::startConnectAttempt, delay);
+            return;
+        }
+        lastConnectionTime = currentTime;
 
         // Check internet connection first
         if (!isInternetAvailable()) {
@@ -275,6 +351,7 @@ public class IrcClientManager {
                 postSystem("🔄 Connecting to " + s.host + " (port " + s.port + ")... (attempt " + connectionAttempts + "/" + MAX_ATTEMPTS_PER_SERVER + ")");
                 // Generate unique nickname to avoid conflicts
                 String uniqueNick = generateUniqueNick(currentNick);
+                actualNick = uniqueNick; // Store the actual nickname being used
                 
                 Client c = Client.builder()
                         .nick(uniqueNick)
@@ -298,14 +375,16 @@ public class IrcClientManager {
                 // (Capability negotiation handles 'sasl' automatically when a protocol is added.)
 
                 // Register listeners BEFORE connect so early events are caught
-                c.getEventManager().registerEventListener(new Object() {
+                Object eventListener = new Object() {
 
                     @Handler
                     public void onReady(ClientNegotiationCompleteEvent e) {
                         // reset backoff on success
                         backoffMs = 1500;
+                        connecting.set(false); // Clear connecting flag
                         postSystem("✅ Connected to " + s.host + " (port " + s.port + ")");
                         postSystem("📺 Joined channel: " + currentChannel);
+                        postSystem("👋 " + actualNick + " joined " + currentChannel);
                         c.addChannel(currentChannel);
                     }
 
@@ -313,10 +392,18 @@ public class IrcClientManager {
                     public void onMsg(ChannelMessageEvent e) {
                         String from = e.getActor().getNick();
                         String msg  = e.getMessage();
-                        boolean mine = from.equalsIgnoreCase(currentNick);
+                        boolean mine = from.equalsIgnoreCase(actualNick);
                         // Only show messages from other users (our own messages are shown via local echo)
                         if (!mine) {
-                            postMessage(from, msg, System.currentTimeMillis(), false);
+                            long currentTime = System.currentTimeMillis();
+                            
+                            // Prevent duplicate messages from same user within 500ms
+                            if (!from.equals(lastUserNick) || !msg.equals(lastUserMessage) || (currentTime - lastUserMessageTime) > 500) {
+                                lastUserNick = from;
+                                lastUserMessage = msg;
+                                lastUserMessageTime = currentTime;
+                                postMessage(from, msg, currentTime, false);
+                            }
                         }
                     }
 
@@ -324,7 +411,7 @@ public class IrcClientManager {
                     public void onPrivateMsg(PrivateMessageEvent e) {
                         String from = e.getActor().getNick();
                         String msg  = e.getMessage();
-                        boolean mine = from.equalsIgnoreCase(currentNick);
+                        boolean mine = from.equalsIgnoreCase(actualNick);
                         // Only show private messages from other users (our own messages are shown via local echo)
                         if (!mine) {
                             postMessage(from, msg, System.currentTimeMillis(), false);
@@ -335,10 +422,18 @@ public class IrcClientManager {
                     public void onJoin(ChannelJoinEvent e) {
                         String user = e.getActor().getNick();
                         String channel = e.getChannel().getName();
-                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        boolean mine = user.equalsIgnoreCase(actualNick);
                         // Only show join notifications for other users, not ourselves
                         if (!mine) {
-                            postSystem("👋 " + user + " joined " + channel);
+                            String message = "👋 " + user + " joined " + channel;
+                            long currentTime = System.currentTimeMillis();
+                            
+                            // Prevent duplicate messages within 1 second
+                            if (!message.equals(lastJoinMessage) || (currentTime - lastJoinTime) > 1000) {
+                                lastJoinMessage = message;
+                                lastJoinTime = currentTime;
+                                postSystem(message);
+                            }
                         }
                     }
 
@@ -346,7 +441,7 @@ public class IrcClientManager {
                     public void onPart(ChannelPartEvent e) {
                         String user = e.getActor().getNick();
                         String channel = e.getChannel().getName();
-                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        boolean mine = user.equalsIgnoreCase(actualNick);
                         // Only show part notifications for other users, not ourselves
                         if (!mine) {
                             postSystem("👋 " + user + " left " + channel);
@@ -356,10 +451,18 @@ public class IrcClientManager {
                     @Handler
                     public void onQuit(UserQuitEvent e) {
                         String user = e.getActor().getNick();
-                        boolean mine = user.equalsIgnoreCase(currentNick);
+                        boolean mine = user.equalsIgnoreCase(actualNick);
                         // Only show quit notifications for other users, not ourselves
                         if (!mine) {
-                            postSystem("👋 " + user + " quit");
+                            String message = "👋 " + user + " quit";
+                            long currentTime = System.currentTimeMillis();
+                            
+                            // Prevent duplicate messages within 1 second
+                            if (!message.equals(lastQuitMessage) || (currentTime - lastQuitTime) > 1000) {
+                                lastQuitMessage = message;
+                                lastQuitTime = currentTime;
+                                postSystem(message);
+                            }
                         }
                     }
 
@@ -367,6 +470,11 @@ public class IrcClientManager {
                     public void onDisconnect(ClientConnectionEndedEvent e) {
                         String why = e.getCause().map(Throwable::getMessage).orElse("connection ended");
                         postSystem("❌ Disconnected from " + s.host + " - " + why);
+                        
+                        // Show quit message when disconnected
+                        if (actualNick != null && !actualNick.isEmpty()) {
+                            postSystem("👋 " + actualNick + " quit");
+                        }
                         
                         // Only reconnect if it's not a user-initiated disconnect
                         if (wantConnected.get()) {
@@ -378,7 +486,11 @@ public class IrcClientManager {
                             }, 3000); // 3 second delay
                         }
                     }
-                });
+                };
+                
+                // Store reference to event listener for cleanup
+                currentEventListener = eventListener;
+                c.getEventManager().registerEventListener(eventListener);
 
                 client = c;
                 c.connect(); // non-blocking connect/handshake
@@ -464,10 +576,14 @@ public class IrcClientManager {
             cleanNick = cleanNick.substring(0, 10);
         }
         
-        // Add timestamp-based suffix to make it more unique
-        long timestamp = System.currentTimeMillis() % 10000; // Last 4 digits
-        int randomSuffix = (int) (Math.random() * 100); // 0-99
-        return cleanNick + timestamp + randomSuffix;
+        // Always use the same nickname for consistency
+        // Only add suffix if this is a retry attempt (attempt > 1)
+        if (connectionAttempts > 1) {
+            return cleanNick + connectionAttempts;
+        }
+        
+        // For first attempt, use clean nickname without any suffix
+        return cleanNick;
     }
     
     /** Check if internet connection is available */

@@ -20,6 +20,7 @@ public class SharedIrcClient {
     private String currentServer;
     private String currentUsername;
     private String currentChannel;
+    private volatile boolean isConnecting = false;
     
     private SharedIrcClient() {
         // Private constructor for singleton
@@ -54,9 +55,24 @@ public class SharedIrcClient {
             return;
         }
         
+        // If already connecting, don't create another connection
+        if (isConnecting || (ircClient != null && ircClient.isConnecting())) {
+            notifySystem("ℹ️ Connection already in progress, please wait...");
+            return;
+        }
+        
+        isConnecting = true;
+        
         // Disconnect existing connection if different server
         if (ircClient != null) {
             ircClient.disconnect();
+            ircClient = null; // Clear reference immediately
+            // Wait a bit for cleanup
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         
         // Create new connection
@@ -75,6 +91,10 @@ public class SharedIrcClient {
 
             @Override
             public void onSystem(String text) {
+                // Reset connecting flag when we get system messages
+                if (text.contains("✅ Connected") || text.contains("❌") || text.contains("Failed")) {
+                    isConnecting = false;
+                }
                 // Forward to all registered callbacks
                 notifySystem(text);
             }
@@ -196,6 +216,7 @@ public class SharedIrcClient {
      * Disconnect
      */
     public void disconnect() {
+        isConnecting = false; // Reset connecting flag
         if (ircClient != null) {
             ircClient.disconnect();
             ircClient = null;
