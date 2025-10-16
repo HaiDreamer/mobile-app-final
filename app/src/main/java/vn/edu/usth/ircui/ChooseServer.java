@@ -18,6 +18,11 @@ import com.google.android.material.button.MaterialButton;
 public class ChooseServer extends Fragment {
 
     private AutoCompleteTextView serverInput;
+    private static final String[] PRESET_SERVERS = new String[] {
+                       "irc.libera.chat", // TLS 6697 (Libera)
+                       "irc.oftc.net",    // TLS 6697 (OFTC)
+                       "irc.rizon.net"    // TLS 6697 (Rizon)
+    };
     private MaterialButton enterServerButton;
 
     @Nullable
@@ -47,12 +52,13 @@ public class ChooseServer extends Fragment {
             }
         });
 
-        // Đè xuất 2 server
-        String[] servers = {"irc.freenode.net", "irc.libera.chat"};
+        // server suggest
+        String[] servers = {"irc.libera.chat", "irc.oftc.chat", "irc.rizon.chat"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, servers);
+
         serverInput.setAdapter(adapter);
-        serverInput.setThreshold(0); // Hiện đề xuất ngay khi ấn vào
+        serverInput.setThreshold(0);    // show suggestion when press-in
 
         enterServerButton.setOnClickListener(v -> {
             String selectedServer = serverInput.getText().toString().trim();
@@ -61,7 +67,7 @@ public class ChooseServer extends Fragment {
                 return;
             }
 
-            // Gọi MainActivity để chuyển sang Fragment tiếp theo
+            // Call MainActivity for next fragment
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToChatFragment(selectedServer);
             }
