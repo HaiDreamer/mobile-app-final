@@ -31,9 +31,7 @@ import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
 /**
- * MainActivity
- * -------------
- * Acts as the main container for all fragments:
+ * Main container for all fragments:
  *  - Shows Welcome screen first (Login / Register / Guest)
  *  - Hosts ChatFragment after login or guest selection
  *  - Manages toolbar, app theme, permissions, and fragment navigation
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 1️⃣ Apply the saved Day/Night theme before super.onCreate
+        // Apply the saved Day/Night theme before super.onCreate
         initializeAppTheme();
 
         super.onCreate(savedInstanceState);
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         drawerFt.replace(R.id.drawer_container, channelListFragment);
         drawerFt.commit();
 
-        // 2️⃣ Setup toolbar and handle back navigation dynamically
+        // Setup toolbar and handle back navigation dynamically
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -204,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             updateUiForTopFragment();
         });
 
-        // 3️⃣ Load WelcomeFragment when app starts
+        // Load WelcomeFragment when app starts
         if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new WelcomeFragment())
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        // 4️⃣ Request notification permission (Android 13+)
+        // Request notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -289,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    // MENU & ACTIONS
+    // Menu and Action
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -329,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // PERMISSION CALLBACK
+    // Permission callback
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -344,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // HELPER METHODS
+    // Helper methods
 
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);

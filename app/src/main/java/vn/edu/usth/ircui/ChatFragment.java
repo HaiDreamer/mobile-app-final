@@ -139,9 +139,7 @@ public class ChatFragment extends Fragment {
         return v;
     }
 
-    // =============================
-    // 🔹 Direct Message dialog
-    // =============================
+    // Direct Message dialog
     private void openDirectMessageDialog() {
         final EditText inputUser = new EditText(requireContext());
         inputUser.setHint("Enter username (e.g., bob)");
@@ -197,9 +195,7 @@ public class ChatFragment extends Fragment {
         sharedIrcClient.connect(serverHost, username, channel, requireContext());
     }
 
-    // =============================
-    // 🔹 Load nickname info
-    // =============================
+    // Load nickname info
     private void fetchUserData() {
         // Guests are detected by "Guest" prefix
         if (currentUsername == null
@@ -229,9 +225,7 @@ public class ChatFragment extends Fragment {
                 });
     }
 
-    // =============================
-    // 🔹 Handle Send button
-    // =============================
+    // Handle Send button
     private void handleSendMessageClick() {
         String text = etMessage.getText() != null
                 ? etMessage.getText().toString().trim()
@@ -281,9 +275,7 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    // =============================
-    // 🔹 Commands (/nick, /help, etc.)
-    // =============================
+    // Commands (/nick, /help, etc.)
     private boolean isCommand(String text) {
         return text.startsWith("/");
     }
@@ -344,9 +336,7 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    // =============================
-    // 🔹 Helper methods
-    // =============================
+    // Helper methods
     private void showHelpInfo() {
         displaySystemMessage("📋 Available commands:");
         displaySystemMessage("  /help - Show this help");
@@ -379,9 +369,7 @@ public class ChatFragment extends Fragment {
         rvMessages.scrollToPosition(messages.size() - 1);
     }
 
-    // =============================
-    // 🔹 Options menu
-    // =============================
+    // Options menu
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
@@ -422,9 +410,7 @@ public class ChatFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    // =============================
-    // 🔹 Menu action methods
-    // =============================
+    // Menu action methods
     private void fetchOnlineUsers() {
         // For now, just show a placeholder message
         displaySystemMessage("Fetching online users...");
@@ -452,9 +438,7 @@ public class ChatFragment extends Fragment {
                 .show();
     }
 
-    // =============================
-    // 🔹 User List functionality
-    // =============================
+    // 🔹User List functionality
     private void loadOnlineUsers() {
         if (currentUsername == null || currentUsername.equals("Guest")) {
             Toast.makeText(getContext(), "Guest users cannot view member list", Toast.LENGTH_SHORT).show();

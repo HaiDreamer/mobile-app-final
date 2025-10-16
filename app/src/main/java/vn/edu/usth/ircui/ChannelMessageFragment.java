@@ -150,10 +150,10 @@ public class ChannelMessageFragment extends Fragment {
 
         // No need for channel join notification since we already show server connection status
 
-        // --- Keyboard / Insets handling ---
+        // Keyboard / Insets handling
         final View footer = (View) input.getParent(); // the bottom bar container
 
-        // 1) Apply system bar paddings once and keep bottom space equal to nav bar.
+        // Apply system bar paddings once and keep bottom space equal to nav bar.
         ViewCompat.setOnApplyWindowInsetsListener(v, (view, insets) -> {
             Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             // Keep footer above navigation bar (gesture area)
@@ -173,7 +173,7 @@ public class ChannelMessageFragment extends Fragment {
             return insets; // don't consume; let resize work
         });
 
-        // 2) Animate footer with the IME and add extra space for the list bottom.
+        // Animate footer with the IME and add extra space for the list bottom.
         ViewCompat.setWindowInsetsAnimationCallback(v,
                 new WindowInsetsAnimationCompat.Callback(
                         WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
