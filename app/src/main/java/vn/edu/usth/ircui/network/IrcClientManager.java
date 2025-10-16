@@ -423,7 +423,7 @@ public class IrcClientManager {
         main.postDelayed(this::startConnectAttempt, delay);
     }
 
-    // ---- helpers ----
+    // helpers
     private void postMessage(String u, String t, long ts, boolean mine) {
         if (callback == null) return;
         main.post(() -> callback.onMessage(u, t, ts, mine));

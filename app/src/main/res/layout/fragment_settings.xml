@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Tài khoản Section -->
+        <!-- Section account -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Tài khoản Item -->
+                <!-- Item account -->
                 <LinearLayout
                     android:id="@+id/accountManagement"
                     android:layout_width="match_parent"
@@ -57,7 +57,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:tint="?android:attr/textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
 
                 </LinearLayout>
 
@@ -66,7 +66,7 @@
                     android:layout_height="1dp"
                     android:background="?android:attr/colorBackground" />
 
-                <!-- Trang cá nhân Item -->
+                <!-- Profile item -->
                 <LinearLayout
                     android:id="@+id/profileSection"
                     android:layout_width="match_parent"
@@ -89,14 +89,14 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:tint="?android:attr/textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
 
                 </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Giao diện Section -->
+        <!-- Interface Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Chế độ tối -->
+                <!-- Dark Mode -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -145,11 +145,46 @@
                     android:layout_height="1dp"
                     android:background="?android:attr/colorBackground" />
 
+                <!-- font size -->
+                <LinearLayout
+                    android:id="@+id/fontSizeSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/font_size"
+                        android:textSize="14sp"
+                        android:textColor="?android:attr/textColorPrimary" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentFontSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/medium"
+                        android:textSize="14sp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_marginEnd="8dp" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="?android:attr/textColorSecondary" />
+
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Ngôn ngữ Section -->
+        <!-- Languague Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -202,14 +237,14 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:tint="?android:attr/textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
 
                 </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Trạng thái hoạt động Section -->
+        <!-- Activity Status Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -256,7 +291,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Thông báo Section -->
+        <!-- Notification Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -354,7 +389,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Trò chuyện Section -->
+        <!-- Chat Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -452,7 +487,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Giới thiệu & Đăng xuất -->
+        <!-- Introduce & Log Out -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -486,7 +521,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:tint="?android:attr/textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
 
                 </LinearLayout>
 

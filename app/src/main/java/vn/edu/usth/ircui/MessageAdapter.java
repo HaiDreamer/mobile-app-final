@@ -24,7 +24,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int TYPE_ME    = 1;
 
     private final List<Message> data;
-    private final String me;
+    private String me;
     private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     private final int[] namePalette;
@@ -37,6 +37,10 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 R.color.userColor1, R.color.userColor2, R.color.userColor3, R.color.userColor4,
                 R.color.userColor5, R.color.userColor6, R.color.userColor7, R.color.userColor8
         };
+    }
+
+    public void setCurrentUser(String newNickname){
+        this.me = newNickname;
     }
 
     @Override
