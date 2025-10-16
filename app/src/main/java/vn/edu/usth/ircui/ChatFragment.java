@@ -406,7 +406,53 @@ public class ChatFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
             return true;
+        } else if (id == R.id.action_members) {
+            fetchOnlineUsers();
+            return true;
+        } else if (id == R.id.action_refresh) {
+            // Refresh connection
+            if (sharedIrcClient != null) {
+                displaySystemMessage("Refreshing connection...");
+                // Add refresh logic here if needed
+            }
+            return true;
+        } else if (id == R.id.action_clear_history) {
+            clearChatHistory();
+            return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // =============================
+    // 🔹 Menu action methods
+    // =============================
+    private void fetchOnlineUsers() {
+        // For now, just show a placeholder message
+        displaySystemMessage("Fetching online users...");
+        Toast.makeText(getContext(), "Online users feature coming soon!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void clearChatHistory() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Clear Chat History")
+                .setMessage("Are you sure you want to clear all chat history?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    messages.clear();
+                    adapter.notifyDataSetChanged();
+                    displaySystemMessage("Chat history cleared.");
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void showAboutDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("About IRC UI")
+                .setMessage("IRC UI v1.0\nDeveloped for USTH\nA modern IRC client for Android")
+                .setPositiveButton("OK", null)
+                .show();
     }
 }
