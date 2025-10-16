@@ -22,6 +22,7 @@ import java.util.List;
 
 import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.network.SharedIrcClient;
 import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 
 import android.view.Menu;
@@ -57,7 +58,9 @@ public class ChatFragment extends Fragment {
     private String channel = "#usth-ircui";
     private final List<Message> messages = new ArrayList<>();
     private MessageAdapter adapter;
-    private IrcClientManager ircClient;
+    private SharedIrcClient sharedIrcClient;
+    private SharedIrcClient.MessageCallback messageCallback;
+    private SharedIrcClient.SystemMessageCallback systemCallback;
 
     private RecyclerView rvMessages;
     private EditText etMessage;
@@ -70,6 +73,20 @@ public class ChatFragment extends Fragment {
             username = getArguments().getString(ARG_USERNAME, "Guest");
             serverHost = getArguments().getString(ARG_SERVER, "irc.libera.chat");
             channel = getArguments().getString(ARG_CHANNEL, "#usth-ircui");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Unregister callbacks when fragment is destroyed
+        if (sharedIrcClient != null) {
+            if (messageCallback != null) {
+                sharedIrcClient.unregisterCallback(messageCallback);
+            }
+            if (systemCallback != null) {
+                sharedIrcClient.unregisterSystemCallback(systemCallback);
+            }
         }
     }
 
@@ -88,7 +105,7 @@ public class ChatFragment extends Fragment {
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
-        ircClient = getIrcClientManager();
+        initializeSharedIrcClient();
 
         btnSend.setOnClickListener(view -> handleSendMessageClick());
 
@@ -112,7 +129,7 @@ public class ChatFragment extends Fragment {
                         getParentFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.container,
-                                        DirectMessageFragment.newInstance(me, peer))
+                                        DirectMessageFragment.newInstance(me, peer, serverHost))
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -120,38 +137,34 @@ public class ChatFragment extends Fragment {
                 .show();
     }
 
-    @NonNull
-    private IrcClientManager getIrcClientManager() {
-        IrcClientManager manager = new IrcClientManager();
-        manager.setContext(requireContext());
-        manager.setCallback(new IrcClientManager.MessageCallback() {
+    private void initializeSharedIrcClient() {
+        sharedIrcClient = SharedIrcClient.getInstance();
+        
+        // Create callback for regular messages
+        messageCallback = new SharedIrcClient.MessageCallback() {
             @Override
             public void onMessage(String u, String t, long ts, boolean mine) {
                 messages.add(new Message(u, t, mine));
                 adapter.notifyItemInserted(messages.size() - 1);
                 rvMessages.scrollToPosition(messages.size() - 1);
             }
-
+        };
+        
+        // Create callback for system messages
+        systemCallback = new SharedIrcClient.SystemMessageCallback() {
             @Override
             public void onSystem(String t) {
                 // Show all system messages with server info
                 displaySystemMessage(t);
             }
-        });
-
-        // Configure server list: prefer chosen server first, then fallbacks
-        java.util.List<vn.edu.usth.ircui.network.IrcClientManager.Server> list = new java.util.ArrayList<>();
-        list.add(new vn.edu.usth.ircui.network.IrcClientManager.Server(serverHost, 6697, true));
-        list.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.libera.chat", 6697, true));
-        list.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.oftc.net", 6697, true));
-        list.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.rizon.net", 6697, true));
-        list.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.freenode.net", 6697, true));
-        manager.setServers(list);
-        manager.connect(username, channel);
+        };
         
-        // Show minimal connection info
-        displaySystemMessage("🔄 Connecting to " + serverHost + "...");
-        return manager;
+        // Register this fragment as a callback for both messages and system messages
+        sharedIrcClient.registerCallback(messageCallback);
+        sharedIrcClient.registerSystemCallback(systemCallback);
+
+        // Connect to IRC server using shared client
+        sharedIrcClient.connect(serverHost, username, channel, requireContext());
     }
 
     private void handleSendMessageClick() {
@@ -167,12 +180,12 @@ public class ChatFragment extends Fragment {
 
 
         // Check if IRC client is connected before sending
-        if (ircClient == null) {
+        if (sharedIrcClient == null) {
             displaySystemMessage("❌ IRC client not initialized. Try reconnecting.");
             return;
         }
 
-        if (!ircClient.isConnected()) {
+        if (!sharedIrcClient.isConnected()) {
             displaySystemMessage("❌ Not connected to IRC server. Use /reconnect to try again.");
             return;
         }
@@ -184,7 +197,7 @@ public class ChatFragment extends Fragment {
             rvMessages.scrollToPosition(messages.size() - 1);
             
             // Send to IRC server
-            ircClient.sendMessage(text);
+            sharedIrcClient.sendMessage(text);
             etMessage.getText().clear();
         } catch (Exception e) {
             // Remove the message from UI if send failed
@@ -222,7 +235,7 @@ public class ChatFragment extends Fragment {
                 break;
             case "/connect":
                 try {
-                    ircClient.connect(username, "#usth-ircui");
+                    sharedIrcClient.connect(serverHost, username, "#usth-ircui", requireContext());
                     displaySystemMessage("🔄 Attempting to connect...");
                 } catch (Exception e) {
                     displaySystemMessage("❌ Connection failed: " + e.getMessage());
@@ -233,9 +246,9 @@ public class ChatFragment extends Fragment {
                 break;
             case "/reconnect":
                 try {
-                    if (ircClient != null) {
-                        ircClient.resetConnection();
-                        ircClient.connect(username, channel);
+                    if (sharedIrcClient != null) {
+                        sharedIrcClient.resetConnection();
+                        sharedIrcClient.connect(serverHost, username, channel, requireContext());
                         displaySystemMessage("🔄 Reconnecting...");
                     } else {
                         displaySystemMessage("❌ IRC client not initialized");
@@ -266,12 +279,12 @@ public class ChatFragment extends Fragment {
     }
 
     private void showConnectionStatus() {
-        if (ircClient == null) {
+        if (sharedIrcClient == null) {
             displaySystemMessage("❌ IRC client not initialized");
             return;
         }
         
-        if (ircClient.isActive()) {
+        if (sharedIrcClient.isConnected()) {
             displaySystemMessage("✅ Connected to IRC server");
             displaySystemMessage("👤 User: " + username);
             displaySystemMessage("📺 Channel: " + channel);

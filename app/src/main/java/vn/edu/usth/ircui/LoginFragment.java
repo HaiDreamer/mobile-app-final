@@ -37,6 +37,11 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getContext(), "Please enter a password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Gọi phương thức trong MainActivity để chuyển sang màn hình Chat
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).navigateToChooseServer(username);

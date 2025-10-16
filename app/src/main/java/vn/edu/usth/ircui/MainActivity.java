@@ -73,15 +73,50 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
-            if (canBack) {
+            androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+            
+            // Debug logging
+            String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
+            android.util.Log.d("MainActivity", "BackStackChanged - Fragment: " + fragmentName + ", canBack: " + canBack);
+            
+            // Check if we're on welcome screen (no navigation needed)
+            boolean isWelcomeScreen = currentFragment instanceof WelcomeFragment;
+            
+            // Check if we're on login or register screens (need back to welcome)
+            boolean isLoginOrRegister = currentFragment instanceof LoginFragment || 
+                                      currentFragment instanceof RegisterFragment;
+            
+            // Check if we're on main chat fragments (should show menu icon)
+            boolean isMainChatFragment = currentFragment instanceof ChatFragment || 
+                                       currentFragment instanceof ChannelMessageFragment;
+            
+            if (isWelcomeScreen) {
+                // Hide navigation icon on welcome screen (no back needed)
+                toolbar.setNavigationIcon(null);
+                toolbar.setNavigationOnClickListener(null);
+                android.util.Log.d("MainActivity", "Setting navigation icon to null (welcome screen)");
+            } else if (isLoginOrRegister && canBack) {
+                // Show back arrow on login/register screens when there's back stack
                 toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
                 toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-            } else {
-                // Show menu icon when on main fragments (Welcome, Login, Register, Chat)
+                android.util.Log.d("MainActivity", "Setting navigation icon to back arrow (login/register with back stack)");
+            } else if (isMainChatFragment) {
+                // Always show menu icon on main chat fragments, even if there's back stack
                 toolbar.setNavigationIcon(R.drawable.menu);
                 toolbar.setNavigationOnClickListener(v -> toggleDrawer());
-                toolbar.setTitle("IRC UI");
+                android.util.Log.d("MainActivity", "Setting navigation icon to menu (chat fragment)");
+            } else if (canBack) {
+                // Show back arrow for other fragments with back stack
+                toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+                toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+                android.util.Log.d("MainActivity", "Setting navigation icon to back arrow (canBack=true)");
+            } else {
+                // Show menu icon for other main fragments
+                toolbar.setNavigationIcon(R.drawable.menu);
+                toolbar.setNavigationOnClickListener(v -> toggleDrawer());
+                android.util.Log.d("MainActivity", "Setting navigation icon to menu (default)");
             }
+            toolbar.setTitle("IRC UI");
             updateUiForTopFragment();
         });
 
@@ -120,10 +155,20 @@ public class MainActivity extends AppCompatActivity {
         // Update channel list to include current channel
         updateCurrentChannel(channel);
         
+        // Clear back stack first
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Then replace with chat fragment
         ChatFragment chatFragment = ChatFragment.newInstance(username, serverHost, channel);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
-        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ft.runOnCommit(() -> {
+            updateUiForTopFragment();
+            // Force update toolbar after a short delay to ensure fragment is fully loaded
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                forceUpdateToolbar();
+            }, 100);
+        });
         ft.commit();
     }
 
@@ -207,6 +252,35 @@ public class MainActivity extends AppCompatActivity {
         androidx.fragment.app.Fragment f = getSupportFragmentManager().findFragmentById(R.id.container);
         boolean onLogin = f instanceof LoginFragment;
         btnLanguage.setVisibility(onLogin ? android.view.View.VISIBLE : android.view.View.GONE);
+        
+        // Disable drawer on auth screens (welcome, login, register)
+        boolean isAuthScreen = f instanceof WelcomeFragment || 
+                             f instanceof LoginFragment || 
+                             f instanceof RegisterFragment;
+        
+        if (drawerLayout != null) {
+            drawerLayout.setDrawerLockMode(isAuthScreen ? 
+                DrawerLayout.LOCK_MODE_LOCKED_CLOSED : 
+                DrawerLayout.LOCK_MODE_UNLOCKED);
+        }
+    }
+    
+    private void forceUpdateToolbar() {
+        androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        
+        if (toolbar == null || currentFragment == null) return;
+        
+        // Check if we're on main chat fragments (should show menu icon)
+        boolean isMainChatFragment = currentFragment instanceof ChatFragment || 
+                                   currentFragment instanceof ChannelMessageFragment;
+        
+        if (isMainChatFragment) {
+            // Force show menu icon on chat fragments
+            toolbar.setNavigationIcon(R.drawable.menu);
+            toolbar.setNavigationOnClickListener(v -> toggleDrawer());
+            android.util.Log.d("MainActivity", "Force updated toolbar - showing menu icon for chat fragment");
+        }
     }
 
     private void showUserInfo() {
@@ -301,10 +375,20 @@ public class MainActivity extends AppCompatActivity {
         // Update channel list to include current channel
         updateCurrentChannel(channel);
         
+        // Clear back stack first
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Then replace with channel message fragment
         ChannelMessageFragment channelMessageFragment = ChannelMessageFragment.newInstance(username, serverHost, channel);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, channelMessageFragment);
-        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ft.runOnCommit(() -> {
+            updateUiForTopFragment();
+            // Force update toolbar after a short delay to ensure fragment is fully loaded
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                forceUpdateToolbar();
+            }, 100);
+        });
         ft.commit();
     }
 }

@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import vn.edu.usth.ircui.feature_chat.data.Attachment;
 import vn.edu.usth.ircui.feature_chat.ui.DirectMessageAdapter;
 import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.network.SharedIrcClient;
 import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
 
 /**
@@ -59,7 +60,8 @@ public class ChannelMessageFragment extends Fragment {
     private TextView header;
 
     private String username, serverHost, channel;
-    private IrcClientManager ircClient;
+    private SharedIrcClient sharedIrcClient;
+    private SharedIrcClient.MessageCallback messageCallback;
     private final MessageCooldownManager cooldownManager = MessageCooldownManager.getInstance();
 
     private final ActivityResultLauncher<String[]> filePicker =
@@ -86,6 +88,15 @@ public class ChannelMessageFragment extends Fragment {
             username = getArguments().getString(ARG_USERNAME, "Guest");
             serverHost = getArguments().getString(ARG_SERVER, "irc.libera.chat");
             channel = getArguments().getString(ARG_CHANNEL, "#usth-ircui");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Unregister callback when fragment is destroyed
+        if (sharedIrcClient != null && messageCallback != null) {
+            sharedIrcClient.unregisterCallback(messageCallback);
         }
     }
 
@@ -122,8 +133,8 @@ public class ChannelMessageFragment extends Fragment {
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         recycler.setAdapter(adapter);
 
-        // Initialize IRC client
-        initializeIrcClient();
+        // Initialize shared IRC client
+        initializeSharedIrcClient();
 
         btnSend.setOnClickListener(view -> sendText());
         btnImage.setOnClickListener(view -> imagePicker.launch("image/*"));
@@ -192,50 +203,29 @@ public class ChannelMessageFragment extends Fragment {
         return v;
     }
 
-    private void initializeIrcClient() {
+    private void initializeSharedIrcClient() {
         try {
-            // Check if we already have a connected IRC client
-            if (ircClient != null && ircClient.isConnected()) {
-                // Just join the new channel without reconnecting
-                adapter.addText(false, "System", "📺 Joining channel: " + channel);
-                ircClient.joinChannel(channel);
-                return;
-            }
+            sharedIrcClient = SharedIrcClient.getInstance();
             
-            // Create new IRC client only if not connected
-            ircClient = new IrcClientManager();
-            ircClient.setContext(requireContext());
-            ircClient.setCallback(new IrcClientManager.MessageCallback() {
+            // Create callback for regular messages only (no system messages)
+            messageCallback = new SharedIrcClient.MessageCallback() {
                 @Override
                 public void onMessage(String user, String text, long timestamp, boolean isMine) {
                     // Add all messages from IRC server (real-time chat)
                     adapter.addText(isMine, user, text);
                     recycler.scrollToPosition(adapter.getItemCount() - 1);
                 }
-
-                @Override
-                public void onSystem(String text) {
-                    // Show all system messages with server info
-                    adapter.addText(false, "System", text);
-                    recycler.scrollToPosition(adapter.getItemCount() - 1);
-                }
-            });
-
-            // Configure server list with popular IRC servers
-            java.util.List<vn.edu.usth.ircui.network.IrcClientManager.Server> servers = new java.util.ArrayList<>();
-            servers.add(new vn.edu.usth.ircui.network.IrcClientManager.Server(serverHost, 6697, true));
-            servers.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.libera.chat", 6697, true));
-            servers.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.oftc.net", 6697, true));
-            servers.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.rizon.net", 6697, true));
-            servers.add(new vn.edu.usth.ircui.network.IrcClientManager.Server("irc.freenode.net", 6697, true));
+            };
             
-            ircClient.setServers(servers);
-            ircClient.connect(username, channel);
+            // Register this fragment as a callback
+            sharedIrcClient.registerCallback(messageCallback);
+
+            // Connect to IRC server using shared client
+            sharedIrcClient.connect(serverHost, username, channel, requireContext());
             
-            // Show minimal connection status
-            adapter.addText(false, "System", "🔄 Connecting to " + serverHost + "...");
         } catch (Exception e) {
-            adapter.addText(false, "System", "❌ Failed to initialize IRC client to " + serverHost + ": " + e.getMessage());
+            // Don't show system messages in channel fragment
+            // Error will be handled by ChatFragment's system callback
         }
     }
 
@@ -257,13 +247,15 @@ public class ChannelMessageFragment extends Fragment {
         }
 
         // Check if IRC client is connected before sending
-        if (ircClient == null) {
-            adapter.addText(false, "System", "❌ IRC client not initialized. Try reconnecting.");
+        if (sharedIrcClient == null) {
+            // Don't show system messages in channel fragment
+            // Error will be handled by ChatFragment's system callback
             return;
         }
 
-        if (!ircClient.isActive()) {
-            adapter.addText(false, "System", "❌ Not connected to IRC server. Use /reconnect to try again.");
+        if (!sharedIrcClient.isConnected()) {
+            // Don't show system messages in channel fragment
+            // Error will be handled by ChatFragment's system callback
             return;
         }
 
@@ -274,7 +266,7 @@ public class ChannelMessageFragment extends Fragment {
             recycler.scrollToPosition(adapter.getItemCount() - 1);
             
             // Send to IRC server
-            ircClient.sendMessage(text);
+            sharedIrcClient.sendMessage(text);
             cooldownManager.recordMessageSent();
             input.setText("");
         } catch (Exception e) {
@@ -282,13 +274,8 @@ public class ChannelMessageFragment extends Fragment {
             if (adapter.getItemCount() > 0) {
                 adapter.removeLastMessage();
             }
-            adapter.addText(false, "System", "❌ Send failed: " + e.getMessage());
-            // If send fails, we might be disconnected
-            if (e.getMessage() != null && 
-                (e.getMessage().contains("disconnected") || 
-                 e.getMessage().contains("connection"))) {
-                adapter.addText(false, "System", "💡 Try reconnecting with /reconnect");
-            }
+            // Don't show system messages in channel fragment
+            // Error will be handled by ChatFragment's system callback
         }
     }
 
@@ -319,59 +306,56 @@ public class ChannelMessageFragment extends Fragment {
                         newChannel = "#" + newChannel;
                     }
                     
-                    if (ircClient != null && ircClient.isConnected()) {
+                    if (sharedIrcClient != null && sharedIrcClient.isConnected()) {
                         // Leave current channel and join new one
-                        ircClient.partChannel(channel);
+                        sharedIrcClient.partChannel(channel);
                         channel = newChannel;
-                        ircClient.joinChannel(newChannel);
-                        adapter.addText(false, "System", "📺 Switched to channel: " + newChannel);
-                    } else {
-                        adapter.addText(false, "System", "❌ Cannot join channel: Not connected to server");
+                        sharedIrcClient.joinChannel(newChannel);
+                        // Don't show system messages in channel fragment
+                        // Status will be handled by ChatFragment's system callback
                     }
-                } else {
-                    adapter.addText(false, "System", "❌ Usage: /join <channel>");
+                    // Don't show system messages in channel fragment
+                    // Errors will be handled by ChatFragment's system callback
                 }
                 break;
             case "/part":
-                if (ircClient != null && ircClient.isConnected()) {
-                    ircClient.partChannel(channel);
-                    adapter.addText(false, "System", "👋 Left channel: " + channel);
+                if (sharedIrcClient != null && sharedIrcClient.isConnected()) {
+                    sharedIrcClient.partChannel(channel);
+                    // Don't show system messages in channel fragment
+                    // Status will be handled by ChatFragment's system callback
                     // Navigate back to channel list or main chat
                     if (getActivity() instanceof MainActivity) {
                         MainActivity mainActivity = (MainActivity) getActivity();
                         mainActivity.navigateToChatFragment(username, serverHost, "#usth-ircui");
                     }
-                } else {
-                    adapter.addText(false, "System", "❌ Cannot leave channel: Not connected to server");
                 }
+                // Don't show system messages in channel fragment
+                // Errors will be handled by ChatFragment's system callback
                 break;
             case "/status":
-                showConnectionStatus();
+                // Don't show system messages in channel fragment
+                // Status will be handled by ChatFragment's system callback
                 break;
             case "/who":
-                adapter.addText(false, "System", "You are: " + username + " in " + channel);
+                // Don't show system messages in channel fragment
+                // Info will be handled by ChatFragment's system callback
                 break;
             case "/reconnect":
-                if (ircClient != null) {
-                    ircClient.resetConnection();
-                    ircClient.connect(username, channel);
+                if (sharedIrcClient != null) {
+                    sharedIrcClient.resetConnection();
+                    sharedIrcClient.connect(serverHost, username, channel, requireContext());
                 }
                 break;
             default:
-                adapter.addText(false, "System", "Unknown command: " + command);
+                // Don't show system messages in channel fragment
+                // Errors will be handled by ChatFragment's system callback
                 break;
         }
     }
 
     private void showHelpInfo() {
-        adapter.addText(false, "System", "📋 Available commands:");
-        adapter.addText(false, "System", "  /help - Show this help");
-        adapter.addText(false, "System", "  /status - Check connection status");
-        adapter.addText(false, "System", "  /reconnect - Reconnect to server");
-        adapter.addText(false, "System", "  /nick <name> - Change nickname");
-        adapter.addText(false, "System", "  /who - Show user info");
-        adapter.addText(false, "System", "  /join <channel> - Join channel");
-        adapter.addText(false, "System", "  /part - Leave current channel");
+        // Don't show system messages in channel fragment
+        // Help info will be handled by ChatFragment's system callback
     }
 
     private void addAttachmentMessage(Attachment.Type type, Uri uri) {
@@ -416,31 +400,12 @@ public class ChannelMessageFragment extends Fragment {
     }
     
     public boolean isConnected() {
-        return ircClient != null && ircClient.isActive();
+        return sharedIrcClient != null && sharedIrcClient.isConnected();
     }
     
     public void showConnectionStatus() {
-        if (ircClient == null) {
-            adapter.addText(false, "System", "❌ IRC client not initialized");
-            return;
-        }
-        
-        if (isConnected()) {
-            adapter.addText(false, "System", "✅ Connected to IRC server");
-            adapter.addText(false, "System", "👤 User: " + username);
-            adapter.addText(false, "System", "📺 Channel: " + channel);
-            adapter.addText(false, "System", "🌐 Server: " + serverHost);
-        } else {
-            adapter.addText(false, "System", "❌ Not connected to IRC server");
-            adapter.addText(false, "System", "💡 Try: /reconnect");
-        }
+        // Don't show system messages in channel fragment
+        // Status will be handled by ChatFragment's system callback
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (ircClient != null) {
-            ircClient.disconnect();
-        }
-    }
 }

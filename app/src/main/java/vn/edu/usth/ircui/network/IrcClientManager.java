@@ -15,6 +15,7 @@ import org.kitteh.irc.client.library.event.channel.ChannelPartEvent;
 import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent;
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.user.UserQuitEvent;
+import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
 import org.kitteh.irc.client.library.feature.auth.SaslExternal;
 import org.kitteh.irc.client.library.feature.auth.SaslPlain;
 
@@ -89,7 +90,7 @@ public class IrcClientManager {
         if (client != null) {
             currentChannel = channel;
             client.addChannel(channel);
-            postSystem("📺 Joined channel: " + channel);
+            // Don't send system message here - onReady() will handle it
         } else {
             postSystem("❌ Cannot join channel: Not connected to server");
         }
@@ -142,7 +143,7 @@ public class IrcClientManager {
      * - Strip CR/LF/NUL (IRC messages must be single-line)
      * - Split multi-line input into separate PRIVMSGs
      * - Chunk lines to stay well under the 512-byte wire limit (reserve header slack)
-     * - DO NOT locally echo; rely on IRCv3 echo-message to avoid duplicates
+     * - Messages will be echoed back via IRCv3 echo-message capability
      */
     public void sendMessage(String text) {
         if (client == null) {
@@ -189,6 +190,57 @@ public class IrcClientManager {
         return client != null; 
     }
 
+    /**
+     * Send a private message to a specific user:
+     * - Strip CR/LF/NUL (IRC messages must be single-line)
+     * - Split multi-line input into separate PRIVMSGs
+     * - Chunk lines to stay well under the 512-byte wire limit (reserve header slack)
+     */
+    public void sendPrivateMessage(String targetUser, String text) {
+        if (client == null) {
+            postSystem("❌ Cannot send private message: Not connected to IRC server");
+            return;
+        }
+        
+        if (text == null) {
+            postSystem("❌ Cannot send private message: Text is null");
+            return;
+        }
+        
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            postSystem("❌ Cannot send private message: Text is empty");
+            return;
+        }
+
+        if (targetUser == null || targetUser.trim().isEmpty()) {
+            postSystem("❌ Cannot send private message: Target user is empty");
+            return;
+        }
+
+        // Split on CR/LF, filter empties
+        String[] lines = trimmed.split("\\r?\\n");
+        for (String rawLine : lines) {
+            String line = sanitizeForIrc(rawLine);
+            if (line.isEmpty()) continue;
+
+            // Chunk to keep each PRIVMSG comfortably < 512 bytes on the wire.
+            for (String chunk : chunkForIrc(line)) {
+                try {
+                    client.sendMessage(targetUser.trim(), chunk);
+                } catch (Exception e) {
+                    postSystem("❌ Private message send failed: " + e.getMessage());
+                    // If send fails, we might be disconnected
+                    if (e.getMessage() != null && 
+                        (e.getMessage().contains("disconnected") || 
+                         e.getMessage().contains("connection"))) {
+                        postSystem("💡 Try reconnecting with /reconnect");
+                    }
+                }
+            }
+        }
+    }
+
 
     // internal
     private void startConnectAttempt() {
@@ -221,6 +273,9 @@ public class IrcClientManager {
                         .secure(s.tls)
                         .then()
                         .build();
+                
+                // Note: Using local echo for our own messages since echo-message capability
+                // might not be available in all IRC servers
 
                 // SASL per KICL (PLAIN/EXTERNAL)
                 if (saslExternal) {
@@ -247,7 +302,18 @@ public class IrcClientManager {
                         String from = e.getActor().getNick();
                         String msg  = e.getMessage();
                         boolean mine = from.equalsIgnoreCase(currentNick);
-                        // Only show messages from other users (not our own messages since we show them locally)
+                        // Only show messages from other users (our own messages are shown via local echo)
+                        if (!mine) {
+                            postMessage(from, msg, System.currentTimeMillis(), false);
+                        }
+                    }
+
+                    @Handler
+                    public void onPrivateMsg(PrivateMessageEvent e) {
+                        String from = e.getActor().getNick();
+                        String msg  = e.getMessage();
+                        boolean mine = from.equalsIgnoreCase(currentNick);
+                        // Only show private messages from other users (our own messages are shown via local echo)
                         if (!mine) {
                             postMessage(from, msg, System.currentTimeMillis(), false);
                         }

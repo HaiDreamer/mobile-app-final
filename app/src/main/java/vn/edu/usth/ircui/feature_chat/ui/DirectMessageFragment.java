@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import vn.edu.usth.ircui.R;
 import vn.edu.usth.ircui.feature_chat.data.Attachment;
+import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.network.SharedIrcClient;
 
 /**
  * render simple "direct message" chat UI
@@ -37,11 +39,22 @@ public class DirectMessageFragment extends Fragment {
 
     private static final String ARG_PEER = "arg_peer";
     private static final String ARG_ME   = "arg_me";
+    private static final String ARG_SERVER_HOST = "arg_server_host";
 
     public static DirectMessageFragment newInstance(String me, String peer) {
         Bundle b = new Bundle();
         b.putString(ARG_ME, me);
         b.putString(ARG_PEER, peer);
+        DirectMessageFragment f = new DirectMessageFragment();
+        f.setArguments(b);
+        return f;
+    }
+
+    public static DirectMessageFragment newInstance(String me, String peer, String serverHost) {
+        Bundle b = new Bundle();
+        b.putString(ARG_ME, me);
+        b.putString(ARG_PEER, peer);
+        b.putString(ARG_SERVER_HOST, serverHost);
         DirectMessageFragment f = new DirectMessageFragment();
         f.setArguments(b);
         return f;
@@ -53,6 +66,8 @@ public class DirectMessageFragment extends Fragment {
     private ImageButton btnSend, btnAttach, btnImage;
 
     private String me, peer;
+    private SharedIrcClient sharedIrcClient;
+    private SharedIrcClient.MessageCallback messageCallback;
 
     private final ActivityResultLauncher<String[]> filePicker =
             registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), uris -> {
@@ -73,6 +88,15 @@ public class DirectMessageFragment extends Fragment {
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
                         WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN
         );
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Unregister callback when fragment is destroyed
+        if (sharedIrcClient != null && messageCallback != null) {
+            sharedIrcClient.unregisterCallback(messageCallback);
+        }
     }
 
     @Nullable
@@ -107,8 +131,15 @@ public class DirectMessageFragment extends Fragment {
             return false;
         });
 
+        // Initialize shared IRC client
+        initializeSharedIrcClient();
+
         // Seed message
-        adapter.addText(false, peer, "Direct messages with " + peer + " — images & files supported (UI demo).");
+        adapter.addText(false, peer, "Direct messages with " + peer + " — images & files supported.");
+        
+        // Add debug info
+        adapter.addText(false, "Debug", "👤 Me: " + me + ", Peer: " + peer);
+        adapter.addText(false, "Debug", "🔗 Connected: " + (sharedIrcClient != null && sharedIrcClient.isConnected()));
 
         // --- Keyboard / Insets handling (no extra IDs required) ---
         final View footer = (View) input.getParent(); // the bottom bar container
@@ -167,10 +198,40 @@ public class DirectMessageFragment extends Fragment {
         String t = input.getText().toString().trim();
         if (TextUtils.isEmpty(t)) return;
 
-        // TODO: hook your IRC send here, e.g. ircClient.sendPrivate(peer, t);
-        adapter.addText(true, me, t);
-        input.setText("");
-        recycler.scrollToPosition(adapter.getItemCount() - 1);
+        // Check if IRC client is connected before sending
+        if (sharedIrcClient == null) {
+            // Don't show system messages in direct message fragment
+            // Error will be handled by ChatFragment's system callback
+            return;
+        }
+
+        if (!sharedIrcClient.isConnected()) {
+            // Don't show system messages in direct message fragment
+            // Error will be handled by ChatFragment's system callback
+            return;
+        }
+
+        try {
+            // Add message to UI immediately (local echo)
+            adapter.addText(true, me, t);
+            recycler.scrollToPosition(adapter.getItemCount() - 1);
+            
+            // Send private message via IRC server
+            sharedIrcClient.sendPrivateMessage(peer, t);
+            input.setText("");
+            
+            // Add debug message to show that send was attempted
+            adapter.addText(false, "Debug", "📤 Sent to: " + peer);
+            recycler.scrollToPosition(adapter.getItemCount() - 1);
+        } catch (Exception e) {
+            // Remove the message from UI if send failed
+            if (adapter.getItemCount() > 0) {
+                adapter.removeLastMessage();
+            }
+            // Show error message for debugging
+            adapter.addText(false, "Error", "❌ Send failed: " + e.getMessage());
+            recycler.scrollToPosition(adapter.getItemCount() - 1);
+        }
     }
 
     private void addAttachmentMessage(Attachment.Type type, Uri uri) {
@@ -196,6 +257,38 @@ public class DirectMessageFragment extends Fragment {
             if (c != null && c.moveToFirst()) return c.getLong(0);
         } catch (Exception ignored) {}
         return -1L;
+    }
+
+    private void initializeSharedIrcClient() {
+        try {
+            sharedIrcClient = SharedIrcClient.getInstance();
+            
+            // Create callback for regular messages only (no system messages)
+            messageCallback = new SharedIrcClient.MessageCallback() {
+                @Override
+                public void onMessage(String username, String text, long ts, boolean mine) {
+                    // Show all private messages (not just from peer) for debugging
+                    // TODO: Filter to only show messages from peer user once working
+                    if (!mine) { // Only show messages from other users
+                        adapter.addText(false, username, text);
+                        recycler.scrollToPosition(adapter.getItemCount() - 1);
+                    }
+                }
+            };
+            
+            // Register this fragment as a callback
+            sharedIrcClient.registerCallback(messageCallback);
+
+            // Get server host from arguments if available
+            String serverHost = getArguments() != null ? getArguments().getString(ARG_SERVER_HOST) : "irc.libera.chat";
+            
+            // Connect to IRC server using shared client
+            sharedIrcClient.connect(serverHost, me, "#usth-ircui", requireContext());
+            
+        } catch (Exception e) {
+            // Don't show system messages in direct message fragment
+            // Error will be handled by ChatFragment's system callback
+        }
     }
 
     // Small helper
