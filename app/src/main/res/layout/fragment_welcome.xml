@@ -28,7 +28,6 @@
         android:textSize="45sp"
         android:textStyle="bold" />
 
-    <!-- Login -->
     <Button
         android:id="@+id/btn_go_to_login"
         android:layout_width="match_parent"
@@ -39,7 +38,6 @@
         android:text="@string/login"
         android:textColor="@android:color/white" />
 
-    <!-- Register -->
     <Button
         android:id="@+id/btn_go_to_register"
         android:layout_width="match_parent"
@@ -50,7 +48,6 @@
         android:text="@string/register"
         android:textColor="@color/black" />
 
-    <!-- ✅ NEW: Use as Guest (no DB save) -->
     <Button
         android:id="@+id/btn_use_guest"
         android:layout_width="match_parent"

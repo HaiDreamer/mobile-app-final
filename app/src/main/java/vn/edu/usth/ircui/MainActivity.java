@@ -213,12 +213,6 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(themeMode);
     }
 
-    private void updateLanguageButtonText() {
-        if (btnLanguage == null) return;
-        String currentLang = LocaleHelper.getLanguage(this);
-        btnLanguage.setText(currentLang.equals("vi") ? "VI" : "EN");
-    }
-
     private void updateUiForTopFragment() {
         if (btnLanguage == null) return;
         androidx.fragment.app.Fragment f = getSupportFragmentManager().findFragmentById(R.id.container);

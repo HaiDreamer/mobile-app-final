@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class RegisterFragment extends Fragment {
     private FirebaseFirestore db;
+    private Button btnRegister;
 
     @Nullable
     @Override
@@ -35,7 +36,7 @@ public class RegisterFragment extends Fragment {
         EditText etPassword = view.findViewById(R.id.et_register_password);
         EditText etVerifyPassword = view.findViewById(R.id.et_register_verify_password);
 
-        Button btnRegister = view.findViewById(R.id.btn_register);
+        btnRegister = view.findViewById(R.id.btn_register);
 
         btnRegister.setOnClickListener(v -> {
             // All field required
@@ -90,10 +91,6 @@ public class RegisterFragment extends Fragment {
                 Toast.makeText(getContext(), "Verify password is different to the password", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // MODIFIED: Gọi phương thức trong MainActivity để chuyển màn hình
-            // Lấy ra Activity đang chứa Fragment này và gọi phương thức của nó.
-            if (getActivity() instanceof MainActivity) {
-            }
 
             // create account for user after check all
             checkUsername(username, password, nickname);
@@ -104,6 +101,9 @@ public class RegisterFragment extends Fragment {
 
     // check existed account
     private void checkUsername(String username, String password, String nickname){
+        // anti spam click button
+        btnRegister.setEnabled(false);
+
         db.collection("Users").document(username).get()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
@@ -116,6 +116,11 @@ public class RegisterFragment extends Fragment {
                             Log.d("Firestore", "Username ok");
                             createUser(username, password, nickname);
                         }
+                    }
+                    else{
+                        // Other errors (No internet, etc...)
+                        Log.w("Firestore", "Error check username", task.getException());
+                        Toast.makeText(getContext(), "Can't check username", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
