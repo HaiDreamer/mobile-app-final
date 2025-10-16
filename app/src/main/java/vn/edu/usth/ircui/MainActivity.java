@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -58,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Play startup sound effect
+        playStartupSound();
+
         // Initialize drawer layout
         drawerLayout = findViewById(R.id.drawerLayout);
         
@@ -105,26 +109,96 @@ public class MainActivity extends AppCompatActivity {
                 toolbar.setNavigationIcon(null);
                 toolbar.setNavigationOnClickListener(null);
                 android.util.Log.d("MainActivity", "Setting navigation icon to null (welcome screen)");
+                
+                // Also hide the entire AppBar for welcome screen
+                if (appBar != null) {
+                    appBar.setVisibility(android.view.View.GONE);
+                    // Remove layout behavior to eliminate spacing
+                    android.widget.FrameLayout container = findViewById(R.id.container);
+                    if (container != null) {
+                        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                            (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                        params.setBehavior(null);
+                        container.setLayoutParams(params);
+                    }
+                    android.util.Log.d("MainActivity", "Hiding AppBar and removing layout behavior in BackStackChangedListener for WelcomeFragment");
+                }
             } else if (isLoginOrRegister && canBack) {
                 // Show back arrow on login/register screens when there's back stack
                 toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
                 toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
                 android.util.Log.d("MainActivity", "Setting navigation icon to back arrow (login/register with back stack)");
+                
+                // Show AppBar for login/register screens
+                if (appBar != null) {
+                    appBar.setVisibility(android.view.View.VISIBLE);
+                    // Restore layout behavior
+                    android.widget.FrameLayout container = findViewById(R.id.container);
+                    if (container != null) {
+                        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                            (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                        params.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+                        container.setLayoutParams(params);
+                    }
+                    android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for Login/Register");
+                }
             } else if (isMainChatFragment) {
                 // Always show menu icon on main chat fragments, even if there's back stack
                 toolbar.setNavigationIcon(R.drawable.menu);
                 toolbar.setNavigationOnClickListener(v -> toggleDrawer());
                 android.util.Log.d("MainActivity", "Setting navigation icon to menu (chat fragment)");
+                
+                // Show AppBar for chat fragments
+                if (appBar != null) {
+                    appBar.setVisibility(android.view.View.VISIBLE);
+                    // Restore layout behavior
+                    android.widget.FrameLayout container = findViewById(R.id.container);
+                    if (container != null) {
+                        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                            (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                        params.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+                        container.setLayoutParams(params);
+                    }
+                    android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for Chat");
+                }
             } else if (canBack) {
                 // Show back arrow for other fragments with back stack
                 toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
                 toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
                 android.util.Log.d("MainActivity", "Setting navigation icon to back arrow (canBack=true)");
+                
+                // Show AppBar for other fragments with back stack
+                if (appBar != null) {
+                    appBar.setVisibility(android.view.View.VISIBLE);
+                    // Restore layout behavior
+                    android.widget.FrameLayout container = findViewById(R.id.container);
+                    if (container != null) {
+                        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                            (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                        params.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+                        container.setLayoutParams(params);
+                    }
+                    android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for other fragments with back stack");
+                }
             } else {
                 // Show menu icon for other main fragments
                 toolbar.setNavigationIcon(R.drawable.menu);
                 toolbar.setNavigationOnClickListener(v -> toggleDrawer());
                 android.util.Log.d("MainActivity", "Setting navigation icon to menu (default)");
+                
+                // Show AppBar for other main fragments
+                if (appBar != null) {
+                    appBar.setVisibility(android.view.View.VISIBLE);
+                    // Restore layout behavior
+                    android.widget.FrameLayout container = findViewById(R.id.container);
+                    if (container != null) {
+                        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                            (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                        params.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+                        container.setLayoutParams(params);
+                    }
+                    android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for other main fragments");
+                }
             }
             toolbar.setTitle("IRC UI");
             updateUiForTopFragment();
@@ -166,6 +240,13 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(R.id.container, chatFragment);
         // Clear history (can't go back to login/welcome)
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ft.runOnCommit(() -> {
+            updateUiForTopFragment();
+            // Force update toolbar after a short delay to ensure fragment is fully loaded
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                forceUpdateToolbar();
+            }, 100);
+        });
         ft.commit();
     }
 
@@ -292,11 +373,14 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(themeMode);
     }
 
-    private void updateUiForTopFragment() {
-        if (btnLanguage == null) return;
+    public void updateUiForTopFragment() {
         androidx.fragment.app.Fragment f = getSupportFragmentManager().findFragmentById(R.id.container);
-        boolean onLogin = f instanceof LoginFragment;
-        btnLanguage.setVisibility(onLogin ? android.view.View.VISIBLE : android.view.View.GONE);
+        
+        // Handle language button visibility (only if btnLanguage exists)
+        if (btnLanguage != null) {
+            boolean onLogin = f instanceof LoginFragment;
+            btnLanguage.setVisibility(onLogin ? android.view.View.VISIBLE : android.view.View.GONE);
+        }
         
         // Disable drawer on auth screens (welcome, login, register)
         boolean isAuthScreen = f instanceof WelcomeFragment || 
@@ -307,6 +391,32 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.setDrawerLockMode(isAuthScreen ? 
                 DrawerLayout.LOCK_MODE_LOCKED_CLOSED : 
                 DrawerLayout.LOCK_MODE_UNLOCKED);
+        }
+        
+        // Hide/show AppBar based on current fragment
+        com.google.android.material.appbar.AppBarLayout appBar = findViewById(R.id.appbar);
+        android.widget.FrameLayout container = findViewById(R.id.container);
+        
+        if (appBar != null && container != null) {
+            if (f instanceof WelcomeFragment) {
+                // Hide AppBar completely on welcome screen
+                appBar.setVisibility(android.view.View.GONE);
+                // Remove layout behavior to eliminate spacing
+                androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                    (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                params.setBehavior(null);
+                container.setLayoutParams(params);
+                android.util.Log.d("MainActivity", "Hiding AppBar and removing layout behavior for WelcomeFragment");
+            } else {
+                // Show AppBar for all other screens
+                appBar.setVisibility(android.view.View.VISIBLE);
+                // Restore layout behavior
+                androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams params = 
+                    (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) container.getLayoutParams();
+                params.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+                container.setLayoutParams(params);
+                android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior for " + (f != null ? f.getClass().getSimpleName() : "null"));
+            }
         }
     }
     
@@ -373,7 +483,8 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.container, new LoginFragment())
+                            .replace(R.id.container, new WelcomeFragment())
+                            .runOnCommit(this::updateUiForTopFragment)
                             .commit();
                 })
                 .setNegativeButton("No", null)
@@ -443,5 +554,18 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, loginFragment)
                 .commit();
+    }
+
+    // Play startup sound effect
+    private void playStartupSound() {
+        try {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.startup_sfx);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
+            }
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Error playing startup sound", e);
+        }
     }
 }
