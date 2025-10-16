@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -123,7 +122,6 @@ public class ChatFragment extends Fragment {
         rvMessages = v.findViewById(R.id.rvMessages);
         etMessage = v.findViewById(R.id.etMessage);
         ImageButton btnSend = v.findViewById(R.id.btnSend);
-        FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
         // Setup adapter with nickname
         adapter = new MessageAdapter(messages, currentNickname);
@@ -133,9 +131,6 @@ public class ChatFragment extends Fragment {
         initializeSharedIrcClient();
 
         btnSend.setOnClickListener(view -> handleSendMessageClick());
-        
-        // Open Direct Message via FAB
-        fabDm.setOnClickListener(view -> openDirectMessageDialog());
         
         // Load nickname info from Firestore or Guest welcome
         fetchUserData();
