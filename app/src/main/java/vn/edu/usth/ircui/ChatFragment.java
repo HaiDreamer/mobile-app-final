@@ -123,6 +123,7 @@ public class ChatFragment extends Fragment {
         rvMessages = v.findViewById(R.id.rvMessages);
         etMessage = v.findViewById(R.id.etMessage);
         ImageButton btnSend = v.findViewById(R.id.btnSend);
+        FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
         // Setup adapter with nickname
         adapter = new MessageAdapter(messages, currentNickname);
@@ -132,6 +133,9 @@ public class ChatFragment extends Fragment {
         initializeSharedIrcClient();
 
         btnSend.setOnClickListener(view -> handleSendMessageClick());
+        
+        // Open Direct Message via FAB
+        fabDm.setOnClickListener(view -> openDirectMessageDialog());
         
         // Load nickname info from Firestore or Guest welcome
         fetchUserData();
