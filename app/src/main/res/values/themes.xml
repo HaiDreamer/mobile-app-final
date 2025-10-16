@@ -1,18 +1,35 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.IRCUI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Light palette: cool blue accents with soft light surface -->
-        <item name="colorSurface">#FAFAFA</item>
-        <item name="colorOnSurface">#1A1A1A</item>
-        <item name="colorOnSurfaceVariant">#5F6B7A</item>
-        <item name="colorOutline">#C6CCD3</item>
+        <!-- Theme-aware colors -->
+        <item name="colorSurface">@color/bg_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/text_muted</item>
+        <item name="colorSurfaceVariant">@color/bg_secondary</item>
 
-        <item name="colorPrimary">#2962FF</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondaryContainer">#E3F2FD</item>
-        <item name="colorOnSecondaryContainer">#0D47A1</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorSecondaryContainer">@color/bg_elevated</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/bg_tertiary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/bg_tertiary</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
     <!-- App theme -->
     <style name="Theme.IRCUI" parent="Base.Theme.IRCUI" />
+    
+    <!-- Discord-like toolbar title style for light theme -->
+    <style name="DiscordToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
 </resources>

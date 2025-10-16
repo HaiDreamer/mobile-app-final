@@ -4,12 +4,12 @@
     <!-- Base App Colors -->
     <color name="colorPrimary">#2196F3</color> <!-- Bright blue -->
     <color name="colorPrimaryDark">#1976D2</color>
-    <color name="colorAccent">#03DAC5</color>
+    <!-- colorAccent removed - using theme-aware accent instead -->
 
     <!-- Main Chat / App Background -->
     <color name="bgPrimary">#1976D2</color>
     <color name="bgSecondary">#000000</color>
-    <color name="accent">#03DAC5</color>
+    <!-- accent removed - using theme-aware accent instead -->
 
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#808080</color>
@@ -24,17 +24,63 @@
     <color name="userColor7">#FF66C4</color>   <!-- pink -->
     <color name="userColor8">#29C7AC</color>   <!-- teal -->
 
-    <!-- Discord / Coding Theme (DM colors) -->
-    <color name="bg_primary">#12352F</color>
-    <color name="bg_elev">#151A23</color>
-    <color name="text_strong">#C9D1D9</color>
-    <color name="text_normal">#E6EDF3</color>
-    <color name="text_muted">#88949E</color>
+    <!-- Light Theme Colors -->
+    <color name="light_bg_primary">#FFFFFF</color>        <!-- Main background -->
+    <color name="light_bg_secondary">#F8F9FA</color>      <!-- Sidebar background -->
+    <color name="light_bg_tertiary">#E9ECEF</color>       <!-- Darker background -->
+    <color name="light_bg_elevated">#FFFFFF</color>       <!-- Elevated surfaces -->
+    
+    <color name="light_text_primary">#212529</color>      <!-- Primary text -->
+    <color name="light_text_secondary">#6C757D</color>    <!-- Secondary text -->
+    <color name="light_text_muted">#ADB5BD</color>        <!-- Muted text -->
+    
+    <color name="light_accent">#5865F2</color>            <!-- Discord blurple -->
+    <color name="light_accent_hover">#4752C4</color>      <!-- Hover state -->
+    <color name="light_success">#28A745</color>           <!-- Success green -->
+    <color name="light_warning">#FFC107</color>           <!-- Warning orange -->
+    <color name="light_danger">#DC3545</color>            <!-- Danger red -->
+    
+    <!-- Dark Theme Colors -->
+    <color name="dark_bg_primary">#36393F</color>         <!-- Main background -->
+    <color name="dark_bg_secondary">#2F3136</color>       <!-- Sidebar background -->
+    <color name="dark_bg_tertiary">#202225</color>        <!-- Darker background -->
+    <color name="dark_bg_elevated">#40444B</color>        <!-- Elevated surfaces -->
+    
+    <color name="dark_text_primary">#FFFFFF</color>       <!-- Primary text -->
+    <color name="dark_text_secondary">#B9BBBE</color>     <!-- Secondary text -->
+    <color name="dark_text_muted">#72767D</color>         <!-- Muted text -->
+    
+    <color name="dark_accent">#5865F2</color>             <!-- Discord blurple -->
+    <color name="dark_accent_hover">#4752C4</color>       <!-- Hover state -->
+    <color name="dark_success">#3BA55C</color>            <!-- Success green -->
+    <color name="dark_warning">#FAA61A</color>            <!-- Warning orange -->
+    <color name="dark_danger">#ED4245</color>             <!-- Danger red -->
+    
+    <!-- Theme-aware colors (will be overridden in night theme) -->
+    <color name="bg_primary">@color/light_bg_primary</color>
+    <color name="bg_secondary">@color/light_bg_secondary</color>
+    <color name="bg_tertiary">@color/light_bg_tertiary</color>
+    <color name="bg_elevated">@color/light_bg_elevated</color>
+    
+    <color name="text_primary">@color/light_text_primary</color>
+    <color name="text_secondary">@color/light_text_secondary</color>
+    <color name="text_muted">@color/light_text_muted</color>
+    
+    <color name="accent">@color/light_accent</color>
+    <color name="accent_hover">@color/light_accent_hover</color>
+    <color name="success">@color/light_success</color>
+    <color name="warning">@color/light_warning</color>
+    <color name="danger">@color/light_danger</color>
+    
+    <!-- Legacy colors for compatibility -->
+    <color name="bg_elev">@color/bg_secondary</color>
+    <color name="text_strong">@color/text_primary</color>
+    <color name="text_normal">@color/text_secondary</color>
 
     <color name="bubble_me_bg">#1F6FEB</color>
     <color name="bubble_other_bg">#30363D</color>
 
-    <!-- Accent Colors -->
+    <!-- Legacy Accent Colors -->
     <color name="accent_me">#A5D6FF</color>
     <color name="accent_other">#7E87E7</color>
     <color name="accent_blue">#58A6FF</color>

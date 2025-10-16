@@ -15,7 +15,8 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary">
+            android:background="@color/bg_secondary"
+            android:elevation="4dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -23,23 +24,27 @@
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/app_name"
                 app:titleCentered="true"
-                app:titleTextColor="?attr/colorOnPrimary"
-                app:navigationIconTint="?attr/colorOnPrimary"
-                app:subtitleTextColor="?attr/colorOnPrimary"/>
+                app:titleTextColor="@color/text_primary"
+                app:titleTextAppearance="@style/DiscordToolbarTitle"
+                app:navigationIconTint="@color/text_primary"
+                app:subtitleTextColor="@color/text_secondary"
+                android:background="@color/bg_secondary"/>
         </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/bg_primary"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- Ngăn kéo trái: chứa fragment danh sách kênh -->
+    <!-- Theme-aware sidebar -->
     <FrameLayout
         android:id="@+id/drawer_container"
-        android:layout_width="300dp"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/bg_elev"/>
+        android:background="@color/bg_secondary"
+        android:elevation="8dp"/>
 </androidx.drawerlayout.widget.DrawerLayout>
