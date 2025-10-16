@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for other main fragments");
                 }
             }
-            toolbar.setTitle("IRC UI");
+            toolbar.setTitle("IRC chat");
             updateUiForTopFragment();
         });
 
@@ -226,9 +226,7 @@ public class MainActivity extends AppCompatActivity {
         updateUiForTopFragment();
     }
 
-    // =============================
-    // 🔹 PUBLIC API FOR FRAGMENTS
-    // =============================
+    // PUBLIC API FOR FRAGMENTS
 
     /**
      * Called by Login, Register, or Welcome (Guest mode)
@@ -331,9 +329,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // =============================
-    // 🔹 PERMISSION CALLBACK
-    // =============================
+    // PERMISSION CALLBACK
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -348,9 +344,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // =============================
-    // 🔹 HELPER METHODS
-    // =============================
+    // HELPER METHODS
 
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
