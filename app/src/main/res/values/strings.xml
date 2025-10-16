@@ -5,6 +5,7 @@
     <string name="pick_file">Pick file</string>
     <string name="message_chat">Message #chat</string>
     <string name="direct_message">Direct message</string>
+    <string name="user_list">User List</string>
     <string name="enter_username_example">Enter username (e.g: Bob)</string>
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>
@@ -37,10 +38,6 @@
     <string name="about">About</string>
     <string name="version">Version</string>
     <string name="clear_chat_history">Clear chat history</string>
-    <string name="font_size">Font size</string>
-    <string name="small">Small</string>
-    <string name="medium">Medium</string>
-    <string name="large">Large</string>
     <string name="message_font_size">Message font size</string>
     <string name="refresh">Refresh</string>
     <string name="user_info">User Info</string>
@@ -52,7 +49,6 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="activity_status">Activity Status</string>
     <string name="online_status">Online Status</string>
-    <string name="choose_font_size">Choose font size</string>
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="language_settings">Language</string>
     <string name="language">Language</string>
@@ -73,12 +69,21 @@
     <string name="change_language">EN</string>
     <string name="password">Password</string>
     <string name="irc" translatable="false">IRC</string>
-    <string name="register">Register\n</string>
+    <string name="register">REGISTER</string>
     <string name="welcome" translatable="false">Welcome</string>
     <string name="choose_the_server_which_you_want_to_enter_for_chatting">Choose the server which you want to enter for chatting</string>
     <string name="choose_server">Choose Server</string>
     <string name="enter_server">Enter Server</string>
     <string name="search">Search</string>
-    <string name="welcome_to_usth_irc">Welcome to USTH IRC</string>
-    <string name="use_as_guest">Use as Guest</string>
+    <string name="channels">Channels</string>
+    <string name="add_channel">Add Channel</string>
+    <string name="add_channel_dialog_title">Add Channel</string>
+    <string name="add_channel_hint">Enter channel name (e.g., #newchannel)</string>
+    <string name="channel_added">Channel added: %s</string>
+    <string name="enter_channel_name">Please enter a channel name</string>
+    <string name="switching_to_channel">Switching to %s</string>
+    <string name="channel_message">Channel Message</string>
+    <string name="back">Back</string>
+    <string name="font_size">Font Size</string>
+    <string name="medium">Medium</string>
 </resources>

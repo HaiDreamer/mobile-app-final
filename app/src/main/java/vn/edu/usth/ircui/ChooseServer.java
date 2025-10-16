@@ -60,15 +60,15 @@ public class ChooseServer extends Fragment {
         serverInput.setThreshold(0);    // show suggestion when press-in
 
         enterServerButton.setOnClickListener(v -> {
-            String selectedServer = serverInput.getText().toString().trim();
+            String selectedServer = serverInput.getText() != null ? serverInput.getText().toString().trim() : "";
             if (selectedServer.isEmpty()) {
                 Toast.makeText(requireContext(), "Please select or enter a server", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Call MainActivity for next fragment
+            // Navigate to Chat with username + server + default channel
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToChatFragment(selectedServer);
+                ((MainActivity) getActivity()).navigateToChatFragment(username, selectedServer, "#usth-ircui");
             }
         });
     }

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
 public class SettingsFragment extends Fragment {
@@ -57,7 +58,6 @@ public class SettingsFragment extends Fragment {
 
     private void initAppearanceSection(View view) {
         Switch switchDarkMode = view.findViewById(R.id.switchDarkMode);
-        TextView tvCurrentFontSize = view.findViewById(R.id.tvCurrentFontSize);
 
         // Dark mode
         boolean isDarkMode = sharedPreferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -71,13 +71,6 @@ public class SettingsFragment extends Fragment {
             requireActivity().recreate();
         });
 
-        // Text size
-        String currentFontSize = sharedPreferences.getString("font_size", "medium");
-        tvCurrentFontSize.setText(getFontSizeDisplayName(currentFontSize));
-
-        view.findViewById(R.id.fontSizeSection).setOnClickListener(v -> {
-            showFontSizeDialog(tvCurrentFontSize);
-        });
     }
 
     private void initLanguageSection(View view) {
@@ -179,34 +172,6 @@ public class SettingsFragment extends Fragment {
         Toast.makeText(requireContext(), "Mở cài đặt trang cá nhân", Toast.LENGTH_SHORT).show();
     }
 
-    private void showFontSizeDialog(TextView tvCurrentFontSize) {
-        String currentFontSize = sharedPreferences.getString("font_size", "medium");
-        int checkedItem;
-        switch (currentFontSize) {
-            case "small": checkedItem = 0; break;
-            case "large": checkedItem = 2; break;
-            default: checkedItem = 1;
-        }
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Chọn cỡ chữ")
-                .setSingleChoiceItems(new String[]{
-                        getString(R.string.small),
-                        getString(R.string.medium),
-                        getString(R.string.large)
-                }, checkedItem, (dialog, which) -> {
-                    String fontSize;
-                    switch (which) {
-                        case 0: fontSize = "small"; break;
-                        case 2: fontSize = "large"; break;
-                        default: fontSize = "medium";
-                    }
-                    sharedPreferences.edit().putString("font_size", fontSize).apply();
-                    tvCurrentFontSize.setText(getFontSizeDisplayName(fontSize));
-                    dialog.dismiss();
-                })
-                .show();
-    }
 
     private void showLanguageDialog(TextView tvCurrentLanguage) {
         String currentLang = sharedPreferences.getString("app_language", "en");
@@ -235,14 +200,6 @@ public class SettingsFragment extends Fragment {
                 .show();
     }
 
-    private String getFontSizeDisplayName(String fontSize) {
-        switch (fontSize) {
-            case "small": return getString(R.string.small);
-            case "large": return getString(R.string.large);
-            default: return getString(R.string.medium);
-        }
-    }
-
     private String getLanguageDisplayName(String lang) {
         switch (lang) {
             case "vi":
@@ -265,10 +222,15 @@ public class SettingsFragment extends Fragment {
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
                 .setPositiveButton("Có", (dialog, which) -> {
-                    requireActivity().getSupportFragmentManager().popBackStack();
+                    requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     requireActivity().getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.container, new LoginFragment())
+                            .replace(R.id.container, new WelcomeFragment())
+                            .runOnCommit(() -> {
+                                if (requireActivity() instanceof MainActivity) {
+                                    ((MainActivity) requireActivity()).updateUiForTopFragment();
+                                }
+                            })
                             .commit();
                 })
                 .setNegativeButton("Không", null)

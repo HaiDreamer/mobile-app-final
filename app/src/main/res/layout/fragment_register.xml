@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp"
-    android:background="#333333">
+    android:background="@drawable/background_auth">
 
     <TextView
         android:layout_width="wrap_content"
@@ -14,7 +14,7 @@
         android:textSize="34sp"
         android:textStyle="bold"
         android:layout_marginBottom="32dp"
-        android:textColor="#FFFFFF"/>
+        android:textColor="?attr/colorOnSurface"/>
 
     <EditText
         android:id="@+id/et_register_nickname"
@@ -22,32 +22,32 @@
         android:layout_height="wrap_content"
         android:hint="Nickname"
         android:inputType="text"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AFAFAF"/> <EditText
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurfaceVariant"/> <EditText
     android:id="@+id/et_register_username"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:hint="Username"
     android:inputType="text"
-    android:textColor="#FFFFFF"
-    android:textColorHint="#AFAFAF"/> <EditText
+    android:textColor="?attr/colorOnSurface"
+    android:textColorHint="?attr/colorOnSurfaceVariant"/> <EditText
     android:id="@+id/et_register_password"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:hint="Password"
     android:inputType="textPassword"
-    android:textColor="#FFFFFF"
-    android:textColorHint="#AFAFAF"/> <EditText
+    android:textColor="?attr/colorOnSurface"
+    android:textColorHint="?attr/colorOnSurfaceVariant"/> <EditText
     android:id="@+id/et_register_verify_password"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:hint="Verify Password"
     android:inputType="textPassword"
-    android:textColor="#FFFFFF"
-    android:textColorHint="#AFAFAF"/> <Button
+    android:textColor="?attr/colorOnSurface"
+    android:textColorHint="?attr/colorOnSurfaceVariant"/> <Button
     android:id="@+id/btn_register"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

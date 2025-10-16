@@ -37,10 +37,6 @@
     <string name="about">Giới thiệu</string>
     <string name="version">Phiên bản</string>
     <string name="clear_chat_history">Xóa lịch sử trò chuyện</string>
-    <string name="font_size">Cỡ chữ</string>
-    <string name="small">Nhỏ</string>
-    <string name="medium">Vừa</string>
-    <string name="large">Lớn</string>
     <string name="message_font_size">Cỡ chữ tin nhắn</string>
     <string name="refresh">Làm mới</string>
     <string name="user_info">Thông tin người dùng</string>
@@ -52,7 +48,6 @@
     <string name="dark_mode">Chế độ tối</string>
     <string name="activity_status">Trạng thái hoạt động</string>
     <string name="online_status">Trạng thái trực tuyến</string>
-    <string name="choose_font_size">Chọn cỡ chữ</string>
     <string name="confirm_logout">Bạn có chắc chắn muốn đăng xuất?</string>
     <string name="language_settings">Ngôn ngữ</string>
     <string name="language">Ngôn ngữ</string>
@@ -72,12 +67,18 @@
     <string name="no">Không</string>
     <string name="change_language">VI</string>
     <string name="password">Mật khẩu</string>
-    <string name="register">Đăng kí\n</string>
+    <string name="register">ĐĂNG KÝ</string>
     <string name="choose_the_server_which_you_want_to_enter_for_chatting">Chọn server để vào chat</string>
     <string name="choose_server">Chọn Server</string>
     <string name="enter_server">Vào Server</string>
     <string name="search">Tìm kiếm</string>
-
-    <string name="welcome_to_usth_irc">Chào mừng USTH IRC</string>
-    <string name="use_as_guest">Sử dụng khách</string>
+    <string name="channels">Kênh</string>
+    <string name="add_channel">Thêm kênh</string>
+    <string name="add_channel_dialog_title">Thêm kênh</string>
+    <string name="add_channel_hint">Nhập tên kênh (ví dụ: #kênhmới)</string>
+    <string name="channel_added">Đã thêm kênh: %s</string>
+    <string name="enter_channel_name">Vui lòng nhập tên kênh</string>
+    <string name="switching_to_channel">Đang chuyển tới %s</string>
+    <string name="channel_message">Tin nhắn kênh</string>
+    <string name="back">Quay lại</string>
 </resources>

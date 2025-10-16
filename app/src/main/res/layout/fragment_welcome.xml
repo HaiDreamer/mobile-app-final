@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="32dp"
     android:background="@drawable/background_welcome">
+
+    <!-- Information icon aligned with title -->
+    <ImageButton
+        android:id="@+id/btn_menu"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_dialog_info"
+        android:contentDescription="About"
+        android:tint="#CCCCCC"/>
+
+    <!-- Main content centered -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
 
     <!-- App title -->
     <ImageView
@@ -22,8 +41,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="0dp"
-        android:scaleType="centerCrop"
-        android:text="@string/welcome_to_usth_irc"
+        android:text="Welcome to USTH IRC"
         android:textColor="#FFFFFF"
         android:textSize="45sp"
         android:textStyle="bold" />
@@ -32,7 +50,7 @@
         android:id="@+id/btn_go_to_login"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="130dp"
         android:layout_marginBottom="5dp"
         android:backgroundTint="#001459"
         android:text="@string/login"
@@ -53,8 +71,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
-        android:text="@string/use_as_guest"
+        android:text="Use as Guest"
         android:backgroundTint="#001459"
         android:textColor="@android:color/white" />
 
 </LinearLayout>
+
+</RelativeLayout>

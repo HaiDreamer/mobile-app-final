@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import vn.edu.usth.ircui.feature_chat.data.Message;
 import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
 import vn.edu.usth.ircui.network.IrcClientManager;
+import vn.edu.usth.ircui.network.SharedIrcClient;
 
 /**
  * ChatFragment
@@ -43,6 +43,8 @@ import vn.edu.usth.ircui.network.IrcClientManager;
 public class ChatFragment extends Fragment {
 
     private static final String ARG_USERNAME = "username";
+    private static final String ARG_SERVER   = "server";
+    private static final String ARG_CHANNEL  = "channel";
 
     // Factory method to create a new instance with username
     public static ChatFragment newInstance(String username) {
@@ -53,14 +55,29 @@ public class ChatFragment extends Fragment {
         return f;
     }
 
+    public static ChatFragment newInstance(String username, String server, String channel) {
+        ChatFragment f = new ChatFragment();
+        Bundle b = new Bundle();
+        b.putString(ARG_USERNAME, username);
+        b.putString(ARG_SERVER, server);
+        b.putString(ARG_CHANNEL, channel);
+        f.setArguments(b);
+        return f;
+    }
+
+    private String username = "Guest";
     private String currentUsername;
     private String currentNickname = "Guest";
+    private String serverHost = "irc.libera.chat";
+    private String channel = "#usth-ircui";
     private FirebaseFirestore db;
-
     private final List<Message> messages = new ArrayList<>();
+    private final List<String> currentUsers = new ArrayList<>();
     private MessageAdapter adapter;
-    private IrcClientManager ircClient;
-    private final MessageCooldownManager cooldownManager = MessageCooldownManager.getInstance();
+    private SharedIrcClient sharedIrcClient;
+    private SharedIrcClient.MessageCallback messageCallback;
+    private SharedIrcClient.SystemMessageCallback systemCallback;
+    private MessageCooldownManager cooldownManager;
 
     private RecyclerView rvMessages;
     private EditText etMessage;
@@ -71,10 +88,28 @@ public class ChatFragment extends Fragment {
         setHasOptionsMenu(true);
 
         db = FirebaseFirestore.getInstance();
+        cooldownManager = MessageCooldownManager.getInstance();
 
         // Retrieve username passed from MainActivity
         if (getArguments() != null) {
+            username = getArguments().getString(ARG_USERNAME, "Guest");
             currentUsername = getArguments().getString(ARG_USERNAME, "Guest");
+            serverHost = getArguments().getString(ARG_SERVER, "irc.libera.chat");
+            channel = getArguments().getString(ARG_CHANNEL, "#usth-ircui");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Unregister callbacks when fragment is destroyed
+        if (sharedIrcClient != null) {
+            if (messageCallback != null) {
+                sharedIrcClient.unregisterCallback(messageCallback);
+            }
+            if (systemCallback != null) {
+                sharedIrcClient.unregisterSystemCallback(systemCallback);
+            }
         }
     }
 
@@ -88,16 +123,16 @@ public class ChatFragment extends Fragment {
         rvMessages = v.findViewById(R.id.rvMessages);
         etMessage = v.findViewById(R.id.etMessage);
         ImageButton btnSend = v.findViewById(R.id.btnSend);
-        FloatingActionButton fabDm = v.findViewById(R.id.fab);
 
         // Setup adapter with nickname
         adapter = new MessageAdapter(messages, currentNickname);
         rvMessages.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMessages.setAdapter(adapter);
 
-        btnSend.setOnClickListener(view -> handleSendMessageClick());
-        fabDm.setOnClickListener(view -> openDirectMessageDialog());
+        initializeSharedIrcClient();
 
+        btnSend.setOnClickListener(view -> handleSendMessageClick());
+        
         // Load nickname info from Firestore or Guest welcome
         fetchUserData();
 
@@ -123,7 +158,8 @@ public class ChatFragment extends Fragment {
                         String me = currentUsername;
                         getParentFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.container, DirectMessageFragment.newInstance(me, peer))
+                                .replace(R.id.container,
+                                        DirectMessageFragment.newInstance(me, peer, serverHost))
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -131,34 +167,35 @@ public class ChatFragment extends Fragment {
                 .show();
     }
 
-    // connect to IRC Manager
-    private void connectToIRC(){
-        ircClient = new IrcClientManager();
-        ircClient.setCallback(new IrcClientManager.MessageCallback(){
+    private void initializeSharedIrcClient() {
+        sharedIrcClient = SharedIrcClient.getInstance();
+        
+        // Create callback for regular messages
+        messageCallback = new SharedIrcClient.MessageCallback() {
             @Override
-            public void onMessage(String u, String t, long ts, boolean mine){
-                if(getActivity() == null){
-                    return;
-                }
-                getActivity().runOnUiThread(() -> {
-                    // display nickname when chat
-                    String sender = mine ? currentNickname : u;     // use existed nickname or nickname provided by server
-                    messages.add(new Message(sender, t, mine));
-                    adapter.notifyItemInserted(messages.size() - 1);
-                    rvMessages.scrollToPosition((messages.size() - 1));
-                });
+            public void onMessage(String u, String t, long ts, boolean mine) {
+                messages.add(new Message(u, t, mine));
+                adapter.notifyItemInserted(messages.size() - 1);
+                rvMessages.scrollToPosition(messages.size() - 1);
             }
-
+        };
+        
+        // Create callback for system messages
+        systemCallback = new SharedIrcClient.SystemMessageCallback() {
             @Override
-            public void onSystem(String t){
+            public void onSystem(String t) {
+                // Show all system messages with server info
                 displaySystemMessage(t);
             }
-        });
+        };
+        
+        // Register this fragment as a callback for both messages and system messages
+        sharedIrcClient.registerCallback(messageCallback);
+        sharedIrcClient.registerSystemCallback(systemCallback);
 
-        // connect by nickname
-        ircClient.connect(currentNickname, "#usth-ircui");
+        // Connect to IRC server using shared client
+        sharedIrcClient.connect(serverHost, username, channel, requireContext());
     }
-
 
     // =============================
     // 🔹 Load nickname info
@@ -171,9 +208,8 @@ public class ChatFragment extends Fragment {
 
             currentNickname = "Guest";
             displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
-            //displaySystemMessage("Chat loaded successfully. You can start messaging!");
+            displaySystemMessage("Chat loaded successfully. You can start messaging!");
             adapter.setCurrentUser(currentNickname);
-            connectToIRC();     // connect to IRC as Guest
             return;
         }
 
@@ -187,10 +223,9 @@ public class ChatFragment extends Fragment {
                         currentNickname = currentUsername;
                     }
 
-                    //displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
-                    //displaySystemMessage("Chat loaded successfully. You can start messaging!");
+                    displaySystemMessage("Welcome to IRC Chat, " + currentNickname + "!");
+                    displaySystemMessage("Chat loaded successfully. You can start messaging!");
                     adapter.setCurrentUser(currentNickname);
-                    connectToIRC();
                 });
     }
 
@@ -216,9 +251,34 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        ircClient.sendMessage(text);
-        cooldownManager.recordMessageSent();
-        etMessage.getText().clear();
+        // Check if IRC client is connected before sending
+        if (sharedIrcClient == null) {
+            displaySystemMessage("❌ IRC client not initialized. Try reconnecting.");
+            return;
+        }
+
+        if (!sharedIrcClient.isConnected()) {
+            displaySystemMessage("❌ Not connected to IRC server. Use /reconnect to try again.");
+            return;
+        }
+
+        try {
+            // Add message to UI immediately (local echo)
+            messages.add(new Message(username, text, true));
+            adapter.notifyItemInserted(messages.size() - 1);
+            rvMessages.scrollToPosition(messages.size() - 1);
+            
+            // Send to IRC server
+            sharedIrcClient.sendMessage(text);
+            etMessage.getText().clear();
+        } catch (Exception e) {
+            // Remove the message from UI if send failed
+            if (!messages.isEmpty()) {
+                messages.remove(messages.size() - 1);
+                adapter.notifyItemRemoved(messages.size());
+            }
+            displaySystemMessage("❌ Send failed: " + e.getMessage());
+        }
     }
 
     // =============================
@@ -240,24 +300,46 @@ public class ChatFragment extends Fragment {
             case "/nick":
                 if (parts.length > 1) {
                     String newNick = parts[1];
-                    displaySystemMessage("Nickname changed from " + currentNickname + " to " + newNick);
+                    username = newNick;
                     currentNickname = newNick;
-                    adapter.setCurrentUser(currentNickname);
+                    adapter = new MessageAdapter(messages, username);
+                    rvMessages.setAdapter(adapter);
+                    displaySystemMessage("✅ Nickname changed to: " + newNick);
                 } else {
-                    displaySystemMessage("Usage: /nick <new_nickname>");
+                    displaySystemMessage("❌ Usage: /nick <new_nickname>");
                 }
                 break;
             case "/connect":
-                displaySystemMessage("Attempting to connect to IRC server...");
                 try {
-                    ircClient.connect(currentNickname, "#usth-ircui");
-                    displaySystemMessage("Connected to IRC server!");
+                    sharedIrcClient.connect(serverHost, username, "#usth-ircui", requireContext());
+                    displaySystemMessage("🔄 Attempting to connect...");
                 } catch (Exception e) {
-                    displaySystemMessage("Connection failed: " + e.getMessage());
+                    displaySystemMessage("❌ Connection failed: " + e.getMessage());
                 }
                 break;
+            case "/status":
+                showConnectionStatus();
+                break;
+            case "/reconnect":
+                try {
+                    if (sharedIrcClient != null) {
+                        sharedIrcClient.resetConnection();
+                        sharedIrcClient.connect(serverHost, username, channel, requireContext());
+                        displaySystemMessage("🔄 Reconnecting...");
+                    } else {
+                        displaySystemMessage("❌ IRC client not initialized");
+                    }
+                } catch (Exception e) {
+                    displaySystemMessage("❌ Reconnect failed: " + e.getMessage());
+                }
+                break;
+            case "/who":
+                displaySystemMessage("👤 Current user: " + username);
+                displaySystemMessage("🌐 Server: " + serverHost);
+                displaySystemMessage("📺 Channel: " + channel);
+                break;
             default:
-                displaySystemMessage("Unknown command: " + command);
+                displaySystemMessage("❌ Unknown command: " + command);
                 break;
         }
     }
@@ -266,11 +348,29 @@ public class ChatFragment extends Fragment {
     // 🔹 Helper methods
     // =============================
     private void showHelpInfo() {
-        String helpMessage = "--- User Guide ---\n"
-                + "/help or /general - Shows this guide.\n"
-                + "/nick <new_name> - Changes your nickname.\n"
-                + "--------------------";
-        displaySystemMessage(helpMessage);
+        displaySystemMessage("📋 Available commands:");
+        displaySystemMessage("  /help - Show this help");
+        displaySystemMessage("  /status - Check connection status");
+        displaySystemMessage("  /reconnect - Reconnect to server");
+        displaySystemMessage("  /nick <name> - Change nickname");
+        displaySystemMessage("  /connect - Connect to server");
+        displaySystemMessage("  /who - Show user info");
+    }
+
+    private void showConnectionStatus() {
+        if (sharedIrcClient == null) {
+            displaySystemMessage("❌ IRC client not initialized");
+            return;
+        }
+        
+        if (sharedIrcClient.isConnected()) {
+            displaySystemMessage("✅ Connected to IRC server");
+            displaySystemMessage("👤 User: " + username);
+            displaySystemMessage("📺 Channel: " + channel);
+        } else {
+            displaySystemMessage("❌ Not connected to IRC server");
+            displaySystemMessage("💡 Try: /reconnect");
+        }
     }
 
     private void displaySystemMessage(String text) {
@@ -292,14 +392,146 @@ public class ChatFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_direct_message) {
+            openDirectMessageDialog();
+            return true;
+        } else if (id == R.id.action_user_list) {
+            loadOnlineUsers();
+            return true;
+        } else if (id == R.id.action_settings) {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, SettingsFragment.newInstance())
                     .addToBackStack(null)
                     .commit();
             return true;
+        } else if (id == R.id.action_refresh) {
+            // Refresh connection
+            if (sharedIrcClient != null) {
+                displaySystemMessage("Refreshing connection...");
+                // Add refresh logic here if needed
+            }
+            return true;
+        } else if (id == R.id.action_clear_history) {
+            clearChatHistory();
+            return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // =============================
+    // 🔹 Menu action methods
+    // =============================
+    private void fetchOnlineUsers() {
+        // For now, just show a placeholder message
+        displaySystemMessage("Fetching online users...");
+        Toast.makeText(getContext(), "Online users feature coming soon!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void clearChatHistory() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Clear Chat History")
+                .setMessage("Are you sure you want to clear all chat history?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    messages.clear();
+                    adapter.notifyDataSetChanged();
+                    displaySystemMessage("Chat history cleared.");
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void showAboutDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("About IRC UI")
+                .setMessage("IRC UI v1.0\nDeveloped for USTH\nA modern IRC client for Android")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    // =============================
+    // 🔹 User List functionality
+    // =============================
+    private void loadOnlineUsers() {
+        if (currentUsername == null || currentUsername.equals("Guest")) {
+            Toast.makeText(getContext(), "Guest users cannot view member list", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        displaySystemMessage("Loading online users...");
+        
+        db.collection("Users")
+                .whereEqualTo("status", "online")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    currentUsers.clear();
+                    querySnapshot.getDocuments().forEach(doc -> {
+                        String name = doc.getString("nickname");
+                        if (name != null && !name.equals(currentNickname)) {
+                            currentUsers.add(name);
+                        }
+                    });
+
+                    if (currentUsers.isEmpty()) {
+                        Toast.makeText(getContext(), "No members online", Toast.LENGTH_SHORT).show();
+                    } else {
+                        showUserListDialog();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to load members", Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Error loading users", e);
+                });
+    }
+
+    private void showUserListDialog() {
+        if (getContext() == null) return;
+
+        if (currentUsers.isEmpty()) {
+            Toast.makeText(getContext(), "No members online", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_user_list, null);
+
+        RecyclerView rvUsers = dialogView.findViewById(R.id.rvUserList);
+        rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Create the dialog first (so we can dismiss it later)
+        AlertDialog dialog = builder
+                .setTitle("Online Users (" + currentUsers.size() + ")")
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .create();
+
+        // Adapter setup
+        UserListAdapter userListAdapter = new UserListAdapter(currentUsers, selectedUser -> {
+            // Prevent sending DM to yourself
+            if (selectedUser.equals(currentUsername)) {
+                Toast.makeText(getContext(), "You can't send a DM to yourself!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Dismiss the dialog
+            dialog.dismiss();
+
+            // Navigate to DirectMessageFragment
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(
+                            R.id.container,
+                            DirectMessageFragment.newInstance(currentUsername, selectedUser, serverHost)
+                    )
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        rvUsers.setAdapter(userListAdapter);
+        dialog.show();
     }
 }

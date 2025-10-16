@@ -24,6 +24,11 @@ public class RegisterFragment extends Fragment {
     private FirebaseFirestore db;
     private Button btnRegister;
 
+    private EditText etNickname;
+    private EditText etUsername;
+    private EditText etPassword;
+    private EditText etVerifyPassword;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -31,10 +36,10 @@ public class RegisterFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        EditText etNickname = view.findViewById(R.id.et_register_nickname);
-        EditText etUsername = view.findViewById(R.id.et_register_username);
-        EditText etPassword = view.findViewById(R.id.et_register_password);
-        EditText etVerifyPassword = view.findViewById(R.id.et_register_verify_password);
+        etNickname = view.findViewById(R.id.et_register_nickname);
+        etUsername = view.findViewById(R.id.et_register_username);
+        etPassword = view.findViewById(R.id.et_register_password);
+        etVerifyPassword = view.findViewById(R.id.et_register_verify_password);
 
         btnRegister = view.findViewById(R.id.btn_register);
 
@@ -45,12 +50,23 @@ public class RegisterFragment extends Fragment {
             String password = etPassword.getText().toString().trim();
             String verifyPassword = etVerifyPassword.getText().toString().trim();
 
-
             // === Validation check ===
 
             // check empty field
             if (TextUtils.isEmpty(nickname) || TextUtils.isEmpty(username) || TextUtils.isEmpty(password) || TextUtils.isEmpty(verifyPassword)) {
                 Toast.makeText(getContext(), "Please fill all the blank", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (TextUtils.isEmpty(username)) {
+                Toast.makeText(getContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getContext(), "Please enter a password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!password.equals(verifyPassword)) {
+                Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -111,7 +127,6 @@ public class RegisterFragment extends Fragment {
                         if(document.exists()){      // username existed
                             Log.d("Firestore", "Username existed");
                             Toast.makeText(getContext(), "Username existed", Toast.LENGTH_SHORT).show();
-                            btnRegister.setEnabled(true);
                         } else {
                             // username gud to go
                             Log.d("Firestore", "Username ok");
@@ -122,7 +137,6 @@ public class RegisterFragment extends Fragment {
                         // Other errors (No internet, etc...)
                         Log.w("Firestore", "Error check username", task.getException());
                         Toast.makeText(getContext(), "Can't check username", Toast.LENGTH_SHORT).show();
-                        btnRegister.setEnabled(true);
                     }
                 });
     }
