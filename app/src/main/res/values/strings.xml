@@ -86,4 +86,6 @@
     <string name="back">Back</string>
     <string name="font_size">Font Size</string>
     <string name="medium">Medium</string>
+    <string name="welcome_to_usth_irc" translatable="false">Welcome to USTH IRC</string>
+    <string name="use_as_guest">Use as Guest</string>
 </resources>

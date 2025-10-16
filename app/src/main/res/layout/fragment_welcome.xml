@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="0dp"
-        android:text="Welcome to USTH IRC"
+        android:text="@string/welcome_to_usth_irc"
         android:textColor="#FFFFFF"
         android:textSize="45sp"
         android:textStyle="bold" />
@@ -71,7 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
-        android:text="Use as Guest"
+        android:text="@string/use_as_guest"
         android:backgroundTint="#001459"
         android:textColor="@android:color/white" />
 

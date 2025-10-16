@@ -1,4 +1,8 @@
 <resources>
+    <string name="use_as_guest">NGƯỜI DÙNG KHÁCH</string>
+    <string name="user_list">Danh sách người dùng</string>
+    <string name="font_size">Cỡ chữ</string>
+    <string name="medium">Vừa</string>
     <string name="app_name">USTH chat</string>
     <string name="send_desc">Gửi tin nhắn</string>
     <string name="pick_image">Chọn ảnh</string>
