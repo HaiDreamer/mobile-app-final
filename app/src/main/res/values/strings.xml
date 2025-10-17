@@ -63,6 +63,13 @@
     <string name="developed_for_usth">Developed for USTH</string>
     <string name="confirm_clear_history">Are you sure you want to clear chat history?</string>
     <string name="chat_history_cleared">Chat history cleared</string>
+    <string name="profile_settings_message">Open profile settings</string>
+    <string name="account_management_message">Open account management</string>
+    <string name="dark_mode_enabled">Switched to dark mode</string>
+    <string name="dark_mode_disabled">Switched to light mode</string>
+    <string name="server_label">Server:</string>
+    <string name="joined_label">Joined:</string>
+    <string name="activity_label">Activity:</string>
     <string name="connected">Connected</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

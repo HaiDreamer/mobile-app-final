@@ -62,6 +62,15 @@
     <string name="developed_for_usth">Phát triển cho USTH</string>
     <string name="confirm_clear_history">Bạn có chắc chắn muốn xóa lịch sử trò chuyện?</string>
     <string name="chat_history_cleared">Đã xóa lịch sử trò chuyện</string>
+    <string name="profile_settings_message">Mở cài đặt trang cá nhân</string>
+    <string name="account_management_message">Mở quản lý tài khoản</string>
+    <string name="dark_mode_enabled">Đã chuyển sang chế độ tối</string>
+    <string name="dark_mode_disabled">Đã chuyển sang chế độ sáng</string>
+    <string name="user_profile">Hồ Sơ Người Dùng</string>
+    <string name="user_information">Thông Tin Người Dùng</string>
+    <string name="server_label">Máy Chủ:</string>
+    <string name="joined_label">Tham Gia:</string>
+    <string name="activity_label">Hoạt Động:</string>
     <string name="connected">Đã kết nối</string>
     <string name="yes">Có</string>
     <string name="no">Không</string>
@@ -83,10 +92,8 @@
     <string name="back">Quay lại</string>
     <string name="user_list">Danh sách người dùng</string>
     <string name="medium">Vừa</string>
-    <string name="user_profile">Hồ Sơ Người Dùng</string>
     <string name="username_placeholder">Tên người dùng</string>
     <string name="online">Trực tuyến</string>
-    <string name="user_information">Thông Tin Người Dùng</string>
     <string name="server_placeholder">irc.libera.chat</string>
     <string name="joined">Tham Gia</string>
     <string name="today">Hôm nay</string>

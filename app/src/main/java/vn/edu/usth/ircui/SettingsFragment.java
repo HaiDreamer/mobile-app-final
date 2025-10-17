@@ -67,7 +67,15 @@ public class SettingsFragment extends Fragment {
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int themeMode = isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
             sharedPreferences.edit().putInt("theme_mode", themeMode).apply();
+            
+            // Apply theme globally
             AppCompatDelegate.setDefaultNightMode(themeMode);
+            
+            // Show toast message
+            String message = isChecked ? getString(R.string.dark_mode_enabled) : getString(R.string.dark_mode_disabled);
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            
+            // Recreate activity to apply theme changes
             requireActivity().recreate();
         });
 
@@ -165,11 +173,11 @@ public class SettingsFragment extends Fragment {
     }
 
     private void showAccountManagement() {
-        Toast.makeText(requireContext(), "Mở quản lý tài khoản", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), getString(R.string.account_management_message), Toast.LENGTH_SHORT).show();
     }
 
     private void showProfileSettings() {
-        Toast.makeText(requireContext(), "Mở cài đặt trang cá nhân", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), getString(R.string.profile_settings_message), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -178,7 +186,7 @@ public class SettingsFragment extends Fragment {
         int checkedItem = currentLang.equals("vi") ? 1 : 0;
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("Chọn ngôn ngữ")
+                .setTitle(getString(R.string.choose_language))
                 .setSingleChoiceItems(new String[]{
                         getString(R.string.language_english),
                         getString(R.string.language_vietnamese)
@@ -221,9 +229,12 @@ public class SettingsFragment extends Fragment {
 
     private void handleLogout() {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Đăng xuất")
-                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
-                .setPositiveButton("Có", (dialog, which) -> {
+                .setTitle(getString(R.string.logout))
+                .setMessage(getString(R.string.confirm_logout))
+                .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                    // Reset SharedPreferences to Guest
+                    resetUserPreferencesToGuest();
+                    
                     requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     requireActivity().getSupportFragmentManager()
                             .beginTransaction()
@@ -235,7 +246,25 @@ public class SettingsFragment extends Fragment {
                             })
                             .commit();
                 })
-                .setNegativeButton("Không", null)
+                .setNegativeButton(getString(R.string.no), null)
                 .show();
+    }
+    
+    private void resetUserPreferencesToGuest() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
+        prefs.edit()
+                .putString("current_username", getString(R.string.guest))
+                .putString("current_server", "irc.libera.chat")
+                .putString("current_channel", "#usth-ircui")
+                .apply();
+        
+        // Update right drawer to show Guest
+        if (requireActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            if (mainActivity.getRightDrawerFragment() != null) {
+                mainActivity.getRightDrawerFragment().updateCurrentUserInfo(
+                    getString(R.string.guest), "irc.libera.chat");
+            }
+        }
     }
 }

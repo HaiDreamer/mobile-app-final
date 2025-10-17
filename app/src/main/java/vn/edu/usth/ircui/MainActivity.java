@@ -264,7 +264,27 @@ public class MainActivity extends AppCompatActivity {
      * Opens ChatFragment directly and clears backstack.
      */
     public void navigateToChatFragment(String username) {
-        ChatFragment chatFragment = ChatFragment.newInstance(username);
+        // Use default server and channel for backward compatibility
+        String defaultServer = "irc.libera.chat";
+        String defaultChannel = "#usth-ircui";
+        
+        // Save username, server, and current channel to SharedPreferences for later use
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        prefs.edit()
+                .putString("current_username", username)
+                .putString("current_server", defaultServer)
+                .putString("current_channel", defaultChannel)
+                .apply();
+        
+        // Update right drawer with new user info
+        if (rightDrawerFragment != null) {
+            rightDrawerFragment.updateCurrentUserInfo(username, defaultServer);
+        }
+        
+        // Update channel list to include current channel
+        updateCurrentChannel(defaultChannel);
+        
+        ChatFragment chatFragment = ChatFragment.newInstance(username, defaultServer, defaultChannel);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
         // Clear history (can't go back to login/welcome)
@@ -288,6 +308,11 @@ public class MainActivity extends AppCompatActivity {
                 .putString("current_server", serverHost)
                 .putString("current_channel", channel)
                 .apply();
+        
+        // Update right drawer with new user info
+        if (rightDrawerFragment != null) {
+            rightDrawerFragment.updateCurrentUserInfo(username, serverHost);
+        }
         
         // Update channel list to include current channel
         updateCurrentChannel(channel);
@@ -509,9 +534,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleLogout() {
         new AlertDialog.Builder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes", (dialog, which) -> {
+                .setTitle(getString(R.string.logout))
+                .setMessage(getString(R.string.confirm_logout))
+                .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                    // Reset SharedPreferences to Guest
+                    resetUserPreferencesToGuest();
+                    
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager()
                             .beginTransaction()
@@ -519,8 +547,22 @@ public class MainActivity extends AppCompatActivity {
                             .runOnCommit(this::updateUiForTopFragment)
                             .commit();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(getString(R.string.no), null)
                 .show();
+    }
+    
+    private void resetUserPreferencesToGuest() {
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        prefs.edit()
+                .putString("current_username", getString(R.string.guest))
+                .putString("current_server", "irc.libera.chat")
+                .putString("current_channel", "#usth-ircui")
+                .apply();
+        
+        // Update right drawer to show Guest
+        if (rightDrawerFragment != null) {
+            rightDrawerFragment.updateCurrentUserInfo(getString(R.string.guest), "irc.libera.chat");
+        }
     }
     
     // Drawer methods
@@ -678,6 +720,11 @@ public class MainActivity extends AppCompatActivity {
                 .putString("current_server", serverHost)
                 .putString("current_channel", channel)
                 .apply();
+        
+        // Update right drawer with new user info
+        if (rightDrawerFragment != null) {
+            rightDrawerFragment.updateCurrentUserInfo(username, serverHost);
+        }
         
         // Update channel list to include current channel
         updateCurrentChannel(channel);
