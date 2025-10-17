@@ -27,7 +27,7 @@ public class MessageNotification {
                     context, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED;
         }
-        // Older versions don’t have the runtime permission; respect user/block setting:
+        // Older versions don’t have the runtime permission -> respect user/block setting
         return NotificationManagerCompat.from(context).areNotificationsEnabled();
     }
 
@@ -53,7 +53,7 @@ public class MessageNotification {
 
         PendingIntent pi = PendingIntent.getActivity(
                 context, 0, intent,
-                // FLAG_IMMUTABLE is required for targetSdk 31+ if you don't mutate extras.
+                // Security and correctness for notification taps.
                 PendingIntent.FLAG_IMMUTABLE
         );
 
