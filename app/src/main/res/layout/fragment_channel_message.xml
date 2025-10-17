@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="#channel"
+            android:text="@string/channel_placeholder"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginStart="8dp"

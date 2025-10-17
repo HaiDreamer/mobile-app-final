@@ -1,15 +1,11 @@
 <resources>
-    <string name="use_as_guest">NGƯỜI DÙNG KHÁCH</string>
-    <string name="user_list">Danh sách người dùng</string>
-    <string name="font_size">Cỡ chữ</string>
-    <string name="medium">Vừa</string>
     <string name="app_name">USTH chat</string>
     <string name="send_desc">Gửi tin nhắn</string>
     <string name="pick_image">Chọn ảnh</string>
     <string name="pick_file">Chọn tệp</string>
     <string name="message_chat">Tin nhắn #chat</string>
     <string name="direct_message">Tin nhắn riêng</string>
-    <string name="enter_username_example">Nhập tên người dùng (e.g: Bob)</string>
+    <string name="enter_username_example">Nhập tên người dùng (e.g: Hải)</string>
     <string name="cancel">Hủy bỏ</string>
     <string name="open">Mở</string>
     <string name="send">Gửi</string>
@@ -85,4 +81,25 @@
     <string name="switching_to_channel">Đang chuyển tới %s</string>
     <string name="channel_message">Tin nhắn kênh</string>
     <string name="back">Quay lại</string>
+    <string name="user_list">Danh sách người dùng</string>
+    <string name="medium">Vừa</string>
+    <string name="user_profile">Hồ Sơ Người Dùng</string>
+    <string name="username_placeholder">Tên người dùng</string>
+    <string name="online">Trực tuyến</string>
+    <string name="user_information">Thông Tin Người Dùng</string>
+    <string name="server_placeholder">irc.libera.chat</string>
+    <string name="joined">Tham Gia</string>
+    <string name="today">Hôm nay</string>
+    <string name="activity">Hoạt Động</string>
+    <string name="active_now">Đang hoạt động</string>
+    <string name="start_chat">Bắt Đầu Chat</string>
+    <string name="online_users">Người dùng trực tuyến (0)</string>
+    <string name="guest">Khách</string>
+    <string name="welcome_to_usth_irc">Chào mừng đến với USTH IRC</string>
+    <string name="use_as_guest">Sử dụng như khách</string>
+    <string name="channel_placeholder">#kênh</string>
+    <string name="choose_profile_picture">Chọn ảnh đại diện</string>
+    <string name="choose_photo_description">Chọn một bức ảnh đại diện cho bạn!</string>
+    <string name="next">Tiếp theo</string>
+    <string name="switched_to_server">Đã chuyển tới %s</string>
 </resources>

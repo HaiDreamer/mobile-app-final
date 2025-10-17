@@ -9,7 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,10 +32,14 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.AppBarLayout;
 
 import vn.edu.usth.ircui.feature_chat.data.MessageNotification;
+import vn.edu.usth.ircui.feature_chat.ui.GroupChatFragment;
+import vn.edu.usth.ircui.feature_chat.ui.DirectMessageFragment;
 import vn.edu.usth.ircui.feature_user.LocaleHelper;
 
 /**
- * Main container for all fragments:
+ * MainActivity
+ * -------------
+ * Acts as the main container for all fragments:
  *  - Shows Welcome screen first (Login / Register / Guest)
  *  - Hosts ChatFragment after login or guest selection
  *  - Manages toolbar, app theme, permissions, and fragment navigation
@@ -42,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLanguage;
     private DrawerLayout drawerLayout;
     private ChannelListFragment channelListFragment;
+    private RightDrawerFragment rightDrawerFragment;
+    private GestureDetector gestureDetector;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -51,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Apply the saved Day/Night theme before super.onCreate
+        // 1️⃣ Apply the saved Day/Night theme before super.onCreate
         initializeAppTheme();
 
         super.onCreate(savedInstanceState);
@@ -63,13 +73,25 @@ public class MainActivity extends AppCompatActivity {
         // Initialize drawer layout
         drawerLayout = findViewById(R.id.drawerLayout);
         
-        // Initialize channel list fragment
+        // Initialize channel list fragment (left drawer)
         channelListFragment = new ChannelListFragment();
         FragmentTransaction drawerFt = getSupportFragmentManager().beginTransaction();
         drawerFt.replace(R.id.drawer_container, channelListFragment);
         drawerFt.commit();
+        
+        // Initialize right drawer fragment
+        rightDrawerFragment = new RightDrawerFragment();
+        FragmentTransaction rightDrawerFt = getSupportFragmentManager().beginTransaction();
+        rightDrawerFt.replace(R.id.right_drawer_container, rightDrawerFragment);
+        rightDrawerFt.commit();
+        
+        // Setup swipe gesture detection for right drawer
+        setupSwipeGestureDetection();
+        
+        // Test fragment detection
+        testFragmentDetection();
 
-        // Setup toolbar and handle back navigation dynamically
+        // 2️⃣ Setup toolbar and handle back navigation dynamically
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -86,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
             androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+            
+            // Show/hide swipe area based on current fragment
+            updateSwipeAreaVisibility(currentFragment);
             
             // Debug logging
             String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
@@ -198,19 +223,25 @@ public class MainActivity extends AppCompatActivity {
                     android.util.Log.d("MainActivity", "Showing AppBar and restoring layout behavior in BackStackChangedListener for other main fragments");
                 }
             }
-            toolbar.setTitle("IRC chat");
+            toolbar.setTitle("IRC");
             updateUiForTopFragment();
         });
 
-        // Load WelcomeFragment when app starts
+        // Load WelcomeFragment when app starts or restore fragment after recreate
         if (savedInstanceState == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.container, new WelcomeFragment())
                     .runOnCommit(this::updateUiForTopFragment)
                     .commit();
+        } else {
+            // After recreate (e.g., theme change), ensure toolbar is updated
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                updateUiForTopFragment();
+                forceUpdateToolbar();
+            }, 100);
         }
 
-        // Request notification permission (Android 13+)
+        // 4Request notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -224,7 +255,9 @@ public class MainActivity extends AppCompatActivity {
         updateUiForTopFragment();
     }
 
-    // PUBLIC API FOR FRAGMENTS
+    // =============================
+    // 🔹 PUBLIC API FOR FRAGMENTS
+    // =============================
 
     /**
      * Called by Login, Register, or Welcome (Guest mode)
@@ -287,7 +320,22 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    // Menu and Action
+    public void navigateToChoose_avt(String username) {
+        Choose_avt chooseAvtFragment = new Choose_avt();
+
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username);
+        chooseAvtFragment.setArguments(bundle);
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.container, chooseAvtFragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    // =============================
+    // 🔹 MENU & ACTIONS
+    // =============================
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -300,18 +348,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, SettingsFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        } else if (id == R.id.action_refresh) {
-            Toast.makeText(this, "Refreshing...", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (id == R.id.action_user_info) {
-            showUserInfo();
+        if (id == R.id.action_right_drawer) {
+            // Open right drawer
+            openRightDrawer();
             return true;
         } else if (id == R.id.action_about) {
             showAboutDialog();
@@ -327,7 +366,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // Permission callback
+    // =============================
+    // 🔹 PERMISSION CALLBACK
+    // =============================
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permission,
@@ -342,7 +383,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Helper methods
+    // =============================
+    // 🔹 HELPER METHODS
+    // =============================
 
     private void initializeAppTheme() {
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
@@ -403,16 +446,43 @@ public class MainActivity extends AppCompatActivity {
         
         if (toolbar == null || currentFragment == null) return;
         
-        // Check if we're on main chat fragments (should show menu icon)
+        // Check fragment types
+        boolean isWelcomeScreen = currentFragment instanceof WelcomeFragment;
+        boolean isLoginOrRegister = currentFragment instanceof LoginFragment || 
+                                  currentFragment instanceof RegisterFragment;
         boolean isMainChatFragment = currentFragment instanceof ChatFragment || 
                                    currentFragment instanceof ChannelMessageFragment;
+        boolean isSettingsFragment = currentFragment instanceof SettingsFragment;
+        boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
         
-        if (isMainChatFragment) {
-            // Force show menu icon on chat fragments
+        if (isWelcomeScreen) {
+            // No navigation icon on welcome screen
+            toolbar.setNavigationIcon(null);
+            toolbar.setNavigationOnClickListener(null);
+            android.util.Log.d("MainActivity", "Force updated toolbar - no icon for welcome screen");
+        } else if (isLoginOrRegister && canBack) {
+            // Show back arrow on login/register screens when there's back stack
+            toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+            toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+            android.util.Log.d("MainActivity", "Force updated toolbar - back arrow for login/register with back stack");
+        } else if (isMainChatFragment) {
+            // Always show menu icon on main chat fragments
             toolbar.setNavigationIcon(R.drawable.menu);
             toolbar.setNavigationOnClickListener(v -> toggleDrawer());
-            android.util.Log.d("MainActivity", "Force updated toolbar - showing menu icon for chat fragment");
+            android.util.Log.d("MainActivity", "Force updated toolbar - menu icon for chat fragment");
+        } else if (isSettingsFragment || canBack) {
+            // Show back arrow for settings or other fragments with back stack
+            toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+            toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+            android.util.Log.d("MainActivity", "Force updated toolbar - back arrow for settings or other fragments with back stack");
+        } else {
+            // Show menu icon for other main fragments
+            toolbar.setNavigationIcon(R.drawable.menu);
+            toolbar.setNavigationOnClickListener(v -> toggleDrawer());
+            android.util.Log.d("MainActivity", "Force updated toolbar - menu icon for other main fragments");
         }
+        
+        toolbar.setTitle("IRC");
     }
 
     private void showUserInfo() {
@@ -485,8 +555,127 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.openDrawer(GravityCompat.START);
     }
     
+    // Right drawer methods
+    public void toggleRightDrawer() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.END);
+        }
+    }
+    
+    public void closeRightDrawer() {
+        drawerLayout.closeDrawer(GravityCompat.END);
+    }
+    
+    public void openRightDrawer() {
+        android.util.Log.d("MainActivity", "Opening right drawer...");
+        drawerLayout.openDrawer(GravityCompat.END);
+    }
+    
     public ChannelListFragment getChannelListFragment() {
         return channelListFragment;
+    }
+    
+    public RightDrawerFragment getRightDrawerFragment() {
+        return rightDrawerFragment;
+    }
+    
+    private void updateSwipeAreaVisibility(androidx.fragment.app.Fragment currentFragment) {
+        LinearLayout swipeArea = findViewById(R.id.right_swipe_area);
+        if (swipeArea == null) return;
+        
+        String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
+        
+        // Show swipe area only for chat-related screens
+        boolean isChatScreen = currentFragment != null && 
+            (currentFragment instanceof ChatFragment || 
+             currentFragment instanceof GroupChatFragment ||
+             currentFragment instanceof DirectMessageFragment ||
+             currentFragment instanceof ChannelMessageFragment ||
+             fragmentName.contains("Chat") ||
+             fragmentName.contains("Channel"));
+        
+        android.util.Log.d("MainActivity", "Update swipe area - Fragment: " + fragmentName + ", isChatScreen: " + isChatScreen);
+        
+        swipeArea.setVisibility(isChatScreen ? android.view.View.VISIBLE : android.view.View.GONE);
+    }
+    
+    private void testFragmentDetection() {
+        androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
+        android.util.Log.d("MainActivity", "INITIAL FRAGMENT DETECTION - Fragment: " + fragmentName);
+        
+        // Also log all fragments in backstack
+        int backStackCount = getSupportFragmentManager().getBackStackEntryCount();
+        android.util.Log.d("MainActivity", "BackStack count: " + backStackCount);
+    }
+    
+    private void setupSwipeGestureDetection() {
+        // Create GestureDetector for better swipe detection
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                // Only enable swipe gesture for chat screens
+                androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+                String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
+                
+                boolean isChatScreen = currentFragment != null && 
+                    (currentFragment instanceof ChatFragment || 
+                     currentFragment instanceof GroupChatFragment ||
+                     currentFragment instanceof DirectMessageFragment ||
+                     currentFragment instanceof ChannelMessageFragment ||
+                     fragmentName.contains("Chat") ||
+                     fragmentName.contains("Channel"));
+                
+                android.util.Log.d("MainActivity", "GestureDetector - Fragment: " + fragmentName + ", isChatScreen: " + isChatScreen);
+                
+                if (!isChatScreen) {
+                    return false; // Don't handle swipe for non-chat screens
+                }
+                
+                float deltaX = e2.getX() - e1.getX();
+                float deltaY = e2.getY() - e1.getY();
+                
+                android.util.Log.d("MainActivity", "Fling detected - deltaX: " + deltaX + ", deltaY: " + deltaY + ", velocityX: " + velocityX);
+                
+                // Check if it's a left swipe (from right to left)
+                if (deltaX < -100 && Math.abs(deltaY) < 500 && velocityX < -100) {
+                    android.util.Log.d("MainActivity", "Left swipe detected! Opening right drawer...");
+                    
+                    // Open right drawer with haptic feedback
+                    openRightDrawer();
+                    return true;
+                }
+                
+                return false;
+            }
+        });
+    }
+    
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // Only handle swipe for chat screens
+        androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        String fragmentName = currentFragment != null ? currentFragment.getClass().getSimpleName() : "null";
+        
+        boolean isChatScreen = currentFragment != null && 
+            (currentFragment instanceof ChatFragment || 
+             currentFragment instanceof GroupChatFragment ||
+             currentFragment instanceof DirectMessageFragment ||
+             currentFragment instanceof ChannelMessageFragment ||
+             fragmentName.contains("Chat") ||
+             fragmentName.contains("Channel"));
+        
+        if (isChatScreen && gestureDetector != null) {
+            android.util.Log.d("MainActivity", "dispatchTouchEvent - Fragment: " + fragmentName + ", isChatScreen: " + isChatScreen);
+            if (gestureDetector.onTouchEvent(ev)) {
+                return true; // Swipe gesture was handled
+            }
+        }
+        
+        // Let other views handle the touch event normally
+        return super.dispatchTouchEvent(ev);
     }
     
     public void updateCurrentChannel(String channelName) {

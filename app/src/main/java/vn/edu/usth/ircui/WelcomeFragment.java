@@ -27,7 +27,7 @@ public class WelcomeFragment extends Fragment {
         Button btnGoToRegister = view.findViewById(R.id.btn_go_to_register);
         ImageButton btnMenu = view.findViewById(R.id.btn_menu);
 
-        // NEW: "Use as Guest" button
+        // ✅ NEW: "Use as Guest" button
         Button btnUseGuest = view.findViewById(R.id.btn_use_guest);
 
         // Navigate to LoginFragment (existing behavior)
@@ -50,7 +50,7 @@ public class WelcomeFragment extends Fragment {
             showAboutDialog();
         });
 
-        // Guest flow: generate a random username and jump straight to Chat
+        // ✅ Guest flow: generate a random username and jump straight to Chat
         btnUseGuest.setOnClickListener(v -> {
             // Generate a readable random guest name (no DB save)
             String guestName = "Guest" + (new Random().nextInt(9000) + 1000); // e.g., Guest3478

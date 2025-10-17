@@ -25,11 +25,43 @@
     <!-- App theme -->
     <style name="Theme.IRCUI" parent="Base.Theme.IRCUI" />
     
-    <!-- Discord-like toolbar title style for light theme -->
+    <!-- Bottom Sheet Dialog Theme -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@style/BottomSheetAnimation</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+    </style>
+    
+    <!-- Bottom Sheet Animation Style -->
+    <style name="BottomSheetAnimation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+    
+    <!-- Messenger-like toolbar title style for light theme -->
     <style name="DiscordToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <!-- Messenger-like text styles -->
+    <style name="MessengerTextPrimary" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+    
+    <style name="MessengerTextSecondary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 </resources>

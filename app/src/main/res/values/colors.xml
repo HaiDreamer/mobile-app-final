@@ -25,21 +25,21 @@
     <color name="userColor7">#FF66C4</color>   <!-- pink -->
     <color name="userColor8">#29C7AC</color>   <!-- teal -->
 
-    <!-- Light Theme Colors -->
-    <color name="light_bg_primary">#FFFFFF</color>        <!-- Main background -->
-    <color name="light_bg_secondary">#F8F9FA</color>      <!-- Sidebar background -->
-    <color name="light_bg_tertiary">#E9ECEF</color>       <!-- Darker background -->
-    <color name="light_bg_elevated">#FFFFFF</color>       <!-- Elevated surfaces -->
+    <!-- Messenger-like Light Theme Colors -->
+    <color name="light_bg_primary">#FFFFFF</color>        <!-- Main background - Pure white -->
+    <color name="light_bg_secondary">#F0F2F5</color>      <!-- Sidebar background - Light gray -->
+    <color name="light_bg_tertiary">#E4E6EA</color>       <!-- Header background - Slightly darker gray -->
+    <color name="light_bg_elevated">#FFFFFF</color>       <!-- Elevated surfaces - White with shadow -->
     
-    <color name="light_text_primary">#212529</color>      <!-- Primary text -->
-    <color name="light_text_secondary">#6C757D</color>    <!-- Secondary text -->
-    <color name="light_text_muted">#ADB5BD</color>        <!-- Muted text -->
+    <color name="light_text_primary">#050505</color>      <!-- Primary text - Very dark for better contrast -->
+    <color name="light_text_secondary">#65676B</color>    <!-- Secondary text - Medium gray -->
+    <color name="light_text_muted">#BCC0C4</color>        <!-- Muted text - Light gray -->
     
-    <color name="light_accent">#5865F2</color>            <!-- Discord blurple -->
-    <color name="light_accent_hover">#4752C4</color>      <!-- Hover state -->
-    <color name="light_success">#28A745</color>           <!-- Success green -->
-    <color name="light_warning">#FFC107</color>           <!-- Warning orange -->
-    <color name="light_danger">#DC3545</color>            <!-- Danger red -->
+    <color name="light_accent">#1877F2</color>            <!-- Messenger blue -->
+    <color name="light_accent_hover">#166FE5</color>      <!-- Hover state - Darker blue -->
+    <color name="light_success">#42B883</color>           <!-- Success green -->
+    <color name="light_warning">#F7B731</color>           <!-- Warning orange -->
+    <color name="light_danger">#E74C3C</color>            <!-- Danger red -->
     
     <!-- Dark Theme Colors -->
     <color name="dark_bg_primary">#36393F</color>         <!-- Main background -->
@@ -95,7 +95,13 @@
     <!-- Button/Selection States -->
     <color name="button_bg">#23272F</color>
     <color name="button_pressed">#3A3F4B</color>
-    <color name="divider">#262B33</color>
+    <!-- Light theme divider -->
+    <color name="light_divider">#E4E6EA</color>
+    <!-- Dark theme divider -->
+    <color name="dark_divider">#40444B</color>
+    
+    <color name="divider">@color/light_divider</color>
+    <color name="divider_color">@color/divider</color>
     <color name="red">#FF0000</color>
     <color name="dropdown_bg">#505059</color>
 

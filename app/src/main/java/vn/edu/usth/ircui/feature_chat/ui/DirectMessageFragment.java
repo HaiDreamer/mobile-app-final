@@ -164,7 +164,7 @@ public class DirectMessageFragment extends Fragment {
             return insets; // don't consume; let resize work
         });
 
-        // 2) Animate footer with the IME and add extra space for the list bottom.
+        // Animate footer with the IME and add extra space for the list bottom.
         ViewCompat.setWindowInsetsAnimationCallback(v,
                 new WindowInsetsAnimationCompat.Callback(
                         WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {

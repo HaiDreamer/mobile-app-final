@@ -28,7 +28,10 @@
                 app:titleTextAppearance="@style/DiscordToolbarTitle"
                 app:navigationIconTint="@color/text_primary"
                 app:subtitleTextColor="@color/text_secondary"
-                android:background="@color/bg_secondary"/>
+                android:background="@color/bg_secondary">
+                
+                    
+            </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
@@ -36,15 +39,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/bg_primary"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            
+            <!-- Swipe area for right drawer - kept for compatibility but not visible -->
+            <LinearLayout
+                android:id="@+id/right_swipe_area"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="@android:color/transparent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone">
+                    
+            </LinearLayout>
+                
+        </FrameLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- Theme-aware sidebar -->
+    <!-- Left sidebar (Channel List) -->
     <FrameLayout
         android:id="@+id/drawer_container"
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/bg_secondary"
+        android:elevation="8dp"/>
+
+    <!-- Right sidebar (User List, Settings, Main Menu) -->
+    <FrameLayout
+        android:id="@+id/right_drawer_container"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
         android:background="@color/bg_secondary"
         android:elevation="8dp"/>
 </androidx.drawerlayout.widget.DrawerLayout>

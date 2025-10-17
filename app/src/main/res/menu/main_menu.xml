@@ -2,39 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Direct Message Menu Item -->
+    <!-- Right Drawer Menu Item (3 dots) -->
     <item
-        android:id="@+id/action_direct_message"
-        android:icon="@android:drawable/ic_menu_send"
-        android:title="@string/direct_message"
-        app:showAsAction="ifRoom" />
-
-    <!-- User List Menu Item -->
-    <item
-        android:id="@+id/action_user_list"
-        android:icon="@drawable/ic_member"
-        android:title="@string/user_list"
-        app:showAsAction="ifRoom" />
-
-    <!-- Settings Menu Item -->
-    <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/settings"
-        app:showAsAction="ifRoom" />
-
-    <!-- Refresh/Reconnect Menu Item -->
-    <item
-        android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_refresh"
-        android:title="@string/refresh"
-        app:showAsAction="ifRoom" />
-
-    <!-- User Info Menu Item -->
-    <item
-        android:id="@+id/action_user_info"
-        android:icon="@drawable/ic_person"
-        android:title="@string/user_info"
+        android:id="@+id/action_right_drawer"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="Server Menu"
         app:showAsAction="ifRoom" />
 
     <!-- More options (will appear in overflow menu) -->

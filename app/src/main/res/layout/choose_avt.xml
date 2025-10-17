@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1E1E1E"
+    android:padding="24dp">
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:id="@+id/avatarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_profile_picture"
+        android:textSize="22sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <!-- Mô tả -->
+    <TextView
+        android:id="@+id/avatarSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_photo_description"
+        android:textSize="16sp"
+        android:textColor="#CDCDD1"
+        app:layout_constraintTop_toBottomOf="@id/avatarTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+        <!-- Icon dấu cộng -->
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:alpha="1"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_add"
+        android:backgroundTint="@null"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="227dp"
+        android:layout_marginTop="141dp" />
+
+    <ImageView
+        android:id="@+id/avatarLogo"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:src="@drawable/logo"
+        android:scaleType="centerCrop"
+        android:background="@drawable/circle_avt"
+        android:layout_marginTop="48dp"
+        app:layout_constraintTop_toBottomOf="@id/avatarSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/suggestedAvatars"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/avatarLogo"
+        android:layout_marginTop="24dp">
+
+        <ImageView
+            android:id="@+id/avatarOption1"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:src="@drawable/avt1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp" />
+
+        <ImageView
+            android:id="@+id/avatarOption2"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:src="@drawable/avt2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="144dp"
+            android:layout_marginTop="8dp" />
+
+        <ImageView
+            android:id="@+id/avatarOption3"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:src="@drawable/avt3"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="272dp"
+            android:layout_marginTop="8dp" />
+
+        <ImageView
+            android:id="@+id/avatarOption4"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:src="@drawable/avt4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="82dp"
+            android:layout_marginTop="83dp"
+            tools:layout_editor_absoluteX="82dp"
+            tools:layout_editor_absoluteY="83dp" />
+
+        <ImageView
+            android:id="@+id/avatarOption5"
+            android:layout_width="86dp"
+            android:layout_height="84dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/avt5"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="204dp"
+            android:layout_marginTop="78dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/next"
+        android:layout_width="340dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="600dp"
+        android:backgroundTint="#5729AE"
+        android:text="@string/next"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

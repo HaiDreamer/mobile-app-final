@@ -12,7 +12,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:overScrollMode="ifContentScrolls"
-        android:padding="16dp"
+        android:padding="12dp"
         android:paddingBottom="80dp"
         android:background="@color/bg_primary"
         android:scrollbars="vertical"
@@ -27,7 +27,7 @@
         android:id="@+id/messageBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="12dp"
         android:background="@drawable/discord_input_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -61,7 +61,7 @@
             android:background="@drawable/discord_send_button_bg"
             android:contentDescription="@string/app_name"
             android:src="@android:drawable/ic_menu_send"
-            app:tint="@color/text_primary" />
+            app:tint="@android:color/white" />
     </LinearLayout>
 
 

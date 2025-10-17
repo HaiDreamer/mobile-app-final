@@ -185,17 +185,19 @@ public class SettingsFragment extends Fragment {
                 }, checkedItem, (dialog, which) -> {
                     String lang = (which == 0) ? "en" : "vi";
                     sharedPreferences.edit().putString("app_language", lang).apply();
-                    tvCurrentLanguage.setText(getLanguageDisplayName(lang));
-
-                    // Apply knew language
+                    
+                    // Áp dụng ngôn ngữ mới ngay lập tức
                     LocaleHelper.setLocale(requireContext(), lang);
-
-                    // Notification language change
+                    
+                    // Hiển thị thông báo
                     Toast.makeText(requireContext(),
-                            "Đã thay đổi ngôn ngữ. Ứng dụng cần khởi động lại để áp dụng.",
-                            Toast.LENGTH_LONG).show();
+                            "Đã thay đổi ngôn ngữ",
+                            Toast.LENGTH_SHORT).show();
 
                     dialog.dismiss();
+                    
+                    // Recreate activity để áp dụng ngôn ngữ mới ngay lập tức
+                    requireActivity().recreate();
                 })
                 .show();
     }

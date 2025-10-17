@@ -6,7 +6,7 @@
     <string name="message_chat">Message #chat</string>
     <string name="direct_message">Direct message</string>
     <string name="user_list">User List</string>
-    <string name="enter_username_example">Enter username (e.g: Bob)</string>
+    <string name="enter_username_example">Enter username (e.g: Hải)</string>
     <string name="cancel">Cancel</string>
     <string name="open">Open</string>
     <string name="send">Send</string>
@@ -84,8 +84,24 @@
     <string name="switching_to_channel">Switching to %s</string>
     <string name="channel_message">Channel Message</string>
     <string name="back">Back</string>
-    <string name="font_size">Font Size</string>
     <string name="medium">Medium</string>
-    <string name="welcome_to_usth_irc" translatable="false">Welcome to USTH IRC</string>
+    <string name="user_profile">User Profile</string>
+    <string name="username_placeholder">Username</string>
+    <string name="online">Online</string>
+    <string name="user_information">User Information</string>
+    <string name="server_placeholder">irc.libera.chat</string>
+    <string name="joined">Joined</string>
+    <string name="today">Today</string>
+    <string name="activity">Activity</string>
+    <string name="active_now">Active now</string>
+    <string name="start_chat">Start Chat</string>
+    <string name="online_users">Online Users (0)</string>
+    <string name="guest">Guest</string>
+    <string name="welcome_to_usth_irc">Welcome to USTH IRC</string>
     <string name="use_as_guest">Use as Guest</string>
+    <string name="channel_placeholder">#channel</string>
+    <string name="choose_profile_picture">Choose profile picture</string>
+    <string name="choose_photo_description">Choose a photo that represents you!</string>
+    <string name="next">Next</string>
+    <string name="switched_to_server">Switched to %s</string>
 </resources>
