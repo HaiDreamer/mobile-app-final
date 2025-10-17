@@ -48,7 +48,7 @@ dependencies {
     // Firestore
     implementation("com.google.firebase:firebase-firestore")
 
-
+    // KICL API
     implementation("org.kitteh.irc:client-lib:9.0.0")
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.firestore)
 
-    // Add these new dependencies for UI
+    // Dependencies for UI
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.fragment:fragment:1.8.2")
     implementation("androidx.activity:activity:1.9.2")

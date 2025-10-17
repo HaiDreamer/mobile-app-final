@@ -37,6 +37,7 @@ import vn.edu.usth.ircui.feature_user.MessageCooldownManager;
  * Channel message fragment for IRC channel chat
  * Similar to DirectMessageFragment but for channel communication
  */
+
 public class ChannelMessageFragment extends Fragment {
 
     private static final String ARG_USERNAME = "username";
@@ -173,7 +174,7 @@ public class ChannelMessageFragment extends Fragment {
             return insets; // don't consume; let resize work
         });
 
-        // 2) Animate footer with the IME and add extra space for the list bottom.
+        // Animate footer with the IME and add extra space for the list bottom.
         ViewCompat.setWindowInsetsAnimationCallback(v,
                 new WindowInsetsAnimationCompat.Callback(
                         WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
@@ -406,35 +407,6 @@ public class ChannelMessageFragment extends Fragment {
     public void showConnectionStatus() {
         // Don't show system messages in channel fragment
         // Status will be handled by ChatFragment's system callback
-    }
-    
-    /**
-     * Handle server switching from MainActivity
-     * This method will reconnect to the new server
-     */
-    public void onServerChanged(String newServer) {
-        // Update server host
-        serverHost = newServer;
-        
-        // Clear current messages to avoid confusion
-        if (adapter != null) {
-            // DirectMessageAdapter doesn't have clearMessages(), so we need to clear the underlying data
-            // and notify the adapter - this would require access to the internal rows list
-            // For now, we'll just log the server change
-            android.util.Log.d("ChannelMessageFragment", "Server changed to: " + newServer);
-        }
-        
-        // Reconnect to new server
-        if (sharedIrcClient != null) {
-            try {
-                // Disconnect completely and create fresh connection
-                sharedIrcClient.disconnect();
-                sharedIrcClient.connect(serverHost, username, channel, requireContext());
-            } catch (Exception e) {
-                // Error handling will be done by ChatFragment's system callback
-                android.util.Log.e("ChannelMessageFragment", "Failed to connect to " + newServer, e);
-            }
-        }
     }
 
 }

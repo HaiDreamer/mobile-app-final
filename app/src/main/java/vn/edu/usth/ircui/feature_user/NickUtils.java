@@ -2,6 +2,9 @@ package vn.edu.usth.ircui.feature_user;
 
 import java.util.regex.Pattern;
 
+/**Check if nick is valid or not
+ * BUT NO USAGE*/
+
 public final class NickUtils {
     private NickUtils() {}
 

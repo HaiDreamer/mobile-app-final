@@ -141,10 +141,10 @@ public class DirectMessageFragment extends Fragment {
         adapter.addText(false, "Debug", "👤 Me: " + me + ", Peer: " + peer);
         adapter.addText(false, "Debug", "🔗 Connected: " + (sharedIrcClient != null && sharedIrcClient.isConnected()));
 
-        // --- Keyboard / Insets handling (no extra IDs required) ---
+        // Keyboard / Insets handling (no extra IDs required)
         final View footer = (View) input.getParent(); // the bottom bar container
 
-        // 1) Apply system bar paddings once and keep bottom space equal to nav bar.
+        // Apply system bar paddings once and keep bottom space equal to nav bar.
         ViewCompat.setOnApplyWindowInsetsListener(v, (view, insets) -> {
             Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             // Keep footer above navigation bar (gesture area)
@@ -291,7 +291,7 @@ public class DirectMessageFragment extends Fragment {
         }
     }
 
-    // Small helper
+    // helper
     private int dp(int v) {
         float d = requireContext().getResources().getDisplayMetrics().density;
         return Math.round(v * d);

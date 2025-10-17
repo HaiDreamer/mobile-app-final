@@ -21,6 +21,9 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**Shows a selectable list of IRC channels, lets the user add channels,
+ * and navigates to the selected channel’s chat.*/
+
 public class ChannelListFragment extends Fragment {
 
     private ListView channelListView;

@@ -17,6 +17,9 @@ import java.util.List;
 import vn.edu.usth.ircui.R;
 import vn.edu.usth.ircui.feature_chat.data.Attachment;
 
+/**
+ * Support multiply view types(text/text/img/files)
+ * **/
 public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int T_OTHER_TEXT = 0;
@@ -40,7 +43,9 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     private final List<Row> rows = new ArrayList<>();
     private final String me;
 
-    public DirectMessageAdapter(String me) { this.me = me; }
+    public DirectMessageAdapter(String me) {
+        this.me = me;
+    }
 
     public void addText(boolean mine, String username, String text) {
         rows.add(new Row(mine ? T_ME_TEXT : T_OTHER_TEXT, mine, username, text, null));
@@ -68,7 +73,8 @@ public class DirectMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override public int getItemCount() { return rows.size(); }
     @Override public int getItemViewType(int position) { return rows.get(position).type; }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         switch (viewType) {

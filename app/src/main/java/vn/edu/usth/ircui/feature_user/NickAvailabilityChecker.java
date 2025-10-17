@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/** NO USAGE */
 /** Connects with a temporary nick, probes ISON/WHOIS for target nick, reports result, then disconnects. */
 public class NickAvailabilityChecker {
 

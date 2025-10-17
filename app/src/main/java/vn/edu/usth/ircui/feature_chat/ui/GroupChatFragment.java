@@ -33,14 +33,12 @@ import vn.edu.usth.ircui.network.IrcClientManager;
 
 /**
  * A UI fragment that hosts a simple IRC-like group chat.
- *
- * Use {@link #newInstance(String)} to create with a specific channel.
  */
 public class GroupChatFragment extends Fragment {
 
     private static final String ARG_CHANNEL = "arg_channel";
 
-    /** Factory: tạo fragment với tên kênh truyền vào. */
+    /** Factory: creates fragment with the given channel name. */
     public static GroupChatFragment newInstance(@NonNull String channel) {
         GroupChatFragment f = new GroupChatFragment();
         Bundle b = new Bundle();
@@ -49,7 +47,7 @@ public class GroupChatFragment extends Fragment {
         return f;
     }
 
-    private String channelName; // kênh hiện tại (đọc từ args)
+    private String channelName; // current channel (read form args)
 
     private final List<Message> messages = new ArrayList<>();
     private vn.edu.usth.ircui.MessageAdapter adapter;
@@ -66,7 +64,7 @@ public class GroupChatFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // đọc tham số kênh (mặc định nếu không truyền)
+        // read channel parameter (default if not init)
         channelName = getArguments() != null
                 ? getArguments().getString(ARG_CHANNEL)
                 : "#usth-ircui";
@@ -113,10 +111,10 @@ public class GroupChatFragment extends Fragment {
             }
         });
 
-        // đặt tiêu đề theo kênh (tùy UI bạn có thể bỏ)
+        // set title by channel (depending on UI u set)
         requireActivity().setTitle(channelName);
 
-        // kết nối kênh (user demo "Guest")
+        // Channel connection (user demo "Guest")
         irc.connect("Guest", channelName);
 
         // Input + buttons
@@ -159,7 +157,7 @@ public class GroupChatFragment extends Fragment {
     }
 
     private void handlePickedUri(@NonNull Uri uri, boolean image) {
-        // Demo: gửi tạm đường dẫn. Khi có upload thực tế, thay thế luồng này.
+        // Demo: send temporary link. When upload file, replace this stream.
         String tag = image ? "[image]" : "[file]";
         irc.sendMessage(tag + " " + uri.toString());
         toast(image ? "Picked image" : "Picked file");
@@ -172,10 +170,10 @@ public class GroupChatFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // tránh memory leak callback
+        // avoid memory leak callback
         if (irc != null) {
             irc.setCallback(null);
-            // nếu IrcClientManager có disconnect(), bạn có thể gọi thêm: irc.disconnect();
+            // if IrcClientManager has disconnect(), can be call this: irc.disconnect();
         }
     }
 }

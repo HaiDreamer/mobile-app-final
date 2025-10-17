@@ -2,6 +2,9 @@ package vn.edu.usth.ircui.feature_chat.data;
 
 import android.net.Uri;
 
+/*stores the attachment type (IMAGE or FILE),
+its Android Uri (the handle to the content), plus a display name and size in bytes, exposed via getters*/
+
 public class Attachment {
     public enum Type { IMAGE, FILE }
 

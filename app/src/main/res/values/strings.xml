@@ -104,12 +104,4 @@
     <string name="choose_photo_description">Choose a photo that represents you!</string>
     <string name="next">Next</string>
     <string name="switched_to_server">Switched to %s</string>
-    
-    <!-- User Profile Dialog -->
-    <string name="user_profile_title">User Profile</string>
-    <string name="user_information_title">User Information</string>
-    <string name="server_label">Server:</string>
-    <string name="joined_label">Joined:</string>
-    <string name="activity_label">Activity:</string>
-    <string name="start_chat_desc">Start Chat</string>
 </resources>

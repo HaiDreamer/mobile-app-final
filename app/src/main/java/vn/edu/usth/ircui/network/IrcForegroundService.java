@@ -12,12 +12,14 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import vn.edu.usth.ircui.R;
-
+/**Runs an IRC client as a foreground service so Android keeps it alive,
+ *  showing a persistent notification while connected.*/
 public class IrcForegroundService extends Service {
 
     public static final String EXTRA_NICK = "nick";
     public static final String EXTRA_CHANNEL = "channel";
     public vn.edu.usth.ircui.network.NetworkMonitor monitor;
+    private String lastNick, lastChannel, lastUser, lastPass; private boolean lastExt;
 
     private static final String CHANNEL_ID = "irc_fg";
     private static final int NOTIF_ID = 42;
@@ -46,6 +48,7 @@ public class IrcForegroundService extends Service {
         irc.setCallback(new IrcClientManager.MessageCallback() {
             @Override
             public void onMessage(String u, String t, long ts, boolean mine) {
+                /* no-op here */
             }
             @Override
             public void onSystem(String t) {
@@ -54,10 +57,12 @@ public class IrcForegroundService extends Service {
         });
 
 
-        monitor = new vn.edu.usth.ircui.network.NetworkMonitor(getApplicationContext(), new vn.edu.usth.ircui.network.NetworkMonitor.Callback() {
+        monitor = new vn.edu.usth.ircui.network.NetworkMonitor(getApplicationContext(),
+                new vn.edu.usth.ircui.network.NetworkMonitor.Callback() {
             @Override public void onUp() {
                 // if not connected, try again
                 irc.disconnect();
+                irc.connectWithSasl(lastNick, lastChannel, lastUser, lastPass, lastExt);
             }
             @Override public void onDown() {
                 // optional: show “offline” in the notification

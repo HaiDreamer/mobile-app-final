@@ -102,12 +102,4 @@
     <string name="choose_photo_description">Chọn một bức ảnh đại diện cho bạn!</string>
     <string name="next">Tiếp theo</string>
     <string name="switched_to_server">Đã chuyển tới %s</string>
-    
-    <!-- User Profile Dialog -->
-    <string name="user_profile_title">Hồ Sơ Người Dùng</string>
-    <string name="user_information_title">Thông Tin Người Dùng</string>
-    <string name="server_label">Máy Chủ:</string>
-    <string name="joined_label">Tham Gia:</string>
-    <string name="activity_label">Hoạt Động:</string>
-    <string name="start_chat_desc">Bắt Đầu Chat</string>
 </resources>

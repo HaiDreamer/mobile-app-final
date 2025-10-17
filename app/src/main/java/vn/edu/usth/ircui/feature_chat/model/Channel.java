@@ -5,6 +5,9 @@ import java.util.List;
 
 import vn.edu.usth.ircui.feature_chat.data.Message;
 
+/** Defines a Channel model with a name, a privacy flag (isPrivate),
+ * a list of messages, and a list of participants (usernames). **/
+
 public class Channel {
     private final String name;
     private final boolean isPrivate;

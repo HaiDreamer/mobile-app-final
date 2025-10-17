@@ -32,8 +32,6 @@ import vn.edu.usth.ircui.network.IrcClientManager;
 import vn.edu.usth.ircui.network.SharedIrcClient;
 
 /**
- * ChatFragment
- * ------------
  * Handles main chat functionality:
  *  - Display messages
  *  - Send messages to server
@@ -188,13 +186,6 @@ public class ChatFragment extends Fragment {
             public void onSystem(String t) {
                 // Show all system messages with server info
                 displaySystemMessage(t);
-                
-                // Update RightDrawerFragment when connection is successful
-                if (t.contains("✅ Connected to")) {
-                    updateRightDrawerWithActualServer();
-                    // Don't show server switch message for normal reconnects
-                    // Only show it when explicitly switching servers
-                }
             }
         };
         
@@ -374,13 +365,10 @@ public class ChatFragment extends Fragment {
         
         if (sharedIrcClient.isConnected()) {
             displaySystemMessage("✅ Connected to IRC server");
-            displaySystemMessage("🌐 Server: " + serverHost);
             displaySystemMessage("👤 User: " + username);
             displaySystemMessage("📺 Channel: " + channel);
-            displaySystemMessage("🕐 Connection time: " + java.text.SimpleDateFormat.getTimeInstance().format(new java.util.Date()));
         } else {
             displaySystemMessage("❌ Not connected to IRC server");
-            displaySystemMessage("🌐 Target server: " + serverHost);
             displaySystemMessage("💡 Try: /reconnect");
         }
     }
@@ -446,80 +434,12 @@ public class ChatFragment extends Fragment {
     private void showAboutDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle("About IRC UI")
-                .setMessage("IRC UI v1.0\nDeveloped for USTH\nA modern IRC client for Android")
+                .setMessage("IRC UI v1.3\nDeveloped for USTH\nA modern IRC client for Android")
                 .setPositiveButton("OK", null)
                 .show();
     }
 
-    /**
-     * Handle server switching from MainActivity
-     * This method will reconnect to the new server
-     */
-    public void onServerChanged(String newServer) {
-        // Update server host
-        serverHost = newServer;
-        
-        // Clear current messages to avoid confusion
-        messages.clear();
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-        
-        // Display system message about server change
-        displaySystemMessage("🔄 Switching to server: " + newServer);
-        
-        // Reconnect to new server
-        if (sharedIrcClient != null) {
-            try {
-                // Disconnect completely and create fresh connection
-                sharedIrcClient.disconnect();
-                sharedIrcClient.connect(serverHost, username, channel, requireContext());
-                displaySystemMessage("🔄 Connecting to " + newServer + "...");
-                
-                // Add a delayed check to verify connection status
-                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                    if (sharedIrcClient != null && sharedIrcClient.isConnected()) {
-                        displaySystemMessage("✅ Successfully connected to " + newServer);
-                        displaySystemMessage("📺 Joined channel: " + channel);
-                    } else {
-                        displaySystemMessage("⚠️ Connection status unclear - try /status to check");
-                    }
-                }, 3000); // Check after 3 seconds
-                
-            } catch (Exception e) {
-                displaySystemMessage("❌ Failed to connect to " + newServer + ": " + e.getMessage());
-            }
-        }
-    }
-    
-    /**
-     * Update RightDrawerFragment with the actual server that was connected to
-     * This ensures UI consistency when fallback servers are used
-     */
-    private void updateRightDrawerWithActualServer() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity mainActivity = (MainActivity) getActivity();
-            RightDrawerFragment rightDrawerFragment = mainActivity.getRightDrawerFragment();
-            
-            if (rightDrawerFragment != null && sharedIrcClient != null) {
-                // Get the actual server that was connected to
-                String actualServer = sharedIrcClient.getCurrentServer();
-                if (actualServer != null && !actualServer.equals(serverHost)) {
-                    // Update serverHost to match actual connection
-                    serverHost = actualServer;
-                    
-                    // Update RightDrawerFragment
-                    rightDrawerFragment.updateCurrentUserInfo(username, actualServer);
-                    
-                    android.util.Log.d("ChatFragment", "Updated server display from " + serverHost + " to " + actualServer);
-                }
-            }
-        }
-    }
-
-    // =============================
-    // 🔹 User List functionality
-    // =============================
+    // User List functionality
     private void loadOnlineUsers() {
         if (currentUsername == null || currentUsername.equals("Guest")) {
             Toast.makeText(getContext(), "Guest users cannot view member list", Toast.LENGTH_SHORT).show();

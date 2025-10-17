@@ -34,10 +34,10 @@ public class RightDrawerFragment extends Fragment {
     private ImageView serverDropdownIcon;
     private boolean isDropdownOpen = false;
     
-    // Available servers (same as IrcClientManager fallback order)
+    // Available servers (same as ChooseServer)
     private String[] availableServers = {
         "irc.libera.chat",
-        "irc.oftc.net", 
+        "irc.oftc.net",
         "irc.rizon.net"
     };
 
@@ -51,9 +51,6 @@ public class RightDrawerFragment extends Fragment {
         setupMenuButtons(view);
         setupServerDropdown(view);
         
-        // Update UI with current user info after setup
-        updateCurrentUserDisplay(view);
-        
         return view;
     }
     
@@ -62,24 +59,6 @@ public class RightDrawerFragment extends Fragment {
         SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
         currentUsername = prefs.getString("current_username", getString(R.string.guest));
         serverHost = prefs.getString("current_server", "irc.libera.chat");
-        
-        android.util.Log.d("RightDrawerFragment", "initializeData: Read from SharedPreferences - username: " + currentUsername + ", server: " + serverHost);
-        
-        // If no username is saved or it's empty, use default guest name
-        if (currentUsername == null || currentUsername.isEmpty() || currentUsername.equals("null")) {
-            currentUsername = getString(R.string.guest);
-            prefs.edit().putString("current_username", currentUsername).apply();
-            android.util.Log.d("RightDrawerFragment", "initializeData: No username found, set to default: " + currentUsername);
-        }
-        
-        // If no server is saved, use the default from available servers
-        if (serverHost == null || serverHost.isEmpty()) {
-            serverHost = availableServers[0]; // Default to first server
-            prefs.edit().putString("current_server", serverHost).apply();
-            android.util.Log.d("RightDrawerFragment", "initializeData: No server found, set to default: " + serverHost);
-        }
-        
-        android.util.Log.d("RightDrawerFragment", "initializeData: Final values - username: " + currentUsername + ", server: " + serverHost);
         
         // Initialize online users list
         onlineUsers = new ArrayList<>();
@@ -155,9 +134,6 @@ public class RightDrawerFragment extends Fragment {
         
         // Setup individual server item click listeners
         setupServerItemClickListeners(view);
-        
-        // Set initial check mark for current server
-        updateServerSelectionForCurrentServer();
     }
     
     private void setupServerItemClickListeners(View view) {
@@ -218,7 +194,8 @@ public class RightDrawerFragment extends Fragment {
             // Notify MainActivity about server change
             if (getActivity() instanceof MainActivity) {
                 MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.onServerChanged(newServer);
+                // You can add a method in MainActivity to handle server switching
+                // mainActivity.onServerChanged(newServer);
             }
         }
     }
@@ -287,17 +264,8 @@ public class RightDrawerFragment extends Fragment {
     }
     
     public void updateCurrentUserInfo(String username, String server) {
-        android.util.Log.d("RightDrawerFragment", "updateCurrentUserInfo called with username: " + username + ", server: " + server);
-        
         currentUsername = username;
         serverHost = server;
-        
-        // Save to SharedPreferences to keep in sync
-        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
-        prefs.edit()
-                .putString("current_username", username)
-                .putString("current_server", server)
-                .apply();
         
         if (getView() != null) {
             TextView currentUserName = getView().findViewById(R.id.current_user_name);
@@ -305,7 +273,6 @@ public class RightDrawerFragment extends Fragment {
             
             if (currentUserName != null) {
                 currentUserName.setText(username);
-                android.util.Log.d("RightDrawerFragment", "Updated UI with username: " + username);
             }
             if (serverNameText != null) {
                 serverNameText.setText(server);
@@ -323,62 +290,6 @@ public class RightDrawerFragment extends Fragment {
                 updateServerSelection(i);
                 break;
             }
-        }
-    }
-    
-    /**
-     * Update the current user display in the UI
-     */
-    private void updateCurrentUserDisplay(View view) {
-        android.util.Log.d("RightDrawerFragment", "updateCurrentUserDisplay called with username: " + currentUsername);
-        
-        if (view != null) {
-            TextView currentUserName = view.findViewById(R.id.current_user_name);
-            TextView serverNameText = view.findViewById(R.id.server_name_text);
-            
-            if (currentUserName != null) {
-                String oldText = currentUserName.getText().toString();
-                currentUserName.setText(currentUsername);
-                android.util.Log.d("RightDrawerFragment", "updateCurrentUserDisplay: Changed UI username from '" + oldText + "' to '" + currentUsername + "'");
-            } else {
-                android.util.Log.w("RightDrawerFragment", "updateCurrentUserDisplay: currentUserName TextView is null!");
-            }
-            
-            if (serverNameText != null) {
-                serverNameText.setText(serverHost);
-                android.util.Log.d("RightDrawerFragment", "updateCurrentUserDisplay: Set server to: " + serverHost);
-            } else {
-                android.util.Log.w("RightDrawerFragment", "updateCurrentUserDisplay: serverNameText TextView is null!");
-            }
-            
-            // Update server selection in dropdown
-            updateServerSelectionForCurrentServer();
-        } else {
-            android.util.Log.w("RightDrawerFragment", "updateCurrentUserDisplay: view is null!");
-        }
-    }
-    
-    /**
-     * Force refresh user info from SharedPreferences
-     * This is useful when switching between logged in user and guest mode
-     */
-    public void refreshUserInfo() {
-        android.util.Log.d("RightDrawerFragment", "refreshUserInfo called");
-        
-        // Re-read from SharedPreferences
-        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
-        String newUsername = prefs.getString("current_username", getString(R.string.guest));
-        String newServer = prefs.getString("current_server", "irc.libera.chat");
-        
-        android.util.Log.d("RightDrawerFragment", "Refreshed from SharedPreferences: username=" + newUsername + ", server=" + newServer);
-        
-        // Update internal state
-        currentUsername = newUsername;
-        serverHost = newServer;
-        
-        // Update UI if view exists
-        if (getView() != null) {
-            updateCurrentUserDisplay(getView());
         }
     }
 }

@@ -7,6 +7,8 @@ import java.util.Map;
 
 import vn.edu.usth.ircui.feature_chat.model.Channel;
 
+/**NO USAGE*/
+
 public class ChatManager {
     private final Map<String, Channel> channels;
     private String currentUser;
