@@ -224,6 +224,14 @@ public class SettingsFragment extends Fragment {
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
                 .setPositiveButton("Có", (dialog, which) -> {
+                    // Clear user data from SharedPreferences
+                    SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
+                    prefs.edit()
+                            .remove("current_username")
+                            .remove("current_server")
+                            .remove("current_channel")
+                            .apply();
+                    
                     requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     requireActivity().getSupportFragmentManager()
                             .beginTransaction()

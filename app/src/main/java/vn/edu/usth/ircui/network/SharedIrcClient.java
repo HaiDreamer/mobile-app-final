@@ -22,6 +22,11 @@ public class SharedIrcClient {
     private String currentChannel;
     private volatile boolean isConnecting = false;
     
+    // System message deduplication
+    private String lastSystemMessage = "";
+    private long lastSystemMessageTime = 0;
+    private static final long SYSTEM_MESSAGE_COOLDOWN = 1000; // 1 second cooldown
+    
     private SharedIrcClient() {
         // Private constructor for singleton
     }
@@ -226,6 +231,10 @@ public class SharedIrcClient {
         currentServer = null;
         currentUsername = null;
         currentChannel = null;
+        
+        // Reset system message deduplication
+        lastSystemMessage = "";
+        lastSystemMessageTime = 0;
     }
     
     /**
@@ -259,6 +268,20 @@ public class SharedIrcClient {
     }
     
     private void notifySystem(String text) {
+        // Deduplication: prevent same system message within cooldown period
+        long currentTime = System.currentTimeMillis();
+        
+        // Special handling for quit messages - allow them more frequently
+        boolean isQuitMessage = text.contains("quit") || text.contains("👋");
+        long cooldownPeriod = isQuitMessage ? 500 : SYSTEM_MESSAGE_COOLDOWN; // 500ms for quit messages, 1s for others
+        
+        if (text.equals(lastSystemMessage) && (currentTime - lastSystemMessageTime) < cooldownPeriod) {
+            return; // Skip duplicate system message
+        }
+        
+        lastSystemMessage = text;
+        lastSystemMessageTime = currentTime;
+        
         // Notify system message callbacks only
         for (SystemMessageCallback callback : systemCallbacks) {
             try {

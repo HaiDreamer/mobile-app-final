@@ -264,6 +264,18 @@ public class MainActivity extends AppCompatActivity {
      * Opens ChatFragment directly and clears backstack.
      */
     public void navigateToChatFragment(String username) {
+        android.util.Log.d("MainActivity", "navigateToChatFragment (Guest) called with username: " + username);
+        
+        // Save username to SharedPreferences for Guest mode
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        prefs.edit()
+                .putString("current_username", username)
+                .putString("current_server", "irc.libera.chat") // Default server for guest
+                .putString("current_channel", "#usth-ircui") // Default channel for guest
+                .apply();
+        
+        android.util.Log.d("MainActivity", "Saved Guest info to SharedPreferences: username=" + username);
+        
         ChatFragment chatFragment = ChatFragment.newInstance(username);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, chatFragment);
@@ -274,13 +286,25 @@ public class MainActivity extends AppCompatActivity {
             // Force update toolbar after a short delay to ensure fragment is fully loaded
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 forceUpdateToolbar();
+                // Update RightDrawerFragment with current user info
+                updateRightDrawerUserInfo(username, "irc.libera.chat");
             }, 100);
+            
+            // Also refresh immediately in case of timing issues
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (rightDrawerFragment != null) {
+                    android.util.Log.d("MainActivity", "Force refreshing RightDrawerFragment after delay (Guest)");
+                    rightDrawerFragment.refreshUserInfo();
+                }
+            }, 500); // 500ms delay to ensure SharedPreferences is written
         });
         ft.commit();
     }
 
     // PUBLIC API: fragments call this to jump to Chat and clear history
     public void navigateToChatFragment(String username, String serverHost, String channel) {
+        android.util.Log.d("MainActivity", "navigateToChatFragment called with username: " + username + ", server: " + serverHost + ", channel: " + channel);
+        
         // Save username, server, and current channel to SharedPreferences for later use
         SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
         prefs.edit()
@@ -288,6 +312,8 @@ public class MainActivity extends AppCompatActivity {
                 .putString("current_server", serverHost)
                 .putString("current_channel", channel)
                 .apply();
+        
+        android.util.Log.d("MainActivity", "Saved to SharedPreferences: username=" + username + ", server=" + serverHost);
         
         // Update channel list to include current channel
         updateCurrentChannel(channel);
@@ -304,7 +330,17 @@ public class MainActivity extends AppCompatActivity {
             // Force update toolbar after a short delay to ensure fragment is fully loaded
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 forceUpdateToolbar();
+                // Update RightDrawerFragment with current user info
+                updateRightDrawerUserInfo(username, serverHost);
             }, 100);
+            
+            // Also refresh immediately in case of timing issues
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (rightDrawerFragment != null) {
+                    android.util.Log.d("MainActivity", "Force refreshing RightDrawerFragment after delay");
+                    rightDrawerFragment.refreshUserInfo();
+                }
+            }, 500); // 500ms delay to ensure SharedPreferences is written
         });
         ft.commit();
     }
@@ -527,6 +563,19 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Logout")
                 .setMessage("Are you sure you want to logout?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+                    // Clear user data from SharedPreferences
+                    SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+                    prefs.edit()
+                            .remove("current_username")
+                            .remove("current_server")
+                            .remove("current_channel")
+                            .apply();
+                    
+                    // Disconnect from IRC
+                    if (rightDrawerFragment != null) {
+                        // The IRC client will be disconnected when fragments are destroyed
+                    }
+                    
                     getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     getSupportFragmentManager()
                             .beginTransaction()
@@ -579,6 +628,48 @@ public class MainActivity extends AppCompatActivity {
     
     public RightDrawerFragment getRightDrawerFragment() {
         return rightDrawerFragment;
+    }
+    
+    /**
+     * Update RightDrawerFragment with current user information
+     */
+    private void updateRightDrawerUserInfo(String username, String serverHost) {
+        android.util.Log.d("MainActivity", "updateRightDrawerUserInfo called with username: " + username + ", server: " + serverHost);
+        if (rightDrawerFragment != null) {
+            // Use refreshUserInfo to force re-read from SharedPreferences
+            rightDrawerFragment.refreshUserInfo();
+        } else {
+            android.util.Log.w("MainActivity", "rightDrawerFragment is null, cannot update user info");
+        }
+    }
+    
+    /**
+     * Handle server switching from RightDrawerFragment
+     * This method will actually reconnect to the new server
+     */
+    public void onServerChanged(String newServer) {
+        // Get current user info
+        SharedPreferences prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+        String username = prefs.getString("current_username", "Guest");
+        String channel = prefs.getString("current_channel", "#usth-ircui");
+        
+        // Update current server in preferences
+        prefs.edit().putString("current_server", newServer).apply();
+        
+        // Note: RightDrawerFragment already updates its own UI in switchToServer()
+        // No need to call updateCurrentUserInfo() here to avoid UI conflicts
+        
+        // Notify current chat fragment about server change
+        androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (currentFragment instanceof ChatFragment) {
+            ChatFragment chatFragment = (ChatFragment) currentFragment;
+            chatFragment.onServerChanged(newServer);
+        } else if (currentFragment instanceof ChannelMessageFragment) {
+            ChannelMessageFragment channelFragment = (ChannelMessageFragment) currentFragment;
+            channelFragment.onServerChanged(newServer);
+        }
+        
+        android.util.Log.d("MainActivity", "Server changed to: " + newServer);
     }
     
     private void updateSwipeAreaVisibility(androidx.fragment.app.Fragment currentFragment) {
@@ -709,6 +800,8 @@ public class MainActivity extends AppCompatActivity {
             // Force update toolbar after a short delay to ensure fragment is fully loaded
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 forceUpdateToolbar();
+                // Update RightDrawerFragment with current user info
+                updateRightDrawerUserInfo(username, serverHost);
             }, 100);
         });
         ft.commit();

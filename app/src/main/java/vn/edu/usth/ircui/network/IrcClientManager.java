@@ -51,6 +51,7 @@ public class IrcClientManager {
     private String currentNick = "Guest";
     private String currentChannel = "#usth-ircui";
     private String actualNick = "Guest"; // Track the actual nickname being used
+    private String preferredNick = "Guest"; // Track the preferred nickname (without suffix)
 
     // servers
     public static class Server {
@@ -75,7 +76,15 @@ public class IrcClientManager {
     private int connectionAttempts = 0;
     private static final int MAX_ATTEMPTS_PER_SERVER = 3;
     private long lastConnectionTime = 0;
-    private static final long MIN_CONNECTION_INTERVAL = 2000; // 2 seconds minimum between connections
+    private static final long MIN_CONNECTION_INTERVAL = 2000;
+    
+    // System message deduplication
+    private String lastSystemMessage = "";
+    private long lastSystemMessageTime = 0;
+    private static final long SYSTEM_MESSAGE_COOLDOWN = 3000; // 3 second cooldown
+    
+    // Nickname conflict tracking
+    private boolean nicknameHadConflict = false; // 2 seconds minimum between connections
     
     // Track last messages to prevent duplicates
     private String lastJoinMessage = "";
@@ -103,6 +112,7 @@ public class IrcClientManager {
     }
 
     public void connect(String nickname, String channel) {
+        preferredNick = nickname; // Store the preferred nickname
         connectWithSasl(nickname, channel, null, null, false);
     }
 
@@ -197,6 +207,15 @@ public class IrcClientManager {
         lastUserMessage = "";
         lastUserNick = "";
         lastUserMessageTime = 0;
+        
+        // Reset system message deduplication
+        lastSystemMessage = "";
+        lastSystemMessageTime = 0;
+        
+        // Reset nickname tracking
+        actualNick = currentNick; // Reset to original nickname
+        preferredNick = currentNick; // Reset preferred nickname
+        nicknameHadConflict = false; // Reset conflict flag
     }
     
     /**
@@ -379,12 +398,37 @@ public class IrcClientManager {
 
                     @Handler
                     public void onReady(ClientNegotiationCompleteEvent e) {
+                        android.util.Log.d("IrcClientManager", "onReady called - connectionAttempts: " + connectionAttempts);
+                        
+                        // Prevent multiple onReady calls
+                        if (!connecting.get()) {
+                            android.util.Log.d("IrcClientManager", "onReady: Already processed, ignoring duplicate");
+                            return;
+                        }
+                        
                         // reset backoff on success
                         backoffMs = 1500;
                         connecting.set(false); // Clear connecting flag
+                        connectionAttempts = 0; // Reset connection attempts on successful connection
+                        
+                        // Update actual nickname from server
+                        String serverNick = c.getNick();
+                        if (serverNick != null) {
+                            actualNick = serverNick; // Update actual nick
+                        }
+                        
+                        // Check if nickname was changed by server (indicates conflict)
+                        if (serverNick != null && !serverNick.equals(preferredNick)) {
+                            nicknameHadConflict = true;
+                            // Don't show system message about nickname change - user doesn't want it
+                        } else {
+                            nicknameHadConflict = false; // Reset conflict flag on successful connection
+                        }
+                        
+                        android.util.Log.d("IrcClientManager", "onReady: Posting system messages for " + actualNick);
                         postSystem("✅ Connected to " + s.host + " (port " + s.port + ")");
                         postSystem("📺 Joined channel: " + currentChannel);
-                        postSystem("👋 " + actualNick + " joined " + currentChannel);
+                        // Don't post join message here - let onJoin handle it to avoid duplicates
                         c.addChannel(currentChannel);
                     }
 
@@ -423,17 +467,20 @@ public class IrcClientManager {
                         String user = e.getActor().getNick();
                         String channel = e.getChannel().getName();
                         boolean mine = user.equalsIgnoreCase(actualNick);
-                        // Only show join notifications for other users, not ourselves
-                        if (!mine) {
-                            String message = "👋 " + user + " joined " + channel;
-                            long currentTime = System.currentTimeMillis();
-                            
-                            // Prevent duplicate messages within 1 second
-                            if (!message.equals(lastJoinMessage) || (currentTime - lastJoinTime) > 1000) {
-                                lastJoinMessage = message;
-                                lastJoinTime = currentTime;
-                                postSystem(message);
-                            }
+                        
+                        android.util.Log.d("IrcClientManager", "onJoin: " + user + " joined " + channel + " (mine: " + mine + ")");
+                        
+                        // Show join notifications for all users (including ourselves)
+                        String message = "👋 " + user + " joined " + channel;
+                        long currentTime = System.currentTimeMillis();
+                        
+                        // Prevent duplicate messages within 3 seconds
+                        if (!message.equals(lastJoinMessage) || (currentTime - lastJoinTime) > 3000) {
+                            lastJoinMessage = message;
+                            lastJoinTime = currentTime;
+                            postSystem(message);
+                        } else {
+                            android.util.Log.d("IrcClientManager", "onJoin: BLOCKED duplicate join message: " + message);
                         }
                     }
 
@@ -526,7 +573,7 @@ public class IrcClientManager {
         // If we've tried too many times on current server, try next server
         if (connectionAttempts >= MAX_ATTEMPTS_PER_SERVER) {
             serverIndex = (serverIndex + 1) % servers.size();
-            connectionAttempts = 0;
+            connectionAttempts = 0; // Reset connection attempts for new server
             backoffMs = 1500; // Reset backoff for new server
             postSystem("🔄 Switching to next server after " + MAX_ATTEMPTS_PER_SERVER + " failed attempts");
         }
@@ -547,6 +594,22 @@ public class IrcClientManager {
     }
     private void postSystem(String t) {
         if (callback == null) return;
+        
+        // Deduplication: prevent same system message within cooldown period
+        long currentTime = System.currentTimeMillis();
+        
+        // Special handling for quit messages - allow them more frequently
+        boolean isQuitMessage = t.contains("quit") || t.contains("👋");
+        long cooldownPeriod = isQuitMessage ? 500 : SYSTEM_MESSAGE_COOLDOWN; // 500ms for quit messages, 3s for others
+        
+        if (t.equals(lastSystemMessage) && (currentTime - lastSystemMessageTime) < cooldownPeriod) {
+            android.util.Log.d("IrcClientManager", "postSystem: BLOCKED duplicate message: " + t + " (cooldown: " + (currentTime - lastSystemMessageTime) + "ms)");
+            return; // Skip duplicate system message
+        }
+        
+        android.util.Log.d("IrcClientManager", "postSystem: SENDING message: " + t);
+        lastSystemMessage = t;
+        lastSystemMessageTime = currentTime;
         main.post(() -> callback.onSystem(t));
     }
 
@@ -561,29 +624,29 @@ public class IrcClientManager {
 
     /** Generate unique nickname to avoid conflicts */
     private String generateUniqueNick(String baseNick) {
-        if (baseNick == null || baseNick.isEmpty()) {
-            baseNick = "Guest";
+        // Use preferred nickname if available, otherwise use baseNick
+        String nickToUse = (preferredNick != null && !preferredNick.isEmpty()) ? preferredNick : baseNick;
+        
+        if (nickToUse == null || nickToUse.isEmpty()) {
+            nickToUse = "Guest";
         }
         
-        // Clean nickname (remove invalid characters)
-        String cleanNick = baseNick.replaceAll("[^a-zA-Z0-9\\-_\\[\\]{}|`^]", "");
+        // Clean nickname (remove invalid characters and backticks)
+        String cleanNick = nickToUse.replaceAll("[^a-zA-Z0-9\\-_\\[\\]{}|^]", "").replaceAll("`", "");
         if (cleanNick.isEmpty()) {
             cleanNick = "Guest";
         }
         
         // Limit length to leave room for suffix
-        if (cleanNick.length() > 10) {
-            cleanNick = cleanNick.substring(0, 10);
+        if (cleanNick.length() > 6) {
+            cleanNick = cleanNick.substring(0, 6);
         }
         
-        // Always use the same nickname for consistency
-        // Only add suffix if this is a retry attempt (attempt > 1)
-        if (connectionAttempts > 1) {
-            return cleanNick + connectionAttempts;
-        }
-        
-        // For first attempt, use clean nickname without any suffix
-        return cleanNick;
+        // ALWAYS generate a completely new nickname with timestamp + random
+        // This ensures maximum uniqueness and prevents server conflicts
+        long timestamp = System.currentTimeMillis() % 10000; // Last 4 digits of timestamp
+        int randomSuffix = (int)(Math.random() * 999) + 100; // 3-digit random number
+        return cleanNick + timestamp + randomSuffix;
     }
     
     /** Check if internet connection is available */

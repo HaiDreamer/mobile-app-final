@@ -407,5 +407,34 @@ public class ChannelMessageFragment extends Fragment {
         // Don't show system messages in channel fragment
         // Status will be handled by ChatFragment's system callback
     }
+    
+    /**
+     * Handle server switching from MainActivity
+     * This method will reconnect to the new server
+     */
+    public void onServerChanged(String newServer) {
+        // Update server host
+        serverHost = newServer;
+        
+        // Clear current messages to avoid confusion
+        if (adapter != null) {
+            // DirectMessageAdapter doesn't have clearMessages(), so we need to clear the underlying data
+            // and notify the adapter - this would require access to the internal rows list
+            // For now, we'll just log the server change
+            android.util.Log.d("ChannelMessageFragment", "Server changed to: " + newServer);
+        }
+        
+        // Reconnect to new server
+        if (sharedIrcClient != null) {
+            try {
+                // Disconnect completely and create fresh connection
+                sharedIrcClient.disconnect();
+                sharedIrcClient.connect(serverHost, username, channel, requireContext());
+            } catch (Exception e) {
+                // Error handling will be done by ChatFragment's system callback
+                android.util.Log.e("ChannelMessageFragment", "Failed to connect to " + newServer, e);
+            }
+        }
+    }
 
 }
