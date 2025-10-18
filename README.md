@@ -1,6 +1,6 @@
 # Group number 18 - IRC chat mobile app
 
-**Team members:**
+**Team members**
   - Nguyễn Huy Hải - 22BA13121
   - Nguyễn Quốc Hưng - 22BA13155
   - Trần Thu Huyền - 22BA13166
@@ -9,9 +9,10 @@
   - Nguyễn Trọng Bách - 23BI14057 
   - Trần Xuân Bách - 22BA13038
 
-This is free source code, simple mobile IRC chat app, allow user free use, modification
+## Video demo
+https://drive.google.com/file/d/1UCDpfvO3e8FRfdVPmie9SVb_v0aHnv7R/view
 
-## Core features:
+## Core features
   - User registration/ login/ guest
   - Server selection
   - Basic settings
@@ -19,7 +20,7 @@ This is free source code, simple mobile IRC chat app, allow user free use, modif
   - Real-time messaging
   - Firebase Firestore integration
 
-## Difficulities:
+## Difficulities
   - No message save/ backup
   - Safely check files before upload
   - Loading users online, which show on fragment
@@ -34,5 +35,6 @@ This is free source code, simple mobile IRC chat app, allow user free use, modif
   - Fix additional errors/bugs
   - Update necessary functions/features
 
-
+## Note
+This is free source code, simple mobile IRC chat app, allow user free use, modification
 
