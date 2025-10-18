@@ -1,6 +1,6 @@
 # Group number 18 - IRC chat mobile app
 
-**Team members**
+## Team members
   - Nguyễn Huy Hải - 22BA13121
   - Nguyễn Quốc Hưng - 22BA13155
   - Trần Thu Huyền - 22BA13166
