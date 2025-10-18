@@ -140,7 +140,7 @@ public class ChatFragment extends Fragment {
     
 
     // =============================
-    // 🔹 Direct Message dialog
+    // Direct Message dialog
     // =============================
     private void openDirectMessageDialog() {
         final EditText inputUser = new EditText(requireContext());
@@ -198,7 +198,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Load nickname info
+    // Load nickname info
     // =============================
     private void fetchUserData() {
         // Guests are detected by "Guest" prefix
@@ -230,7 +230,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Handle Send button
+    // Handle Send button
     // =============================
     private void handleSendMessageClick() {
         String text = etMessage.getText() != null
@@ -282,7 +282,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Commands (/nick, /help, etc.)
+    // Commands (/nick, /help, etc.)
     // =============================
     private boolean isCommand(String text) {
         return text.startsWith("/");
@@ -345,7 +345,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Helper methods
+    // Helper methods
     // =============================
     private void showHelpInfo() {
         displaySystemMessage("📋 Available commands:");
@@ -380,7 +380,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Options menu
+    // Options menu
     // =============================
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -410,7 +410,7 @@ public class ChatFragment extends Fragment {
     }
 
     // =============================
-    // 🔹 Menu action methods
+    // Menu action methods
     // =============================
     private void fetchOnlineUsers() {
         // For now, just show a placeholder message

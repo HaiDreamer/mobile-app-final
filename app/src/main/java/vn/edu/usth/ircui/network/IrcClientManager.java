@@ -88,11 +88,19 @@ public class IrcClientManager {
     private MessageCallback callback;
     private Context context;
     
-    public void setCallback(MessageCallback cb) { this.callback = cb; }
-    public void setContext(Context ctx) { this.context = ctx; }
+    public void setCallback(MessageCallback cb) {
+        this.callback = cb;
+    }
+
+    public void setContext(Context ctx) {
+        this.context = ctx;
+    }
 
     public void setServers(List<Server> list) {
-        if (list!=null && !list.isEmpty()) { servers = list; serverIndex = 0; }
+        if (list!=null && !list.isEmpty()) {
+            servers = list;
+            serverIndex = 0;
+        }
     }
 
     public void connect(String nickname, String channel) {
@@ -103,7 +111,6 @@ public class IrcClientManager {
         if (client != null) {
             currentChannel = channel;
             client.addChannel(channel);
-            // Don't send system message here - onReady() will handle it
         } else {
             postSystem("❌ Cannot join channel: Not connected to server");
         }
@@ -245,7 +252,9 @@ public class IrcClientManager {
             }
         }
     }
-    public boolean isActive() { return client != null; }
+    public boolean isActive() {
+        return client != null;
+    }
     
     public boolean isConnected() { 
         return client != null && wantConnected.get() && !connecting.get(); 

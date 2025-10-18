@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hồ Sơ Người Dùng"
+            android:text="@string/user_profile"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
@@ -90,7 +90,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thông Tin Người Dùng"
+            android:text="@string/user_information"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -107,7 +107,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="Máy Chủ:"
+                android:text="@string/server_label"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary" />
 
@@ -133,7 +133,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="Tham Gia:"
+                android:text="@string/joined_label"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary" />
 
@@ -158,7 +158,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="Hoạt Động:"
+                android:text="@string/activity_label"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary" />
 
@@ -190,7 +190,7 @@
             android:layout_height="64dp"
             android:src="@drawable/ic_message"
             android:background="@drawable/discord_send_button_bg"
-            android:contentDescription="Bắt Đầu Chat"
+            android:contentDescription="@string/start_chat"
             android:scaleType="centerInside"
             android:padding="16dp"
             />

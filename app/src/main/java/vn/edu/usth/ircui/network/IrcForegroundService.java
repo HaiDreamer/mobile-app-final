@@ -12,8 +12,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import vn.edu.usth.ircui.R;
+
 /**Runs an IRC client as a foreground service so Android keeps it alive,
  *  showing a persistent notification while connected.*/
+
 public class IrcForegroundService extends Service {
 
     public static final String EXTRA_NICK = "nick";

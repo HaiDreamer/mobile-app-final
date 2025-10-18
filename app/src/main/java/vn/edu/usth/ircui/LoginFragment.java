@@ -99,7 +99,7 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    // 👁 Toggle show/hide password
+    // Toggle show/hide password
     private void togglePasswordVisibility() {
         if (isPasswordVisible) {
             // Hide password

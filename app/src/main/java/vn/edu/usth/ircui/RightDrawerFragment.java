@@ -20,8 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**Right-side drawer showing online users + current user/server info, with a dropdown to switch IRC servers.*/
-
 public class RightDrawerFragment extends Fragment {
 
     private RecyclerView userListRecyclerView;
@@ -73,6 +71,26 @@ public class RightDrawerFragment extends Fragment {
         onlineUsers.add("Phương");
         onlineUsers.add("Giang");
         onlineUsers.add("Hương");
+        
+        // Update UI with current user info
+        updateCurrentUserInfoUI();
+    }
+    
+    private void updateCurrentUserInfoUI() {
+        if (getView() != null) {
+            TextView currentUserName = getView().findViewById(R.id.current_user_name);
+            TextView serverNameText = getView().findViewById(R.id.server_name_text);
+            
+            if (currentUserName != null) {
+                currentUserName.setText(currentUsername);
+            }
+            if (serverNameText != null) {
+                serverNameText.setText(serverHost);
+            }
+            
+            // Update server selection in dropdown
+            updateServerSelectionForCurrentServer();
+        }
     }
     
     private void setupUserList(View view) {
@@ -269,20 +287,15 @@ public class RightDrawerFragment extends Fragment {
         currentUsername = username;
         serverHost = server;
         
-        if (getView() != null) {
-            TextView currentUserName = getView().findViewById(R.id.current_user_name);
-            TextView serverNameText = getView().findViewById(R.id.server_name_text);
-            
-            if (currentUserName != null) {
-                currentUserName.setText(username);
-            }
-            if (serverNameText != null) {
-                serverNameText.setText(server);
-            }
-            
-            // Update server selection in dropdown
-            updateServerSelectionForCurrentServer();
-        }
+        // Save to SharedPreferences
+        SharedPreferences prefs = requireContext().getSharedPreferences("app_settings", 0);
+        prefs.edit()
+                .putString("current_username", username)
+                .putString("current_server", server)
+                .apply();
+        
+        // Update UI
+        updateCurrentUserInfoUI();
     }
     
     private void updateServerSelectionForCurrentServer() {

@@ -9,7 +9,7 @@
     
     <item android:state_focused="true">
         <shape android:shape="oval">
-            <solid android:color="@color/bg_elevated" />
+            <solid android:color="@color/accent_hover" />
             <stroke
                 android:width="2dp"
                 android:color="@color/accent" />
@@ -18,7 +18,7 @@
     
     <item>
         <shape android:shape="oval">
-            <solid android:color="@color/bg_elevated" />
+            <solid android:color="@color/accent" />
         </shape>
     </item>
     

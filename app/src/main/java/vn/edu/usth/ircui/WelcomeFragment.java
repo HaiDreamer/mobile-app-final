@@ -50,7 +50,7 @@ public class WelcomeFragment extends Fragment {
             showAboutDialog();
         });
 
-        // Guest flow: generate a random username and jump straight to Chat
+        // Guest: generate a random username and jump straight to Chat
         btnUseGuest.setOnClickListener(v -> {
             // Generate a readable random guest name (no DB save)
             String guestName = "Guest" + (new Random().nextInt(9000) + 1000); // e.g., Guest3478

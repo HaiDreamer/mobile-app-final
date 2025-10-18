@@ -6,6 +6,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 
 import androidx.annotation.NonNull;
+
 /**See network connectivity changes*/
 public class NetworkMonitor {
     public interface Callback {

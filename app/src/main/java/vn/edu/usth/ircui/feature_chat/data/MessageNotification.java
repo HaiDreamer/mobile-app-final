@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat;
 import vn.edu.usth.ircui.ChatActivity;
 import vn.edu.usth.ircui.R;
 
-/** Notification taps **/
+/** Notification taps, need to update **/
 public class MessageNotification {
     private static final String CHANNEL_ID = "chat_message_channel";
     private static volatile boolean channelCreated = false;

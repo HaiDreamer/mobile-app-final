@@ -3,7 +3,7 @@ package vn.edu.usth.ircui.feature_chat.data;
 public class Message {
     private final String username;
     private final String content;
-    private final long   timestamp;
+    private final long timestamp;
     private final boolean mine;
     private final boolean codeBlock;
 

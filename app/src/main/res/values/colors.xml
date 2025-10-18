@@ -58,19 +58,19 @@
     <color name="dark_danger">#ED4245</color>             <!-- Danger red -->
     
     <!-- Theme-aware colors (will be overridden in night theme) -->
-    <!--  Dark Theme Colors Override  -->
-    <color name="bg_primary">@color/dark_bg_primary</color>
-    <color name="bg_secondary">@color/dark_bg_secondary</color>
-    <color name="bg_tertiary">@color/dark_bg_tertiary</color>
-    <color name="bg_elevated">@color/dark_bg_elevated</color>
-    <color name="text_primary">@color/dark_text_primary</color>
-    <color name="text_secondary">@color/dark_text_secondary</color>
-    <color name="text_muted">@color/dark_text_muted</color>
-    <color name="accent">@color/dark_accent</color>
-    <color name="accent_hover">@color/dark_accent_hover</color>
-    <color name="success">@color/dark_success</color>
-    <color name="warning">@color/dark_warning</color>
-    <color name="danger">@color/dark_danger</color>
+    <!--  Light Theme Colors (Default)  -->
+    <color name="bg_primary">@color/light_bg_primary</color>
+    <color name="bg_secondary">@color/light_bg_secondary</color>
+    <color name="bg_tertiary">@color/light_bg_tertiary</color>
+    <color name="bg_elevated">@color/light_bg_elevated</color>
+    <color name="text_primary">@color/light_text_primary</color>
+    <color name="text_secondary">@color/light_text_secondary</color>
+    <color name="text_muted">@color/light_text_muted</color>
+    <color name="accent">@color/light_accent</color>
+    <color name="accent_hover">@color/light_accent_hover</color>
+    <color name="success">@color/light_success</color>
+    <color name="warning">@color/light_warning</color>
+    <color name="danger">@color/light_danger</color>
     <!--  Legacy colors for compatibility  -->
     <color name="bg_elev">@color/bg_secondary</color>
     <color name="text_strong">@color/text_primary</color>

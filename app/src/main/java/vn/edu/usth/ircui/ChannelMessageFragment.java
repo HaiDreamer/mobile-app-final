@@ -151,10 +151,10 @@ public class ChannelMessageFragment extends Fragment {
 
         // No need for channel join notification since we already show server connection status
 
-        // --- Keyboard / Insets handling ---
+        // Keyboard/Insets handling
         final View footer = (View) input.getParent(); // the bottom bar container
 
-        // 1) Apply system bar paddings once and keep bottom space equal to nav bar.
+        // Apply system bar paddings once and keep bottom space equal to nav bar.
         ViewCompat.setOnApplyWindowInsetsListener(v, (view, insets) -> {
             Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             // Keep footer above navigation bar (gesture area)
@@ -225,8 +225,8 @@ public class ChannelMessageFragment extends Fragment {
             sharedIrcClient.connect(serverHost, username, channel, requireContext());
             
         } catch (Exception e) {
-            // Don't show system messages in channel fragment
-            // Error will be handled by ChatFragment's system callback
+            // No system messages in channel fragment
+            // Error will be handled by ChatFragment system callback
         }
     }
 
@@ -248,15 +248,13 @@ public class ChannelMessageFragment extends Fragment {
         }
 
         // Check if IRC client is connected before sending
+        // No system messages in channel fragment
+        // Error will be handled by ChatFragment's system callback
         if (sharedIrcClient == null) {
-            // Don't show system messages in channel fragment
-            // Error will be handled by ChatFragment's system callback
             return;
         }
 
         if (!sharedIrcClient.isConnected()) {
-            // Don't show system messages in channel fragment
-            // Error will be handled by ChatFragment's system callback
             return;
         }
 
@@ -312,34 +310,24 @@ public class ChannelMessageFragment extends Fragment {
                         sharedIrcClient.partChannel(channel);
                         channel = newChannel;
                         sharedIrcClient.joinChannel(newChannel);
-                        // Don't show system messages in channel fragment
-                        // Status will be handled by ChatFragment's system callback
                     }
-                    // Don't show system messages in channel fragment
-                    // Errors will be handled by ChatFragment's system callback
                 }
                 break;
+            // Don't show system messages in channel fragment
+            // Status will be handled by ChatFragment's system callback
             case "/part":
                 if (sharedIrcClient != null && sharedIrcClient.isConnected()) {
                     sharedIrcClient.partChannel(channel);
-                    // Don't show system messages in channel fragment
-                    // Status will be handled by ChatFragment's system callback
                     // Navigate back to channel list or main chat
                     if (getActivity() instanceof MainActivity) {
                         MainActivity mainActivity = (MainActivity) getActivity();
                         mainActivity.navigateToChatFragment(username, serverHost, "#usth-ircui");
                     }
                 }
-                // Don't show system messages in channel fragment
-                // Errors will be handled by ChatFragment's system callback
                 break;
             case "/status":
-                // Don't show system messages in channel fragment
-                // Status will be handled by ChatFragment's system callback
                 break;
             case "/who":
-                // Don't show system messages in channel fragment
-                // Info will be handled by ChatFragment's system callback
                 break;
             case "/reconnect":
                 if (sharedIrcClient != null) {
@@ -348,15 +336,11 @@ public class ChannelMessageFragment extends Fragment {
                 }
                 break;
             default:
-                // Don't show system messages in channel fragment
-                // Errors will be handled by ChatFragment's system callback
                 break;
         }
     }
 
     private void showHelpInfo() {
-        // Don't show system messages in channel fragment
-        // Help info will be handled by ChatFragment's system callback
     }
 
     private void addAttachmentMessage(Attachment.Type type, Uri uri) {
@@ -405,8 +389,5 @@ public class ChannelMessageFragment extends Fragment {
     }
     
     public void showConnectionStatus() {
-        // Don't show system messages in channel fragment
-        // Status will be handled by ChatFragment's system callback
     }
-
 }
