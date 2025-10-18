@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+/**A bottom-sheet–style fullscreen dialog (¾ screen height from the bottom) showing user info for an IRC user.*/
+
 public class UserInfoFullscreenDialog extends DialogFragment {
 
     private static final String ARG_USERNAME = "username";

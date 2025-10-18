@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**Right-side drawer showing online users + current user/server info, with a dropdown to switch IRC servers.*/
+
 public class RightDrawerFragment extends Fragment {
 
     private RecyclerView userListRecyclerView;

@@ -16,8 +16,6 @@ import org.kitteh.irc.client.library.event.client.ClientNegotiationCompleteEvent
 import org.kitteh.irc.client.library.event.connection.ClientConnectionEndedEvent;
 import org.kitteh.irc.client.library.event.user.UserQuitEvent;
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent;
-import org.kitteh.irc.client.library.feature.auth.SaslExternal;
-import org.kitteh.irc.client.library.feature.auth.SaslPlain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
