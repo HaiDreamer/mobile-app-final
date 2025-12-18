@@ -1,14 +1,5 @@
 # Group number 18 - IRC chat mobile app
 
-## Team members
-  - Nguyễn Huy Hải - 22BA13121
-  - Nguyễn Quốc Hưng - 22BA13155
-  - Trần Thu Huyền - 22BA13166
-  - Bùi Tuấn Thành - 22BA13284
-  - Vũ Hải Long - 22BA13207
-  - Nguyễn Trọng Bách - 23BI14057 
-  - Trần Xuân Bách - 22BA13038
-
 ## Video demo
 https://drive.google.com/file/d/1UCDpfvO3e8FRfdVPmie9SVb_v0aHnv7R/view
 
